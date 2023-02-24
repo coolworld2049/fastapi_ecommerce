@@ -1,6 +1,6 @@
 import pathlib
 
-from asyncpg import Connection
+from asyncpg import Connection, UndefinedFunctionError
 from loguru import logger
 from pydantic import EmailStr
 from sqlalchemy import MetaData
@@ -9,11 +9,21 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 from app import crud
 from app import schemas
 from app.core.config import get_app_settings
+from app.core.settings.base import AppEnvTypes
 from app.db.session import Base
 from app.db.session import SessionLocal
 from app.db.session import engine
 from app.db.session import pg_database
 from app.models.user_role import UserRole
+
+
+async def truncate_tables(conn: Connection):
+    q = f"""select truncate_tables_where_owner('postgres')"""
+    logger.info("truncate_tables_where_owner('postgres')")
+    try:
+        await conn.execute(q)
+    except UndefinedFunctionError:
+        pass
 
 
 async def _execute_sql_files(path: pathlib.Path, async_conn: Connection):
@@ -44,7 +54,7 @@ async def create_first_superuser(db: AsyncSession):
             is_superuser=True,
             full_name="No Name",
             username=get_app_settings().FIRST_SUPERUSER_USERNAME,
-            role=UserRole.admin.name,
+            role=UserRole.admin,
         )
         super_user = await crud.user.create(db, obj_in=user_in_admin)
         logger.info("created")
@@ -53,7 +63,8 @@ async def create_first_superuser(db: AsyncSession):
     return super_user
 
 
-async def execute_sql_files(conn: Connection, path_to_sql_dir: pathlib.Path = pathlib.Path(__file__).parent.__str__() + "/sql"):
+async def execute_sql_files(conn: Connection,
+                            path_to_sql_dir: pathlib.Path = pathlib.Path(__file__).parent.__str__() + "/sql"):
     for sql_f in pathlib.Path(path_to_sql_dir).iterdir():
         if not sql_f.is_dir():
             await _execute_sql_files(sql_f, conn)
@@ -61,6 +72,8 @@ async def execute_sql_files(conn: Connection, path_to_sql_dir: pathlib.Path = pa
 
 async def init_db():
     conn = await pg_database.get_connection()
+    if get_app_settings().APP_ENV == AppEnvTypes.test:
+        await truncate_tables(conn)
     await create_all_models(engine, Base.metadata)
     await execute_sql_files(conn)
     async with SessionLocal() as db:

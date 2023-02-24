@@ -5,14 +5,32 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="{{ url_for('templates', path='/css/index.css') }}" rel="stylesheet" />
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0e0d0d
+        }
 
+        a, p {
+            font-size: 50px;
+            margin: 0 0 0 0;
+            text-align: center;
+            color: #38e4ff;
+        }
+
+        .container {
+            margin-top: 15%;
+        }
+
+    </style>
     <title>Fast Api Menu</title>
 </head>
 <body>
+<div class="container">
     <a href={{proto}}://{{host}}:{{port}}/docs><p>docs</p></a>
-    <a href={{proto}}://{{host}}:{{port}}/docs/dark-theme><p>docs dark-theme</p></a>
+    <a href={{proto}}://{{host}}:{{port}}/docs/dark-theme><p>docs dark theme</p></a>
     <a href={{proto}}://{{host}}:{{port}}/redoc><p>redoc</p></a>
     <a href={{proto}}://{{host}}:{{port}}/api/v1/openapi.json><p>openapi.json</p></a>
+</div>
 </body>
 </html>

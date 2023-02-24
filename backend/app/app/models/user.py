@@ -20,7 +20,6 @@ class User(BaseModel, TimestampsMixin):
     role = Column(
         ENUM(*UserRole.to_list(), name=UserRole.snake_case_name()),
         nullable=False,
-        server_default=text(f"'{UserRole.user.name}'::{UserRole.snake_case_name()}"),
     )
     full_name = Column(Text)
     username = Column(Text, nullable=False, unique=True)

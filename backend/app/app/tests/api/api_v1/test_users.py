@@ -75,7 +75,7 @@ async def test_create_user_new_email(
     username = random_lower_string()
     password = gen_random_password()
     user_in = UserCreate(email=email, username=username, password=password, password_confirm=password,
-                         role=UserRole.admin.name)
+                         role=UserRole.admin)
     r = await client.post(
         f"{get_app_settings().api_v1}/users/",
         headers=superuser_token_headers,
@@ -98,7 +98,7 @@ async def test_get_existing_user(
     username = random_lower_string()
     password = gen_random_password()
     user_in = UserCreate(email=email, username=username, password=password, password_confirm=password,
-                         role=UserRole.admin.name)
+                         role=UserRole.admin)
     user = await crud.user.create(db, obj_in=user_in)
     user_id = user.id
     r = await client.get(
@@ -122,7 +122,7 @@ async def test_create_user_existing_username(
     username = random_lower_string()
     password = gen_random_password()
     user_in = UserCreate(email=email, username=username, password=password, password_confirm=password,
-                         role=UserRole.admin.name)
+                         role=UserRole.admin)
     await crud.user.create(db, obj_in=user_in)
     r = await client.post(
         f"{get_app_settings().api_v1}/users/",
@@ -144,14 +144,14 @@ async def test_retrieve_users(
     username = random_lower_string()
     password = gen_random_password()
     user_in = UserCreate(email=email, username=username, password=password, password_confirm=password,
-                         role=UserRole.admin.name)
+                         role=UserRole.admin)
     await crud.user.create(db, obj_in=user_in)
 
     email2 = random_email()
     username2 = random_lower_string()
     password2 = gen_random_password()
     user_in2 = UserCreate(email=email2, username=username2, password=password2, password_confirm=password2,
-                          role=UserRole.admin.name)
+                          role=UserRole.admin)
     await crud.user.create(db, obj_in=user_in2)
 
     r = await client.get(

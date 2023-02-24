@@ -3,8 +3,6 @@ import random
 import string
 
 import pytest
-from asyncpg import Connection
-from asyncpg import UndefinedFunctionError
 from faker import Faker
 from loguru import logger
 from pydantic import EmailStr
@@ -12,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud
 from app import schemas
-from app.db.init_db import init_db, create_first_superuser
+from app.db.init_db import init_db, create_first_superuser, truncate_tables
 from app.db.session import SessionLocal, pg_database
 from app.models.user import User
 from app.models.user_role import UserRole
@@ -21,25 +19,16 @@ from app.tests.utils.utils import gen_random_password
 fake = Faker()
 
 
-async def truncate_tables_where_owner(conn: Connection):
-    q = f"""select truncate_tables_where_owner('postgres')"""
-    logger.info(q)
-    try:
-        await conn.execute(q)
-    except UndefinedFunctionError:
-        pass
-
-
 async def create_users(users_count=5):
     ration_teachers_to_students = users_count // 2
     users: list[User] = []
     users_cred_list = []
-    role = UserRole.admin.name
+    role = UserRole.admin
     for us in range(users_count):
         logger.info(f"UserCreate: {us + 1}/{users_count}")
         us += 2
         if us >= ration_teachers_to_students:
-            role = UserRole.user.name
+            role = UserRole.user
 
         password = gen_random_password()
         user_in = schemas.UserCreate(
@@ -66,9 +55,9 @@ async def create_users(users_count=5):
 @pytest.mark.asyncio
 async def test_init_db(db: AsyncSession):
     conn = await pg_database.get_connection()
-    await truncate_tables_where_owner(conn)
+    await truncate_tables(conn)
     await init_db()
     await create_users(10)
-    await truncate_tables_where_owner(conn)
+    await truncate_tables(conn)
     await conn.close()
     await create_first_superuser(db)

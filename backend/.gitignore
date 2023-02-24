@@ -5,3 +5,4 @@ app.egg-info
 htmlcov
 !/app/access.log
 !/app/app/.pytest_cache/
+!/app/app/access.log
