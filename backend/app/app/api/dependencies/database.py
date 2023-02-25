@@ -10,20 +10,35 @@ from app.db.session import SessionLocal
 from app.models import User
 
 
+async def get_pg_stat_activity(db: AsyncSession):
+    if get_app_settings().APP_ENV in ['dev', 'test']:
+        result: Result = await db.execute(text("""SELECT count(*) FROM pg_stat_activity;"""))
+        return result.fetchone()
+
+
 async def get_db() -> AsyncGenerator:
-    session = SessionLocal()
+    s = SessionLocal()
     try:
-        yield session
+        r1 = await get_pg_stat_activity(s)
+        logger.info(f"pg_stat_activity={r1} before yield session")
+        yield s
     finally:
-        await session.close()
+        r2 = await get_pg_stat_activity(s)
+        await s.commit()
+        logger.info(f" pg_stat_activity={r2} after")
+        await s.close()
 
 
 async def authorization_in_db(db: AsyncSession, current_user: User):
+    await get_session_user(db)
     await reset_session_user(db)
+    await get_session_user(db)
     if not await is_rolname_exist(db, current_user):
         await create_user_in_role(db, current_user)
     await reset_session_user(db)
+    await get_session_user(db)
     await set_session_user(db, current_user)
+    await get_session_user(db)
 
 
 async def is_rolname_exist(db: AsyncSession, current_user: User):
@@ -32,11 +47,10 @@ async def is_rolname_exist(db: AsyncSession, current_user: User):
         text(q),
         {"db_user": current_user.username},
     )
-
-    result = _result.fetchone()._data[0] # noqa
+    result = _result.fetchone()._data[0]  # noqa
     if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info(
-            f"{f'{current_user.username} rolname exist' if result else f'{current_user.username} rolname not exist'}",
+            f"""{f'role "{current_user.username}" exist' if result else f'role "{current_user.username}" not exist'}""",
         )
     return result
 
@@ -48,11 +62,10 @@ async def create_user_in_role(db: AsyncSession, current_user: User):
     params = {
         "db_user": current_user.username,
         "hashed_password": current_user.hashed_password,
-        "role": current_user.role,
+        "role": f'"{current_user.role}"',
         "db_name": db.bind.url.database
     }
     await db.execute(text(q), params=params)
-    await db.commit()
     if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info("created")
 
@@ -61,6 +74,7 @@ async def drop_user_in_role(db: AsyncSession | Connection, current_user: User):
     q = """drop current_user """ + current_user.username
     if isinstance(db, Connection):
         await db.execute(q)
+        await db.close()
     elif isinstance(db, AsyncSession):
         await db.execute(text(q))
     if get_app_settings().APP_ENV in ['dev', 'test']:

@@ -71,6 +71,4 @@ def logout(
     """
     logout
     """
-    request.session.pop("token", None)
-    request.session.pop("permissions", None)
     return RedirectResponse(url="/")

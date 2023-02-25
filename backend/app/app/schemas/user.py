@@ -19,7 +19,7 @@ username_exp = "[A-Za-z_0-9]*"
 class UserBase(BaseModel):
     email: Optional[EmailStr]
     username: Optional[str]
-    role: Optional[UserRole]
+    role: UserRole = UserRole.user
     full_name: Optional[str]
     age: Optional[int]
     avatar: Optional[str]
@@ -90,13 +90,6 @@ class UserCreate(UserBase):
         return value
 
 
-class UserCreateOpen(BaseModel):
-    email: EmailStr
-    username: str
-    password: str
-    password_confirm: str
-
-
 # Properties to receive via API on update
 class UserUpdate(UserCreate):
     pass
@@ -113,7 +106,6 @@ class UserInDBBase(UserBase):
 
 # Additional properties to return via API
 class User(UserInDBBase):
-
     class Config:
         use_enum_values = True
         fields = {

@@ -8,6 +8,8 @@ from typing import TypeVar
 from typing import Union
 
 from fastapi.encoders import jsonable_encoder
+from loguru import logger
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.db.session import Base
 from app.schemas import RequestParams
@@ -83,8 +85,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in.dict(exclude_none=True))
-        db.add(db_obj)
-        await db.commit()
+        try:
+            db.add(db_obj)
+            await db.commit()
+        except IntegrityError as e:
+            logger.error(e.args)
         await db.refresh(db_obj)
         return db_obj
 
@@ -103,13 +108,19 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        db.add(db_obj)
-        await db.commit()
-        await db.refresh(db_obj)
+        try:
+            db.add(db_obj)
+            await db.commit()
+            await db.refresh(db_obj)
+        except SQLAlchemyError as e:
+            logger.error(e.args)
         return db_obj
 
     async def remove(self, db: AsyncSession, *, id: int) -> ModelType:
         obj = await self.get(db, id)
-        await db.delete(obj)
-        await db.commit()
+        try:
+            await db.delete(obj)
+            await db.commit()
+        except SQLAlchemyError as e:
+            logger.error(e.args)
         return obj

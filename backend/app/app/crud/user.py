@@ -2,8 +2,8 @@ from collections.abc import Sequence
 from typing import Any
 from typing import Optional
 
-from fastapi.encoders import jsonable_encoder
 from loguru import logger
+from pydantic import EmailStr
 from sqlalchemy import and_
 from sqlalchemy import select
 from sqlalchemy.engine import Result, RowMapping, Row
@@ -34,7 +34,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(db_obj)
         except SQLAlchemyError as e:
             await db.rollback()
-            logger.exception(e.__dict__["orig"])
+            logger.error(e.args)
         return db_obj
 
     async def update(
@@ -65,7 +65,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return result.scalar()
 
     # noinspection PyMethodMayBeStatic
-    async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
+    async def get_by_email(self, db: AsyncSession, *, email: EmailStr | str) -> Optional[User]:
         q: Select = select(User).where(User.email == email)
         result: Result = await db.execute(q)
         return result.scalar()

@@ -11,6 +11,16 @@ $$ language plpgsql;
 
 
 
+
+create or replace function get_role_by_username(_username text)
+    returns setof user_role as
+$$
+begin
+    return query select role from "user" where username = _username;
+end
+$$ language plpgsql;
+
+
 create or replace function create_user_in_role(db_user text, password text, current_user_role text, db_name text)
     returns void as
 $$

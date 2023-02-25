@@ -112,6 +112,11 @@ async def read_user_by_id(
     Get a specific user.
     """
     user = await crud.user.get(db, id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user does not exist",
+        )
     return user
 
 
@@ -130,7 +135,7 @@ async def update_user(
     if not user:
         raise HTTPException(
             status_code=404,
-            detail="The user with this username does not exist in the system",
+            detail="The user with this username does not exist",
         )
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user

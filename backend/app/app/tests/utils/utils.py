@@ -3,6 +3,7 @@ import string
 from typing import Dict
 
 from httpx import AsyncClient
+from pydantic import EmailStr
 
 from app.core.config import get_app_settings
 
@@ -11,8 +12,8 @@ def random_lower_string() -> str:
     return "".join(random.choices(string.ascii_lowercase, k=32))
 
 
-def random_email() -> str:
-    return f"{random_lower_string()}@gmail.com"
+def random_email() -> EmailStr:
+    return EmailStr(f"{random_lower_string()}@gmail.com")
 
 
 def gen_random_password():

@@ -36,3 +36,5 @@ black==23.1.0
 isort
 flake8
 mypy==1.0.1
+
+locust

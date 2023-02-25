@@ -23,12 +23,12 @@ async def create_users(users_count=5):
     ration_teachers_to_students = users_count // 2
     users: list[User] = []
     users_cred_list = []
-    role = UserRole.admin
+    role = UserRole.admin.name
     for us in range(users_count):
         logger.info(f"UserCreate: {us + 1}/{users_count}")
         us += 2
         if us >= ration_teachers_to_students:
-            role = UserRole.user
+            role = UserRole.user.name
 
         password = gen_random_password()
         user_in = schemas.UserCreate(
@@ -58,6 +58,6 @@ async def test_init_db(db: AsyncSession):
     await truncate_tables(conn)
     await init_db()
     await create_users(10)
-    await truncate_tables(conn)
+    # await truncate_tables(conn)
     await conn.close()
-    await create_first_superuser(db)
+    # await create_first_superuser(db)

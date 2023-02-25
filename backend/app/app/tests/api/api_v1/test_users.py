@@ -3,8 +3,8 @@ import string
 from typing import Dict
 
 import pytest
-from faker import Faker
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app import crud, models
 from app import schemas
@@ -15,16 +15,15 @@ from app.tests.test_data import fake
 from app.tests.utils.utils import gen_random_password, random_lower_string
 from app.tests.utils.utils import random_email
 
-from sqlalchemy.ext.asyncio.session import AsyncSession
-
 
 @pytest.mark.asyncio
 async def test_create_user(db: AsyncSession) -> models.User:
-    rnd_str = random_lower_string()
+    email = random_email()
+    username = random_lower_string()
     password = gen_random_password()
     user_in = schemas.UserCreate(
-        email=f"{rnd_str}@gmail.com",
-        username=rnd_str,
+        email=email,
+        username=username,
         password=password,
         password_confirm=password,
         full_name=fake.name(),
