@@ -6,9 +6,6 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY order_service /app
 
-WORKDIR /app
-
 ENV PYTHONPATH=/app
 
-
-
+WORKDIR /app

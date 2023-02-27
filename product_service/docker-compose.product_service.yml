@@ -9,12 +9,12 @@ services:
       - MONGO_INITDB_DATABASE=app
     ports:
       - "27017:27017"
+    networks:
+      - product_api_net
 
   product_service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ./start-reload.sh
+    build: .
+    command: ./start.sh
     env_file:
       - .env
     environment:
@@ -23,4 +23,10 @@ services:
       - mongo
     ports:
       - ${PORT}:${PORT}
+    networks:
+      - product_api_net
 
+
+networks:
+  product_api_net:
+    name: custom_network

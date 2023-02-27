@@ -10,6 +10,7 @@ from product_service.models.category import (
     CategoryUpdate,
 )
 
+
 router = APIRouter()
 
 

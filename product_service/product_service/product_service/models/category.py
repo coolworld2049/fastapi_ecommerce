@@ -11,8 +11,8 @@ class CategoryCreate(CategoryBase):
     pass
 
 
-class CategoryUpdate(BaseModel):
-    description: str
+class CategoryUpdate(CategoryBase):
+    pass
 
 
 class CategoryInDBBase(CategoryBase):
