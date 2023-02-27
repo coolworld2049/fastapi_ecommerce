@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+
+  mongo:
+    hostname: mongo
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_DATABASE=app
+    ports:
+      - "27017:27017"
+
+  product_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./start-reload.sh
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/app
+    depends_on:
+      - mongo
+    ports:
+      - ${PORT}:${PORT}
+

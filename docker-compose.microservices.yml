@@ -1,0 +1,102 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:15
+    env_file:
+      - .env
+    environment:
+      - PGPORT=${PG_PORT}
+      - PGTZ=${TZ}
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+
+
+  mongo:
+    hostname: mongo
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_DATABASE=app
+    ports:
+      - "27017:27017"
+
+
+  queue:
+    image: rabbitmq:3-management
+    env_file:
+      - .env
+    environment:
+      - RABBITMQ_HOST=queue
+    ports:
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+      - ${RABBITMQ_HTTP_PORT}:${RABBITMQ_HTTP_PORT}
+
+  redis:
+    image: redislabs/redismod
+    expose:
+      - ${REDIS_PORT}
+
+
+  celeryworker:
+    build:
+      context: order_service
+      dockerfile: celeryworker.dockerfile
+    depends_on:
+      - postgres
+      - queue
+      - redis
+    env_file:
+      - ./order_service/.env
+    environment:
+      - PG_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=queue
+      - SERVER_NAME=${DOMAIN}
+      - SERVER_HOST=https://${DOMAIN}
+
+
+  order_service:
+    build:
+      context: order_service
+      dockerfile: Dockerfile
+    command: ./start.sh
+    env_file:
+      - ./order_service/.env
+    environment:
+      - PG_HOST=postgres
+      - RABBITMQ_HOST=queue
+      - REDIS_HOST=redis
+    depends_on:
+      - postgres
+    ports:
+      - ${PORT}:8000
+
+
+  product_service:
+    build:
+      context: product_service
+      dockerfile: Dockerfile
+    command: ./start.sh
+    env_file:
+      - ./product_service/.env
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/app
+    depends_on:
+      - mongo
+    ports:
+      - ${PORT}:8000
+
+
+  gateway_service:
+    build:
+      context: gateway_service
+      dockerfile: Dockerfile
+    command: ./start.sh
+    env_file:
+      - ./gateway_service/.env
+    ports:
+      - "8888:8000"
+    depends_on:
+      - order_service
+      - product_service
