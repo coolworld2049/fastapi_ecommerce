@@ -1,0 +1,113 @@
+version: '3.9'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+
+  postgresql_master:
+    image: bitnami/postgresql:latest
+    hostname: postgresql_master
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
+      - POSTGRESQL_TIMEZONE=${TZ}
+      - POSTGRESQL_LOG_TIMEZONE=${TZ}
+    networks:
+      - app-tier
+
+
+  postgresql_slave1:
+    image: bitnami/postgresql:latest
+    ports:
+      - ${PG_PORT_SLAVE_1}:${PG_PORT}
+    depends_on:
+      - postgresql_master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql_master
+      - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - app-tier
+
+
+  postgresql_slave2:
+    image: bitnami/postgresql:latest
+    ports:
+      - ${PG_PORT_SLAVE_2}:${PG_PORT}
+    depends_on:
+      - postgresql_master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql_master
+      - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - app-tier
+
+
+  pgbouncer_master:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - "6432:6432"
+    depends_on:
+      - postgresql_master
+    environment:
+      - POSTGRESQL_HOST=postgresql_master
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - PGBOUNCER_POOL_MODE=session
+      - PGBOUNCER_PORT=6432
+    networks:
+      - app-tier
+
+
+  pgbouncer_slave1:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - "6433:6433"
+    depends_on:
+      - postgresql_slave1
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - PGBOUNCER_POOL_MODE=session
+      - PGBOUNCER_PORT=6433
+      - POSTGRESQL_HOST=postgresql_slave1
+    networks:
+      - app-tier
+
+
+  pgbouncer_slave2:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - "6434:6434"
+    depends_on:
+      - postgresql_slave2
+    environment:
+      - POSTGRESQL_HOST=postgresql_slave2
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - PGBOUNCER_POOL_MODE=session
+      - PGBOUNCER_PORT=6434
+    networks:
+      - app-tier

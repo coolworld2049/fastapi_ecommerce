@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+
+  mongo:
+    hostname: mongo
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_DATABASE=app
+    ports:
+      - "27017:27017"
+    networks:
+      - product_api_net
+
+  product_service:
+    build: .
+    command: ./start.sh
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/app
+    depends_on:
+      - mongo
+    ports:
+      - ${PORT}:${PORT}
+    networks:
+      - product_api_net
+
+
+networks:
+  product_api_net:
+    name: custom_network

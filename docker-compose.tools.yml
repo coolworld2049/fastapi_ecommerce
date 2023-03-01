@@ -2,13 +2,6 @@ version: '3.9'
 
 services:
 
-  grafana:
-    image: grafana/grafana:latest
-    env_file:
-      - .env
-    ports:
-      - ${GF_PORT}:${GF_PORT}
-
   flower:
     image: mher/flower
     environment:

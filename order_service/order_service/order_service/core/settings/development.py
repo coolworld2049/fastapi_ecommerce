@@ -1,0 +1,14 @@
+import logging
+import os
+
+from order_service.core.settings.app import AppSettings
+
+
+class DevAppSettings(AppSettings):
+    debug: bool = True
+    title: str = f"{os.getenv('APP_NAME')}_{os.getenv('APP_ENV')}"
+
+    LOGGING_LEVEL: int = logging.DEBUG
+
+    class Config(AppSettings.Config):
+        env_file = ".env"

@@ -1,8 +1,0 @@
-__pycache__
-app.egg-info
-.mypy_cache
-.coverage
-htmlcov
-!/app/access.log
-!/app/app/.pytest_cache/
-!/app/app/access.log

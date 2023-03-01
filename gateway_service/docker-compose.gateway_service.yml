@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+
+  gateway_service:
+    build:
+      context: ..
+      dockerfile: ./gateway_service/Dockerfile
+    command: ./start.sh
+    environment:
+      - ORDER_SERVICE_URL=http://order_service:8001
+      - PRODUCT_SERVICE_URL=http://product_service:8002
+    env_file:
+      - .env
+    ports:
+      - "8888:8888"
+    networks:
+      - api_net
+
+networks:
+  api_net:
+    name: custom_network
