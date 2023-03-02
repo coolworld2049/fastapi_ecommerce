@@ -2,7 +2,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from fastapi.openapi.docs import get_swagger_ui_html
 from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
@@ -109,12 +108,3 @@ async def root(request: Request):
         },
     )
     return response
-
-
-@app.get("/docs/dark-theme", include_in_schema=False)
-async def custom_swagger_ui_html_cdn():
-    return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
-        title=f"{app.title} - Swagger UI",
-        swagger_css_url="https://cdn.jsdelivr.net/gh/Itz-fork/Fastapi-Swagger-UI-Dark/assets/swagger_ui_dark.css",
-    )

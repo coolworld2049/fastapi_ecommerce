@@ -1,9 +1,10 @@
+from beanie import Document, Indexed
 from pydantic import BaseModel
 
 
 class CartItemBase(BaseModel):
-    cart_id: int | None
-    product_id: int | None
+    cart_id: Indexed(str, unique=False)
+    product_id: str
 
 
 class CartItemCreate(CartItemBase):
@@ -15,14 +16,13 @@ class CartItemUpdate(CartItemBase):
 
 
 class CartItemInDBBase(CartItemBase):
-    id: int | None = None
+    pass
+
+
+class CartItem(CartItemInDBBase, Document):
 
     class Config:
         orm_mode = True
-
-
-class CartItem(CartItemInDBBase):
-    pass
 
 
 class CartItemInDB(CartItemInDBBase):

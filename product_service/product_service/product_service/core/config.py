@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import List, Union
 
 from dotenv import load_dotenv
@@ -25,6 +26,18 @@ class Settings(BaseSettings):
     MONGODB_URL: str
     DOMAIN: str
     PORT: int
+
+    JWT_ALGORITHM: str
+    JWT_SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    FIRST_SUPERUSER_USERNAME: str
+    FIRST_SUPERUSER_EMAIL: str
+    FIRST_SUPERUSER_PASSWORD: str
+
+    @property
+    def cart_expires_timestamp(self):
+        expire = datetime.now() + timedelta(minutes=60)
+        return expire
 
     class Config:
         case_sensitive = True

@@ -7,6 +7,7 @@ from starlette.templating import Jinja2Templates
 
 from product_service.api.api import api_router
 from product_service.core.config import settings
+from product_service.db.base import client, document_models
 from product_service.db.init_db import init_db
 
 current_file = Path(__file__)
@@ -41,7 +42,7 @@ def get_application() -> FastAPI:
 
     @application.on_event("startup")
     async def startup() -> None:
-        await init_db()
+        await init_db(client=client, document_models=document_models)
 
     @application.on_event("shutdown")
     async def shutdown() -> None:

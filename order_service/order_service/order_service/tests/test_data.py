@@ -9,7 +9,6 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from order_service import crud, schemas
-from order_service import models
 from order_service.core.config import get_app_settings
 from order_service.db.init_db import (
     init_db,
@@ -33,7 +32,7 @@ async def create_users(users_count=5):
         logger.info(f"UserCreate: {us + 1}/{users_count}")
         us += 2
         if us >= ration_teachers_to_students:
-            role = UserRole.user.name
+            role = UserRole.customer.name
 
         password = gen_random_password()
         user_in = schemas.UserCreate(

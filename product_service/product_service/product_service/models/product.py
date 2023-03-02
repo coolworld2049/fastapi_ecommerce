@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 
 class ProductBase(BaseModel):
-    category_name: str
     title: Indexed(str, unique=True)
+    category_name: str
     stock: int
     price: float
     description: str

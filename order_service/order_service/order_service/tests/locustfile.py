@@ -3,7 +3,7 @@ import string
 
 from locust import HttpUser, task, between
 
-from order_service import models, schemas
+from order_service import schemas
 from order_service.core.config import get_app_settings
 from order_service.tests.test_data import fake
 from order_service.tests.utils.utils import (

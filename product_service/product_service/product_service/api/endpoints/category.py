@@ -1,67 +1,89 @@
+from typing import Any
 from typing import List
 
-from beanie.odm.operators.update.general import Set
-from fastapi import APIRouter, HTTPException
-from pymongo.results import DeleteResult
-from uvicorn.server import logger
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Response
 
-from product_service.models.category import (
-    Category,
-    CategoryCreate,
-    CategoryUpdate,
-)
+from product_service.models.category import CategoryCreate
+from product_service import crud
+from product_service.api.dependencies import auth
+from product_service.api.dependencies import params
+from product_service.models.category import Category
+from product_service.models.request_params import RequestParams
+from product_service.models.user import User
 
 router = APIRouter()
 
 
-@router.get(
-    "/",
-    response_model=List[Category],
-)
-async def read_categories(skip: int = 0, limit: int = 10) -> list[Category]:
-    category = await Category.find_many(skip=skip, limit=limit).to_list()
-    return category
+# noinspection PyUnusedLocal
+@router.get("/", response_model=List[Category])
+async def read_categories(
+    response: Response,
+
+    current_user: User = Depends(auth.get_current_active_user),
+    request_params: RequestParams = Depends(
+        params.parse_query_params(),
+    ),
+) -> Any:
+    """
+    Retrieve categorys.
+    """
+    categorys, total = await crud.category.get_multi(request_params)
+    response.headers[
+        "Content-Range"
+    ] = f"{request_params.skip}-{request_params.skip + len(categorys)}/{total}"
+    return categorys
 
 
-@router.post(
-    "/",
-    response_model=Category,
-)
+# noinspection PyUnusedLocal
+@router.post("/", response_model=Category)
 async def create_category(
+    *,
+
     category_in: CategoryCreate,
-) -> Category:
-    try:
-        category = await Category.create(
-            Category(**category_in.dict(exclude_unset=True))
-        )
-        return category
-    except Exception as e:
-        logger.error(e.args)
-        raise HTTPException(status_code=400, detail=e.args)
+    current_user: User = Depends(auth.get_current_active_user),
+) -> Any:
+    """
+    Create new category.
+    """
 
-
-@router.put(
-    "/{name}",
-    response_model=Category,
-)
-async def update_category(
-    name: str,
-    category_in: CategoryUpdate,
-) -> Category | str:
-    product = await Category.find_one(Category.name == name)
-    if not product:
-        raise HTTPException(
-            status_code=400, detail="Category with this name doesn`t exist"
-        )
-
-    await product.update(Set(category_in.dict()))
-    return product
-
-
-@router.delete(
-    "/{name}",
-    response_model=dict,
-)
-async def delete_category(name: str) -> DeleteResult | None:
-    category = await Category.find_one(Category.name == name).delete()
+    category = await crud.category.create(obj_in=category_in)
     return category
+
+
+# noinspection PyUnusedLocal
+@router.get("/{id}", response_model=Category)
+async def read_category_by_id(
+    id: Any,
+    current_user: User = Depends(auth.get_current_active_user),
+
+) -> Any:
+    """
+    Get a specific category.
+    """
+    category = await crud.category.get(id)
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="The category does not exist",
+        )
+    return category
+
+
+# noinspection PyUnusedLocal
+@router.delete("/{name}")
+async def delete_category(
+    *,
+    name: Any,
+    current_user: User = Depends(auth.get_current_active_user),
+) -> Any:
+    """
+    Delete category.
+    """
+    category = await crud.category.get(name)
+    if not category:
+        raise HTTPException(status_code=404, detail="Item not found")
+    category = await crud.category.remove(id=name)
+    return {"detail": "Successfully deleted"}

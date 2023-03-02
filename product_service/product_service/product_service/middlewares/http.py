@@ -1,6 +1,5 @@
 import time
 
-from fastapi import HTTPException
 from loguru import logger
 from starlette.requests import Request
 from starlette.responses import Response

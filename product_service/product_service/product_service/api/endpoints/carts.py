@@ -6,11 +6,11 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
 
-from product_service.models.product import ProductCreate
+from product_service.models.cart import CartCreate
 from product_service import crud
 from product_service.api.dependencies import auth
 from product_service.api.dependencies import params
-from product_service.models.product import Product
+from product_service.models.cart import Cart
 from product_service.models.request_params import RequestParams
 from product_service.models.user import User
 
@@ -18,72 +18,72 @@ router = APIRouter()
 
 
 # noinspection PyUnusedLocal
-@router.get("/", response_model=List[Product])
-async def read_products(
+@router.get("/", response_model=List[Cart])
+async def read_carts(
     response: Response,
-
+    
     current_user: User = Depends(auth.get_current_active_user),
     request_params: RequestParams = Depends(
         params.parse_query_params(),
     ),
 ) -> Any:
     """
-    Retrieve products.
+    Retrieve carts.
     """
-    products, total = await crud.product.get_multi(request_params)
+    carts, total = await crud.cart.get_multi(request_params)
     response.headers[
         "Content-Range"
-    ] = f"{request_params.skip}-{request_params.skip + len(products)}/{total}"
-    return products
+    ] = f"{request_params.skip}-{request_params.skip + len(carts)}/{total}"
+    return carts
 
 
 # noinspection PyUnusedLocal
-@router.post("/", response_model=Product)
-async def create_product(
+@router.post("/", response_model=Cart)
+async def create_cart(
     *,
-
-    product_in: ProductCreate,
+    
+    cart_in: CartCreate,
     current_user: User = Depends(auth.get_current_active_user),
 ) -> Any:
     """
-    Create new product.
+    Create new cart.
     """
 
-    product = await crud.product.create(obj_in=product_in)
-    return product
+    cart = await crud.cart.create(obj_in=cart_in)
+    return cart
 
 
 # noinspection PyUnusedLocal
-@router.get("/{title}", response_model=Product)
-async def read_product_by_id(
-    title: Any,
+@router.get("/{id}", response_model=Cart)
+async def read_cart_by_id(
+    id: Any,
     current_user: User = Depends(auth.get_current_active_user),
-
+    
 ) -> Any:
     """
-    Get a specific product.
+    Get a specific cart.
     """
-    product = await crud.product.get(title)
-    if not product:
+    cart = await crud.cart.get(id)
+    if not cart:
         raise HTTPException(
             status_code=404,
-            detail="The product does not exist",
+            detail="The cart does not exist",
         )
-    return product
+    return cart
 
 
 # noinspection PyUnusedLocal
-@router.delete("/{title}", status_code=200)
-async def delete_product(
+@router.delete("/{id}")
+async def delete_cart(
     *,
-    title: Any,
+    id: Any,
     current_user: User = Depends(auth.get_current_active_user),
 ) -> Any:
     """
-    Delete product.
+    Delete cart.
     """
-    product = await crud.product.get(title)
-    if not product:
+    cart = await crud.cart.get(id)
+    if not cart:
         raise HTTPException(status_code=404, detail="Item not found")
-    product = await crud.product.remove(id=id)
-    return {'deatils': 'Successfully deleted'}
+    cart = await crud.cart.remove(id=id)
+    return {"detail": "Successfully deleted"}
