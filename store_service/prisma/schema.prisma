@@ -27,15 +27,17 @@ enum OrderStatus {
 }
 
 model User {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  email        String   @unique
-  username     String   @unique
-  role         String   @default("guest")
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  email        String    @unique
+  username     String    @unique
+  role         String    @default("guest")
   password     String?
   full_name    String?
-  is_active    Boolean? @default(true)
-  is_superuser Boolean? @default(false)
-  cart         Cart?
+  is_active    Boolean?  @default(true)
+  is_superuser Boolean?  @default(false)
+  orders       Order[]
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @updatedAt
 }
 
 model Category {
@@ -47,32 +49,27 @@ model Category {
 
 model Product {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  category    Category? @relation(fields: [category_id], references: [id])
+  category_id String    @db.ObjectId
+  order       Order[]   @relation(fields: [order_ids], references: [id])
+  order_ids   String[]  @db.ObjectId
   title       String?   @unique
   price       Float?
   description String?
-  category    Category? @relation(fields: [category_id], references: [id])
-  category_id String    @db.ObjectId
-  carts       Cart[]    @relation(fields: [cart_ids], references: [id])
-  cart_ids    String[]  @db.ObjectId
-}
-
-model Cart {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  status      CartStatus? @default(active)
-  expires_at  DateTime
-  user        User        @relation(fields: [user_id], references: [id])
-  user_id     String      @unique @db.ObjectId
-  products    Product[]   @relation(fields: [product_ids], references: [id])
-  product_ids String[]    @db.ObjectId
-  order       Order[]
 }
 
 model Order {
-  cart_id  String       @id @map("_id") @db.ObjectId
-  cart     Cart?        @relation(fields: [cart_id], references: [id])
-  status   OrderStatus? @default(pending)
-  cost     Float?
-  tax      Float?
-  total    Float?
-  currency String?
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  user        User?        @relation(fields: [user_id], references: [id])
+  user_id     String       @db.ObjectId
+  products    Product[]    @relation(fields: [product_ids], references: [id])
+  product_ids String[]     @db.ObjectId
+  status      OrderStatus? @default(pending)
+  exprires_at DateTime?
+  cost        Float?
+  tax         Float?
+  total       Float?
+  currency    String?
+  created_at  DateTime?    @default(now())
+  updated_at  DateTime?    @updatedAt
 }
