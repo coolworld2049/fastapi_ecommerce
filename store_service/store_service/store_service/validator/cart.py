@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Any
 
-import pytz
-from prisma.enums import CartStatus
 from prisma.models import Cart
 from prisma.partials import CartCreate
 from starlette import status

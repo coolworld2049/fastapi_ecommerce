@@ -1,11 +1,12 @@
-from builtins import str, float
-from typing import Optional, Any, List, Dict
+from builtins import str
+from typing import Optional, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Param
-from prisma.models import Product, Cart, Category
+from prisma.models import Product, Category
+
+
 from prisma.partials import ProductWithoutRelations, ProductCreate, ProductUpdate
-from prisma.types import ProductGroupByOutput, ProductWhereInput
 from starlette import status
 
 from store_service.api.api_v1.deps import params
@@ -101,15 +102,10 @@ async def update_product_category(id: str, category_id: str) -> Optional[Product
     dependencies=[Depends(RoleChecker(Product, ["admin", "manager"]))],
 )
 async def delete_product(id: str) -> dict[str, Any]:
-    await Cart.prisma().delete(
-        where={
-            "id": id,
-        }
-    )
     await Product.prisma().delete(
         where={
             "id": id,
         },
-        include={"category": True, "carts": True},
+        include={"category": True, "orders": True},
     )
     return {"status": status.HTTP_200_OK}

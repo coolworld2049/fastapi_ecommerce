@@ -1,10 +1,10 @@
 import random
 import string
-from logging import Logger
 
 import pytest
 from faker import Faker
 from prisma import Prisma
+from prisma.enums import OrderStatus
 from prisma.models import User, Category, Product, Cart, Order
 from prisma.types import UserCreateInput, CategoryCreateInput, ProductCreateInput
 from uvicorn.main import logger
@@ -107,13 +107,15 @@ async def create_carts(users: list[User], products: list[Product]):
             "expires_at": settings.cart_expires_timestamp,
             "user": {"connect": {"id": user.id}},
         }
-        cart = await Cart.prisma().create(data=data)
+        cart = await Cart.prisma().create(data=data, include={"user": True})
 
         product_ids = [
             {"id": x.id} for x in random.choices(products, k=random.randint(1, 3))
         ]
-        new_data = {"products": {"set": product_ids, "connect": product_ids}}
-        new_cart = await Cart.prisma().update(data=new_data, where={"id": cart.id})
+        new_data = {"products": {"set": product_ids}}
+        new_cart = await Cart.prisma().update(
+            data=new_data, where={"id": cart.id}, include={"products": True}
+        )
         carts.append(new_cart)
     return carts
 
@@ -121,7 +123,12 @@ async def create_carts(users: list[User], products: list[Product]):
 async def create_orders(carts: list[Cart]):
     orders: list[Order] = []
     for cart in carts:
-        order = await Order.prisma().create(data={"cart": {"connect": {"id": cart.id}}})
+        order = await Order.prisma().create(
+            data={
+                "status": random.choice([x for x in OrderStatus]),
+                "cart": {"connect": {"id": cart.id}}
+            }, include={"cart": True}
+        )
         orders.append(order)
     return orders
 
@@ -129,7 +136,7 @@ async def create_orders(carts: list[Cart]):
 async def delete_orders(orders: list[Order]):
     for order in orders:
         await Order.prisma().delete(
-            where={"cart_id": order.cart_id}, include={"cart": True}
+            where={"id": order.id}, include={"cart": True}
         )
 
 
@@ -153,14 +160,14 @@ async def delete_category(categories: list[Category]):
 @pytest.mark.asyncio
 async def test_data(prisma_client: Prisma):
     await prisma_client.connect()
-    await delete_collection_data()
     us = await create_user()
     cat = await create_category()
     prod = await create_product(categories=cat)
     carts = await create_carts(us, prod)
     orders = await create_orders(carts)
-    await delete_orders(orders)
-    await delete_cart(carts)
-    await delete_product(prod)
-    await delete_category(cat)
-    await delete_collection_data()
+    orders_2 = await create_orders(carts)
+
+    # await delete_orders(orders)
+    # await delete_cart(carts)
+    # await delete_product(prod)
+    # await delete_category(cat)
