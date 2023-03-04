@@ -5,7 +5,8 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from gateway_service.core.config import settings
-# from product_service.models.product import ProductCreate, ProductUpdate
+
+# from store_service.models.product import ProductCreate, ProductUpdate
 
 router = APIRouter()
 
@@ -24,6 +25,7 @@ async def read_products(
     request: Request, response: Response, skip: int = 0, limit: int = 10
 ):
     pass
+
 
 #
 # # noinspection PyUnusedLocal

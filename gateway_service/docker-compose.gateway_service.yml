@@ -8,8 +8,8 @@ services:
       dockerfile: ./gateway_service/Dockerfile
     command: ./start.sh
     environment:
-      - ORDER_SERVICE_URL=http://order_service:8001
-      - PRODUCT_SERVICE_URL=http://product_service:8002
+      - ORDER_SERVICE_URL=http://employee_service:8001
+      - PRODUCT_SERVICE_URL=http://store_service:8002
     env_file:
       - .env
     ports:

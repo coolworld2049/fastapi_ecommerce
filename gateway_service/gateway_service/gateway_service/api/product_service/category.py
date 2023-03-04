@@ -5,7 +5,8 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from gateway_service.core.config import settings
-# from product_service.models.category import (
+
+# from store_service.models.category import (
 #     CategoryCreate,
 #     CategoryUpdate,
 # )

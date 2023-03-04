@@ -1,0 +1,104 @@
+generator db {
+  provider             = "prisma-client-py"
+  interface            = asyncio
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URL")
+}
+
+enum CartStatus {
+  active
+  inactive
+}
+
+enum OrderStatus {
+  pending
+  awaiting_payment
+  awaiting_fulfilment
+  completed
+  canceled
+  declined
+  refunded
+  disputed
+  partially_refunded
+}
+
+enum ActionsEnum {
+  find
+  insert
+  remove
+  update
+}
+
+model Resource {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  db         String
+  collection String
+  cluster    String?
+}
+
+model Privileges {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  resource Json[]
+  actions  ActionsEnum[]
+}
+
+model Role {
+  role       String @id @map("_id") @db.String
+  privileges Json[]
+  roles      Json[]
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  username     String   @unique
+  role         String   @default("guest")
+  password     String?
+  full_name    String?
+  is_active    Boolean? @default(true)
+  is_superuser Boolean? @default(false)
+  cart         Cart[]
+}
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  description String?
+  products    Product[]
+}
+
+model Product {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?   @unique
+  price       Float?
+  description String?
+  category    Category? @relation(fields: [category_id], references: [id])
+  category_id String?   @db.ObjectId
+  carts       Cart[]    @relation(fields: [cart_ids], references: [id])
+  cart_ids    String[]  @db.ObjectId
+}
+
+model Cart {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  status      CartStatus? @default(active)
+  expires_at  DateTime
+  user        User        @relation(fields: [user_id], references: [id])
+  user_id     String      @db.ObjectId
+  products    Product[]   @relation(fields: [product_ids], references: [id])
+  product_ids String[]    @db.ObjectId
+  order       Order[]
+}
+
+model Order {
+  cart_id  String       @id @map("_id") @db.ObjectId
+  cart     Cart?        @relation(fields: [cart_id], references: [id])
+  status   OrderStatus? @default(pending)
+  cost     Float?
+  tax      Float?
+  total    Float?
+  currency String?
+}
