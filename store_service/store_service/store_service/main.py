@@ -2,6 +2,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from prisma import Prisma
+from prisma import validator
 from prisma.errors import DataError
 from pydantic.error_wrappers import ValidationError
 from starlette import status

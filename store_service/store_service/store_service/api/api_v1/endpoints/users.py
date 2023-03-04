@@ -8,6 +8,8 @@ from starlette import status
 from store_service.api.api_v1.deps import params
 from store_service.api.api_v1.deps.base import RoleChecker, get_current_active_user
 from store_service.api.api_v1.deps.params import RequestParams
+from store_service.core.auth import hash_password
+from store_service.validator.user import UserValidator
 
 router = APIRouter()
 
@@ -30,6 +32,9 @@ async def read_users(
     dependencies=[Depends(RoleChecker(User, ["admin"]))],
 )
 async def create_user(user_in: UserCreate) -> Optional[User]:
+    UserValidator(user_in).validate()
+    if user_in.password:
+        user_in.password = hash_password(user_in.password)
     user = await User.prisma().create(user_in.dict())
     return user
 
@@ -52,6 +57,9 @@ async def read_user_by_id(
     dependencies=[Depends(RoleChecker(User, ["admin"]))],
 )
 async def update_user(id: str, user_in: UserUpdate) -> Optional[User]:
+    UserValidator(user_in).validate()
+    if user_in.password:
+        user_in.password = hash_password(user_in.password)
     return await User.prisma().update(
         where={
             "id": id,
@@ -82,6 +90,8 @@ async def read_user_me(
 async def update_user_me(
     user_in: UserUpdateMe, current_user: User = Depends(get_current_active_user)
 ) -> Optional[User]:
+    if user_in.password:
+        user_in.password = hash_password(user_in.password)
     return await User.prisma().update(
         where={
             "id": current_user.id,
