@@ -40,6 +40,36 @@ async def create_user(user_in: UserCreate) -> Optional[User]:
 
 
 @router.get(
+    "/me",
+    response_model=UserWithoutRelations,
+    dependencies=[Depends(RoleChecker(User, ["admin", "manager", "customer"]))],
+)
+async def read_user_me(
+    current_user: User = Depends(get_current_active_user),
+) -> User | None:
+    user = await User.prisma().find_unique(where={"id": current_user.id})
+    return user
+
+
+@router.put(
+    "/me",
+    response_model=UserWithoutRelations,
+    dependencies=[
+        Depends(RoleChecker(User, ["admin", "manager", "customer"])),
+    ],
+)
+async def update_user_me(
+    user_in: UserUpdateMe, current_user: User = Depends(get_current_active_user)
+) -> Optional[User]:
+    return await User.prisma().update(
+        where={
+            "id": current_user.id,
+        },
+        data=user_in.dict(),
+    )
+
+
+@router.get(
     "/{id}",
     response_model=UserWithoutRelations,
     dependencies=[Depends(RoleChecker(User, ["admin"]))],
@@ -63,38 +93,6 @@ async def update_user(id: str, user_in: UserUpdate) -> Optional[User]:
     return await User.prisma().update(
         where={
             "id": id,
-        },
-        data=user_in.dict(),
-    )
-
-
-@router.get(
-    "/me",
-    response_model=UserWithoutRelations,
-    dependencies=[Depends(RoleChecker(User, ["admin", "manager", "customer"]))],
-)
-async def read_user_me(
-    current_user: User = Depends(get_current_active_user),
-) -> User | None:
-    user = await User.prisma().find_unique(where={"id": current_user.id})
-    return user
-
-
-@router.put(
-    "/me",
-    response_model=UserWithoutRelations,
-    dependencies=[
-        Depends(RoleChecker(User, ["admin", "manager", "customer"])),
-    ],
-)
-async def update_user_me(
-    user_in: UserUpdateMe, current_user: User = Depends(get_current_active_user)
-) -> Optional[User]:
-    if user_in.password:
-        user_in.password = hash_password(user_in.password)
-    return await User.prisma().update(
-        where={
-            "id": current_user.id,
         },
         data=user_in.dict(),
     )

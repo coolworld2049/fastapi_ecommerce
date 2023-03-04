@@ -81,11 +81,11 @@ User.create_partial(
 )
 
 User.create_partial(
-    "UserUpdate", exclude_relational_fields=True,
-    exclude=["id", "password", "username"]
+    "UserUpdate", exclude_relational_fields=True, exclude=["id", "password", "username"]
 )
 
 User.create_partial(
-    "UserUpdateMe", exclude_relational_fields=True,
-    exclude=["id", "password", "username", "is_active", "is_superuser"]
+    "UserUpdateMe",
+    exclude_relational_fields=True,
+    exclude=["id", "password", "username", "email", "role", "is_active", "is_superuser"],
 )

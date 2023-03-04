@@ -1,8 +1,8 @@
+import json
 from pathlib import Path
 
 from fastapi import FastAPI
 from prisma import Prisma
-from prisma import validator
 from prisma.errors import DataError
 from pydantic.error_wrappers import ValidationError
 from starlette import status
@@ -44,13 +44,20 @@ def get_application() -> FastAPI:
         try:
             return await call_next(request)
         except ValidationError as ew:
+            if request.app.debug:
+                logger.exception(ew.args)
+            if ew.errors()[0].get("type") == 'type_error.none.not_allowed':
+                return JSONResponse(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    content=json.loads(ew.json()),
+                )
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"detail": ew.errors()},
             )
         except DataError as de:
             if request.app.debug:
-                logger.error(de)
+                logger.exception(de)
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"detail": de.args},

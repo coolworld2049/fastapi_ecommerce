@@ -12,4 +12,6 @@ def event_loop():
 @pytest_asyncio.fixture(scope="module")
 async def prisma_client():
     from store_service.main import prisma
+
     return prisma
+

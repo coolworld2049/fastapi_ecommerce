@@ -30,7 +30,7 @@ predefined_roles = [
         "privileges": [
             {
                 "resource": {"db": "app", "collection": "Cart"},
-                "actions": [],
+                "actions": ["find"],
             },
             {
                 "resource": {"db": "app", "collection": "Category"},
@@ -84,7 +84,7 @@ predefined_roles = [
         "privileges": [
             {
                 "resource": {"db": "app", "collection": "Cart"},
-                "actions": [],
+                "actions": ["find"],
             },
             {
                 "resource": {"db": "app", "collection": "Category"},

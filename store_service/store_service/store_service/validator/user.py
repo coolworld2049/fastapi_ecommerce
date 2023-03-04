@@ -3,7 +3,7 @@ from difflib import SequenceMatcher
 from typing import Any
 
 from prisma.models import User
-from pydantic import EmailStr
+from prisma.partials import UserCreate, UserUpdate, UserCreateOpen, UserUpdateMe
 from starlette.exceptions import HTTPException
 from uvicorn.main import logger
 
@@ -13,8 +13,11 @@ username_exp = "[A-Za-z_0-9]*"
 
 
 class UserValidator:
-    def __init__(self, user: User | Any):
-        self.user = user
+    def __init__(self, user: Any | User):
+        if isinstance(user, dict):
+            self.user = UserCreate(**user)
+        else:
+            self.user = user
 
     def _check_password_strongness(self):
         def values_match_ratio(a, b):
@@ -46,7 +49,9 @@ class UserValidator:
 
     def _validate_password(self):
         if self.user.password:
-            assert re.match(password_exp, self.user.password, flags=re.M), password_conditions
+            assert re.match(
+                password_exp, self.user.password, flags=re.M
+            ), password_conditions
 
     def validate(self):
         try:
@@ -54,6 +59,7 @@ class UserValidator:
             self._validate_password()
             self._validate_username()
             self._check_password_strongness()
+            return self.user
         except AssertionError as e:
             logger.error(e.args)
             raise HTTPException(status_code=402, detail=str(*e.args))
