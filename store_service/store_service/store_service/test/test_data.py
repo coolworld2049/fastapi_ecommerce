@@ -101,7 +101,7 @@ async def create_product(count=10, *, categories: list[Category]):
 
 async def create_carts(users: list[User], products: list[Product]):
     carts: list[Cart] = []
-    users = list(filter(lambda x: x.role == 'customer', users))
+    users = list(filter(lambda x: x.role == "customer", users))
     for user in users:
         data = {
             "expires_at": settings.cart_expires_timestamp,
@@ -109,10 +109,10 @@ async def create_carts(users: list[User], products: list[Product]):
         }
         cart = await Cart.prisma().create(data=data)
 
-        product_ids = [{"id": x.id} for x in random.choices(products, k=random.randint(1, 3))]
-        new_data = {
-            "products": {"set": product_ids, "connect": product_ids}
-        }
+        product_ids = [
+            {"id": x.id} for x in random.choices(products, k=random.randint(1, 3))
+        ]
+        new_data = {"products": {"set": product_ids, "connect": product_ids}}
         new_cart = await Cart.prisma().update(data=new_data, where={"id": cart.id})
         carts.append(new_cart)
     return carts
@@ -128,7 +128,9 @@ async def create_orders(carts: list[Cart]):
 
 async def delete_orders(orders: list[Order]):
     for order in orders:
-        await Order.prisma().delete(where={"cart_id": order.cart_id}, include={"cart": True})
+        await Order.prisma().delete(
+            where={"cart_id": order.cart_id}, include={"cart": True}
+        )
 
 
 async def delete_cart(carts: list[Cart]):
@@ -138,7 +140,9 @@ async def delete_cart(carts: list[Cart]):
 
 async def delete_product(products: list[Product]):
     for product in products:
-        await Product.prisma().delete(where={"id": product.id}, include={"category": True, "carts": True})
+        await Product.prisma().delete(
+            where={"id": product.id}, include={"category": True, "carts": True}
+        )
 
 
 async def delete_category(categories: list[Category]):
@@ -149,6 +153,7 @@ async def delete_category(categories: list[Category]):
 @pytest.mark.asyncio
 async def test_data(prisma_client: Prisma):
     await prisma_client.connect()
+    await delete_collection_data()
     us = await create_user()
     cat = await create_category()
     prod = await create_product(categories=cat)
@@ -158,3 +163,4 @@ async def test_data(prisma_client: Prisma):
     await delete_cart(carts)
     await delete_product(prod)
     await delete_category(cat)
+    await delete_collection_data()

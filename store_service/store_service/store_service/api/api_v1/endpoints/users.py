@@ -22,7 +22,7 @@ router = APIRouter()
 async def read_users(
     request_params: RequestParams = Depends(params.parse_query_params()),
 ) -> list[User]:
-    user = await User.prisma().find_many(**request_params.dict())
+    user = await User.prisma().find_many(**request_params.dict(exclude_none=True))
     return user
 
 

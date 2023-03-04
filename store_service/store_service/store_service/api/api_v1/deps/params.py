@@ -9,10 +9,10 @@ from pydantic import BaseModel
 
 
 class RequestParams(BaseModel):
-    take: Optional[int]
-    skip: Optional[int]
-    order: Optional[Any]
-    where: Optional[Any]
+    take: Optional[int] = None
+    skip: Optional[int] = None
+    order: Optional[dict] = None
+    where: Optional[dict] = None
 
 
 def parse_query_params(
@@ -35,7 +35,7 @@ def parse_query_params(
         where_: Optional[str] = Query(
             None,
             alias="where",
-            description='Format: `{"field_name": "value"}`',
+            description='Format: `{"field_name": "value"}`, `{"field_name": "/.*value.*/"}`',
             include_in_schema=use_where,
         ),
     ):
@@ -76,13 +76,8 @@ def parse_query_params(
                             raise HTTPException(400, f"Invalid where param {k}: {v}")
         except JSONDecodeError as jse:
             raise HTTPException(400, f"Invalid query params. {jse}")
+        _rp = {"skip": skip, "take": limit, "order": order, "where": where_by}
 
-        rp = RequestParams(
-            skip=skip,
-            take=limit,
-            order=order,
-            where=where_by,
-        )
-        return rp
+        return RequestParams(**_rp)
 
     return inner

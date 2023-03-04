@@ -22,7 +22,9 @@ router = APIRouter()
 async def read_categories(
     request_params: RequestParams = Depends(params.parse_query_params()),
 ) -> list[Category]:
-    category = await Category.prisma().find_many(**request_params.dict())
+    category = await Category.prisma().find_many(
+        **request_params.dict(exclude_none=True)
+    )
     return category
 
 

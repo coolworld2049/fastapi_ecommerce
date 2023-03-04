@@ -26,32 +26,6 @@ enum OrderStatus {
   partially_refunded
 }
 
-enum ActionsEnum {
-  find
-  insert
-  remove
-  update
-}
-
-model Resource {
-  id         String  @id @default(auto()) @map("_id") @db.ObjectId
-  db         String
-  collection String
-  cluster    String?
-}
-
-model Privileges {
-  id       String        @id @default(auto()) @map("_id") @db.ObjectId
-  resource Json[]
-  actions  ActionsEnum[]
-}
-
-model Role {
-  role       String @id @map("_id") @db.String
-  privileges Json[]
-  roles      Json[]
-}
-
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   email        String   @unique
@@ -77,7 +51,7 @@ model Product {
   price       Float?
   description String?
   category    Category? @relation(fields: [category_id], references: [id])
-  category_id String?   @db.ObjectId
+  category_id String    @db.ObjectId
   carts       Cart[]    @relation(fields: [cart_ids], references: [id])
   cart_ids    String[]  @db.ObjectId
 }

@@ -1,8 +1,11 @@
-from typing import Optional, Any
+from builtins import str, float
+from typing import Optional, Any, List, Dict
 
-from fastapi import APIRouter, Depends
-from prisma.models import Product, Cart
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.params import Param
+from prisma.models import Product, Cart, Category
 from prisma.partials import ProductWithoutRelations, ProductCreate, ProductUpdate
+from prisma.types import ProductGroupByOutput, ProductWhereInput
 from starlette import status
 
 from store_service.api.api_v1.deps import params
@@ -22,8 +25,31 @@ router = APIRouter()
 async def read_products(
     request_params: RequestParams = Depends(params.parse_query_params()),
 ) -> list[Product]:
-    product = await Product.prisma().find_many(**request_params.dict())
+    product = await Product.prisma().find_many(**request_params.dict(exclude_none=True))
     return product
+
+
+@router.get(
+    "/category",
+    response_model=list[ProductWithoutRelations],
+    dependencies=[
+        Depends(RoleChecker(Product, ["admin", "manager", "customer", "guest"]))
+    ],
+)
+async def read_products_by_category(
+    name: str = Param(description="category name"),
+    request_params: RequestParams = Depends(params.parse_query_params(use_order=True)),
+) -> list[Product]:
+    category = await Category.prisma().find_unique(where={"name": name})
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="category name not exist"
+        )
+    where = {"category_id": category.id}
+    rp = request_params.dict(exclude_none=True)
+    where.update(rp.pop("where")) if rp.get("where") else None
+    products = await Product.prisma().find_many(where=where, **rp)
+    return products
 
 
 @router.post(

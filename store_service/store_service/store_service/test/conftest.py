@@ -14,4 +14,3 @@ async def prisma_client():
     from store_service.main import prisma
 
     return prisma
-

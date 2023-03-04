@@ -15,7 +15,7 @@
 * guest
   * does not have access to the personal account and can only view products.
 
-### Prisma ODM
+### Prisma ORM
 - ### Many-to-many relation
   * schema.prisma
     ```prisma

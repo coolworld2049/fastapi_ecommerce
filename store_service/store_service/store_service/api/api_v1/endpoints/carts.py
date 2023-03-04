@@ -2,7 +2,7 @@ from typing import Optional, Any
 
 from fastapi import APIRouter, Depends
 from prisma.enums import CartStatus
-from prisma.models import Cart, User
+from prisma.models import Cart, User, Product
 from prisma.partials import (
     CartWithoutRelations,
 )
@@ -20,21 +20,19 @@ router = APIRouter()
 
 @router.get(
     "/",
-    tags=["admin", "customer"],
     response_model=list[CartWithoutRelations],
     dependencies=[Depends(RoleChecker(Cart, ["admin", "customer"]))],
 )
 async def read_carts(
     request_params: RequestParams = Depends(params.parse_query_params()),
 ) -> list[Cart]:
-    cart = await Cart.prisma().find_many(**request_params.dict())
+    cart = await Cart.prisma().find_many(**request_params.dict(exclude_none=True))
     await CartValidator(cart).is_expire()
     return cart
 
 
 @router.post(
     "/",
-    tags=["admin", "customer"],
     response_model=CartWithoutRelations,
     dependencies=[Depends(RoleChecker(Cart, ["admin", "customer"]))],
 )
@@ -48,13 +46,11 @@ async def create_cart(user_id: str) -> Optional[Cart]:
 
 @router.post(
     "/my/create",
-    tags=["customer"],
     response_model=CartWithoutRelations,
     dependencies=[Depends(RoleChecker(Cart, ["customer"]))],
 )
 async def create_cart(
     current_user: User = Depends(get_current_active_user),
-
 ) -> Optional[Cart]:
     data = {
         "expires_at": settings.cart_expires_timestamp,
@@ -73,14 +69,41 @@ async def read_my_cart(
 ) -> Optional[Cart]:
     user = await User.prisma().find_unique(
         where={"id": current_user.id},
-        include={
-            "cart": True
-        },
+        include={"cart": True},
     )
     if not user.cart:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     await CartValidator(user.cart).is_expire()
     return user.cart
+
+
+@router.post(
+    "/my/products/amount",
+    response_model=dict,
+    dependencies=[Depends(RoleChecker(Cart, ["customer"]))],
+)
+async def my_cart_amount(
+    current_user: User = Depends(get_current_active_user),
+) -> dict:
+    user = await User.prisma().find_unique(
+        where={"id": current_user.id},
+        include={"cart": True},
+    )
+    cart = await Cart.prisma().find_unique(
+        where={"user_id": user.id}, include={"products": True}
+    )
+    amount = await Product.prisma().group_by(
+        ["id", "price"],
+        where={"id": {"in": cart.product_ids}},
+    )
+
+    def calc_amount():
+        return sum([x.get("price") for x in amount])
+
+    if not user.cart:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    await CartValidator(user.cart).is_expire()
+    return {"amount": calc_amount()}
 
 
 @router.patch(
@@ -94,16 +117,12 @@ async def add_products_to_cart(
 ) -> Optional[Cart]:
     user = await User.prisma().find_unique(
         where={"id": current_user.id},
-        include={
-            "cart": True
-        },
+        include={"cart": True},
     )
     ids = [{"id": product_id}]
     data = {"products": {"connect": ids}}
     await CartValidator(user.cart).is_expire()
-    return await user.cart.prisma().update(data, where={
-        "user_id": current_user.id
-    })
+    return await user.cart.prisma().update(data, where={"user_id": current_user.id})
 
 
 @router.delete(
@@ -117,16 +136,12 @@ async def delete_product_from_cart(
 ) -> Optional[Cart]:
     user = await User.prisma().find_unique(
         where={"id": current_user.id},
-        include={
-            "cart": True
-        },
+        include={"cart": True},
     )
     ids = [{"id": product_id}]
     data = {"products": {"disconnect": ids}}
     await CartValidator(user.cart).is_expire()
-    return await user.cart.prisma().update(data, where={
-        "user_id": current_user.id
-    })
+    return await user.cart.prisma().update(data, where={"user_id": current_user.id})
 
 
 @router.patch(

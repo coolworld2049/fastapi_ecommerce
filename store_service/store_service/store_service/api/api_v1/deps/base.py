@@ -6,7 +6,6 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
 from prisma.bases import _PrismaModel
-from prisma.enums import ActionsEnum
 from prisma.models import User
 from starlette import status
 from uvicorn.main import logger
