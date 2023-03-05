@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     enable_rbac = False
 
     APP_NAME: str
-    DEBUG: str
+    DEBUG: bool
     BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)

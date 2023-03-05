@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from prisma import Prisma
-from prisma.errors import DataError, UniqueViolationError
+from prisma.errors import DataError, UniqueViolationError, PrismaError
 from pydantic.error_wrappers import ValidationError
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
@@ -55,7 +55,7 @@ def get_application() -> FastAPI:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"detail": ew.errors()},
             )
-        except DataError as de:
+        except PrismaError as de:
             if request.app.debug:
                 logger.exception(de)
             return JSONResponse(

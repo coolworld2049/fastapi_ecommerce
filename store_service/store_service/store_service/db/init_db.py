@@ -23,7 +23,7 @@ async def create_predefined_roles(_roles: list[dict[str, list[str]]]):
                     )
                     logger.info(f"predefined role '{item.get('role')}' created")
                 except:  # noqa
-                    logger.error(f"predefined role '{item.get('role')}' already exist")
+                    logger.info(f"predefined role '{item.get('role')}' already exist")
     except OperationFailure as e:
         logger.error(e.args)
 
@@ -49,8 +49,8 @@ async def create_first_superuser():
         )
         logger.info("first superuser created")
         return user
-    except Exception as e:
-        logger.info(f"first superuser already exists: {e.args}")
+    except UniqueViolationError as e:
+        logger.info(f"first superuser already exists")
 
 
 async def init_db():

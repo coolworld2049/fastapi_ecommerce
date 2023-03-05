@@ -17,8 +17,9 @@ class CartValidator:
     async def is_expire(self):
         async def check(item: Cart | Any):
             if datetime.now() >= item.expires_at.replace(tzinfo=None):
-                await item.prisma().update({"status": CartStatus.inactive},
-                                           where={"id": item.id})
+                await item.prisma().update(
+                    {"status": CartStatus.inactive}, where={"id": item.id}
+                )
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="your cart is expired and inactive",

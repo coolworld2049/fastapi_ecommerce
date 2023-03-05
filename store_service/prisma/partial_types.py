@@ -17,13 +17,15 @@ Category.create_partial(
 Product.create_partial("ProductWithoutRelations", exclude_relational_fields=True)
 
 Product.create_partial(
-    "ProductCreate", exclude_relational_fields=True, exclude=["id", "order_ids"]
+    "ProductCreate",
+    exclude_relational_fields=True,
+    exclude=["id", "order_ids", *common_excluded],
 )
 
 Product.create_partial(
     "ProductUpdate",
     exclude_relational_fields=True,
-    exclude=["id", "order_ids", "category_id"],
+    exclude=["id", "order_ids", "category_id", *common_excluded],
 )
 
 # Order
@@ -33,13 +35,14 @@ Order.create_partial(
     "OrderCreate",
     exclude_relational_fields=True,
     required=["user_id", "status"],
-    exclude=["cost", "tax", "total", "currency", "product_ids", *common_excluded],
+    exclude=["cost", "currency", "product_ids", *common_excluded],
 )
 
 Order.create_partial(
-    "OrderUpdate", exclude_relational_fields=True,
+    "OrderUpdate",
+    exclude_relational_fields=True,
     exclude=[*common_excluded],
-    required=["user_id", "status"]
+    required=["user_id", "status"],
 )
 
 # User
@@ -64,8 +67,9 @@ User.create_partial(
 )
 
 User.create_partial(
-    "UserUpdate", exclude_relational_fields=True,
-    exclude=["id", "password", "username", *common_excluded]
+    "UserUpdate",
+    exclude_relational_fields=True,
+    exclude=["id", "password", "username", *common_excluded],
 )
 
 User.create_partial(
@@ -79,6 +83,6 @@ User.create_partial(
         "role",
         "is_active",
         "is_superuser",
-        *common_excluded
+        *common_excluded,
     ],
 )
