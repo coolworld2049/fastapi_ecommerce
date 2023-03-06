@@ -17,37 +17,38 @@ class RequestParams(BaseModel):
 
 
 def parse_query_params(
-        use_range=True,
-        use_order=True,
-        use_where=True,
-        range_example="[0,50]",
-        order_example='{"id": "asc"}',
-        where_example: Any = None,
-        range_description: str = "",
-        where_add_description: str = "",
+    use_range=True,
+    use_order=True,
+    use_where=True,
+    range_example="[0,50]",
+    order_example='{"id": "asc"}',
+    where_example: Any = None,
+    range_description: str = "",
+    where_add_description: str = "",
 ) -> Callable[[str | None, str | None], RequestParams]:
     def inner(
-            range_: Optional[str] = Query(
-                None,
-                alias="range",
-                description="Format: `[skip, limit]`, infinity: `[skip, null]` " + range_description,
-                example=range_example,
-                include_in_schema=use_range,
-            ),
-            order_: Optional[str] = Query(
-                None,
-                alias="order",
-                description='Format: `{"field_name", "asc/desc"}`',
-                example=order_example,
-                include_in_schema=use_order,
-            ),
-            where_: Optional[str] = Query(
-                None,
-                alias="where",
-                description='Format: `{"field_name": "value"}`, ' + where_add_description,
-                example=where_example,
-                include_in_schema=use_where,
-            ),
+        range_: Optional[str] = Query(
+            None,
+            alias="range",
+            description="Format: `[skip, limit]`, infinity: `[skip, null]` "
+            + range_description,
+            example=range_example,
+            include_in_schema=use_range,
+        ),
+        order_: Optional[str] = Query(
+            None,
+            alias="order",
+            description='Format: `{"field_name", "asc/desc"}`',
+            example=order_example,
+            include_in_schema=use_order,
+        ),
+        where_: Optional[str] = Query(
+            None,
+            alias="where",
+            description='Format: `{"field_name": "value"}`, ' + where_add_description,
+            example=where_example,
+            include_in_schema=use_where,
+        ),
     ):
         try:
             skip, limit = 0, 50
