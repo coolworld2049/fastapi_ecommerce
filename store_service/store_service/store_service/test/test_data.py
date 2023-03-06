@@ -1,3 +1,4 @@
+import json
 import random
 import string
 from datetime import datetime
@@ -67,6 +68,7 @@ async def create_user(count: int = 100):
         "guest": count // 2,
     }
     counter = 0
+    users_with_plain_password: list[UserCreateInput] = []
     users: list[User] = []
     for role, _count in roles_count.items():
         for i in range(_count):
@@ -82,6 +84,7 @@ async def create_user(count: int = 100):
                 is_superuser=is_superuser,
                 full_name=full_name,
             )
+            users_with_plain_password.append(user_in.copy())
             try:
                 UserValidator(user_in).validate()
                 user_in.update({"password": hash_password(user_in.get("password"))})
@@ -98,6 +101,8 @@ async def create_user(count: int = 100):
             except Exception as e:
                 logger.info(e.args)
                 raise
+    with open("test_users_with_plain_password.json", 'w') as wf:
+        wf.write(json.dumps(users_with_plain_password, indent=4))
     return users
 
 

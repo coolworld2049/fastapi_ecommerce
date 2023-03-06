@@ -9,7 +9,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     api_prefix = "/api/v1"
-    enable_rbac = False
+    enable_rbac = True
 
     APP_NAME: str
     DEBUG: bool
