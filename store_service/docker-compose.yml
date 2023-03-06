@@ -1,15 +1,12 @@
 version: '3.9'
-
 services:
-
+  
   mongo:
     image: candis/mongo-replica-set
     ports:
       - "27017:27017"
       - "27018:27018"
       - "27019:27019"
-    networks:
-      - store_api_net
 
   store_service:
     build: .
@@ -18,14 +15,5 @@ services:
       - .env
     environment:
       - MONGODB_URL=mongodb://mongo:27017,mongo:27018,mongo:27019/app?replicaSet=rs0&readPreference=primary&ssl=false
-    depends_on:
-      - mongo
     ports:
       - ${PORT}:${PORT}
-    networks:
-      - store_api_net
-
-
-networks:
-  store_api_net:
-    name: custom_network

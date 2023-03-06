@@ -28,11 +28,6 @@ class SalesRevenue(BaseModel):
     products: list[dict] | None
 
 
-class QuantitySoldCategory(BaseModel):
-    category_id: str | None
-    quantity_sold_products_by_status: int | None
-
-
 async def get_orders_for_period(
         start_datetime: datetime, end_datetime: datetime, request_params: RequestParams
 ):
@@ -130,6 +125,11 @@ async def sales_analytics(
         revenue=revenue,
     )
     return _sales_revenue
+
+
+class QuantitySoldCategory(BaseModel):
+    category_id: str | None
+    quantity_sold_products_by_status: int | None
 
 
 @router.get(

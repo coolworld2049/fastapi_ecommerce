@@ -3,7 +3,7 @@ predefined_roles = [
         "role": "admin",
         "privileges": [
             {
-                "resource": {"db": "app", "collection": "Cart"},
+                "resource": {"db": "app", "collection": "OrderProduct"},
                 "actions": ["find", "insert", "remove", "update"],
             },
             {
@@ -29,7 +29,7 @@ predefined_roles = [
         "role": "manager",
         "privileges": [
             {
-                "resource": {"db": "app", "collection": "Cart"},
+                "resource": {"db": "app", "collection": "OrderProduct"},
                 "actions": ["find"],
             },
             {
@@ -57,7 +57,7 @@ predefined_roles = [
         "role": "customer",
         "privileges": [
             {
-                "resource": {"db": "app", "collection": "Cart"},
+                "resource": {"db": "app", "collection": "OrderProduct"},
                 "actions": ["find", "insert", "remove", "update"],
             },
             {
@@ -83,7 +83,7 @@ predefined_roles = [
         "role": "guest",
         "privileges": [
             {
-                "resource": {"db": "app", "collection": "Cart"},
+                "resource": {"db": "app", "collection": "OrderProduct"},
                 "actions": ["find"],
             },
             {

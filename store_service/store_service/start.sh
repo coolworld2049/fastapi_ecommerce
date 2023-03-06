@@ -1,4 +1,4 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 set -e
 
 if [ -f /app/app/main.py ]; then
@@ -20,7 +20,7 @@ fi
 export GUNICORN_CONF=${GUNICORN_CONF:-$DEFAULT_GUNICORN_CONF}
 export WORKER_CLASS=${WORKER_CLASS:-"uvicorn.workers.UvicornWorker"}
 
-# If there's a prestart.sh script in the /gateway_service directory or other path specified, run it before starting
+# If there's a prestart.sh script in the /employee_service directory or other path specified, run it before starting
 PRE_START_PATH=${PRE_START_PATH:-/app/prestart.sh}
 echo "Checking for script in $PRE_START_PATH"
 if [ -f "$PRE_START_PATH" ] ; then

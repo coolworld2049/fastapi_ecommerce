@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
-    MONGODB_URL: str
+    DATABASE_URL: str
 
     @property
     def cart_expires_timestamp(self):
