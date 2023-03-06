@@ -16,7 +16,7 @@
     </inspection_tool>
     <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <Languages>
-        <language minSize="241" name="Python" />
+        <language minSize="275" name="Python" />
       </Languages>
     </inspection_tool>
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
@@ -124,7 +124,7 @@
         </list>
       </option>
     </inspection_tool>
-    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="ignoredIdentifiers">
         <list>
           <option value="random.random.randint" />
@@ -141,6 +141,9 @@
           <option value="db" />
           <option value="backend.app.main.*" />
           <option value="typing.AsyncGenerator.__await__" />
+          <option value="type.metadata" />
+          <option value="pymongo.results.InsertManyResult.__await__" />
+          <option value="pymongo.results.DeleteResult.__await__" />
         </list>
       </option>
     </inspection_tool>

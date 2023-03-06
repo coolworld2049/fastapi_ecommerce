@@ -7,13 +7,13 @@ from fastapi import HTTPException
 from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from order_service import crud
-from order_service import schemas
-from order_service import models
-from order_service.api.dependencies import auth
-from order_service.api.dependencies import database
-from order_service.api.dependencies import params
-from order_service.models import Cart
+from employee_service import crud
+from employee_service import schemas
+from employee_service import models
+from employee_service.api.dependencies import auth
+from employee_service.api.dependencies import database
+from employee_service.api.dependencies import params
+from employee_service.models import Cart
 
 router = APIRouter()
 

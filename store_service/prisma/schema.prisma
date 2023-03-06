@@ -1,0 +1,83 @@
+generator db {
+  provider             = "prisma-client-py"
+  interface            = asyncio
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URL")
+}
+
+enum CartStatus {
+  active
+  inactive
+}
+
+enum OrderStatus {
+  pending
+  awaiting_payment
+  awaiting_fulfilment
+  completed
+  canceled
+  declined
+  refunded
+  disputed
+  partially_refunded
+  deleted
+}
+
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  email        String    @unique
+  username     String    @unique
+  password     String
+  role         String    @default("guest")
+  is_active    Boolean   @default(true)
+  is_superuser Boolean   @default(false)
+  full_name    String?
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @updatedAt
+  orders       Order[]
+}
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  description String?
+  created_at  DateTime? @default(now())
+  updated_at  DateTime? @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  title          String         @unique
+  stock          Int
+  price          Float
+  description    String?
+  created_at     DateTime?      @default(now())
+  updated_at     DateTime?      @updatedAt
+  category       Category       @relation(fields: [category_id], references: [id])
+  category_id    String         @db.ObjectId
+  order_products OrderProduct[]
+}
+
+model Order {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  status         OrderStatus    @default(pending)
+  cost           Float?
+  created_at     DateTime?      @default(now())
+  updated_at     DateTime?      @updatedAt
+  user           User?          @relation(fields: [user_id], references: [id])
+  user_id        String?        @db.ObjectId
+  order_products OrderProduct[]
+}
+
+model OrderProduct {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  order      Order    @relation(fields: [order_id], references: [id])
+  order_id   String   @db.ObjectId
+  product    Product? @relation(fields: [product_id], references: [id])
+  product_id String?  @db.ObjectId
+}
