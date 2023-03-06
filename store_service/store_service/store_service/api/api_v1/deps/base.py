@@ -11,7 +11,6 @@ from starlette import status
 from uvicorn.main import logger
 
 from store_service.core.config import settings
-from store_service.db.base import dbapp
 
 oauth2Scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.api_prefix}/login/access-token"
@@ -69,14 +68,14 @@ async def get_current_active_superuser(
 class RoleChecker:
     def __init__(
         self,
-        resource: _PrismaModel | Any,
-        roles: list,
+        resource: _PrismaModel | Any | None = None,
+        roles: list = None,
     ):
         self.resource = resource
         self.roles = roles
 
     async def __call__(self, current_user: User = Depends(get_current_active_user)):
-        if settings.enable_rbac:
+        if settings.enable_rbac and self.roles:
             if current_user.role not in self.roles:
                 msg = f"User with role '{current_user.role}' doesn`t have access to '{self.resource.__name__}'"
                 logger.info(msg)

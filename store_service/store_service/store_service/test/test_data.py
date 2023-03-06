@@ -68,8 +68,8 @@ async def create_user(count: int = 100):
     }
     counter = 0
     users: list[User] = []
-    for role, count in roles_count.items():
-        for i in range(count):
+    for role, _count in roles_count.items():
+        for i in range(_count):
             counter += i
             is_superuser = True if role == "admin" else False
             full_name: str = f"{fake.name()}-{rnd_string()}"
@@ -101,18 +101,18 @@ async def create_user(count: int = 100):
     return users
 
 
-async def create_category(count=10):
+async def create_category(count=20):
     categories: list[Category] = []
     for i in range(count):
         category = await Category.prisma().create(
-            CategoryCreateInput(name=rnd_string(), description=rnd_string())
+            CategoryCreateInput(name=rnd_string(), description=rnd_string()),
         )
         categories.append(category)
     return categories
 
 
 async def create_product(
-    categories: list[Category], multiplier: int = 10, *, created_at: RandomDateTime
+    categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
 ):
     products: list[Product] = []
     count = len(categories) * multiplier
@@ -166,7 +166,7 @@ async def update_orders(
         rnd_products_cost = sum(list(map(lambda x: x.price, rnd_products)))
         order = await Order.prisma().update(
             data={
-                "status": random.choice([OrderStatus.completed, OrderStatus.canceled]),
+                "status": random.choice([x for x in OrderStatus]),
                 "order_products": {
                     "create": [
                         {

@@ -12,10 +12,10 @@ router = APIRouter()
 
 
 @router.post(
-    "/guest",
+    "/customer",
     response_model=UserWithoutRelations,
 )
-async def sign_up_guest(user_in: UserCreateOpen) -> Optional[User]:
+async def sign_up_customer(user_in: UserCreateOpen) -> Optional[User]:
     UserValidator(user_in).validate()
     user_in.password = hash_password(user_in.password)
     user = await User.prisma().create(user_in.dict())

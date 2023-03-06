@@ -74,8 +74,7 @@ def parse_query_params(
                             raise HTTPException(
                                 400, f"Invalid order direction '{k}': '{v}'"
                             )
-            assert ast.literal_eval(where_example)
-            where_by = ast.literal_eval(where_example)
+            where_by = None
             if where_:
                 where_by = {}
                 wheres: dict = json.loads(where_)
