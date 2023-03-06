@@ -1,4 +1,4 @@
-from prisma.models import *
+from prisma.models import Category, Product, Order, User
 
 common_excluded = ["created_at", "updated_at"]
 
@@ -6,11 +6,11 @@ common_excluded = ["created_at", "updated_at"]
 Category.create_partial("CategoryWithoutRelations", exclude_relational_fields=True)
 
 Category.create_partial(
-    "CategoryCreate", exclude_relational_fields=True, exclude=["id"]
+    "CategoryCreate", exclude_relational_fields=True, exclude=["id", *common_excluded]
 )
 
 Category.create_partial(
-    "CategoryUpdate", exclude_relational_fields=True, exclude=["id"]
+    "CategoryUpdate", exclude_relational_fields=True, exclude=["id", *common_excluded]
 )
 
 # Product
@@ -19,23 +19,26 @@ Product.create_partial("ProductWithoutRelations", exclude_relational_fields=True
 Product.create_partial(
     "ProductCreate",
     exclude_relational_fields=True,
-    exclude=["id", "order_ids", *common_excluded],
+    exclude=["id", *common_excluded],
 )
 
 Product.create_partial(
     "ProductUpdate",
     exclude_relational_fields=True,
-    exclude=["id", "order_ids", "category_id", *common_excluded],
+    exclude=["id", "category_id", *common_excluded],
 )
 
 # Order
-Order.create_partial("OrderWithoutRelations", exclude_relational_fields=True)
+Order.create_partial(
+    "OrderWithoutRelations",
+    exclude=["user"],
+)
 
 Order.create_partial(
     "OrderCreate",
     exclude_relational_fields=True,
     required=["user_id", "status"],
-    exclude=["cost", "currency", "product_ids", *common_excluded],
+    exclude=["cost", "order_products", *common_excluded],
 )
 
 Order.create_partial(

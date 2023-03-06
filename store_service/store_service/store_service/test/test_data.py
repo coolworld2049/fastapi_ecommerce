@@ -2,11 +2,13 @@ import random
 import string
 from datetime import datetime
 
+import faker_commerce
 import pytest
 from faker import Faker
 from prisma import Prisma
 from prisma.enums import OrderStatus
-from prisma.models import User, Category, Product, Order
+from prisma.errors import UniqueViolationError
+from prisma.models import User, Category, Product, Order, OrderProduct
 from prisma.types import UserCreateInput, CategoryCreateInput, ProductCreateInput
 from uvicorn.main import logger
 
@@ -14,29 +16,37 @@ from store_service.core.auth import hash_password
 from store_service.db.base import dbapp
 from store_service.validator.user import UserValidator
 
-faker = Faker()
+fake = Faker()
+fake.add_provider(faker_commerce.Provider)
 
 
 class RandomDateTime:
-    def __init__(self, year: int = None, month: int = None, day: int = None):
+    def __init__(
+        self,
+        year: list[int, int] = None,
+        month: list[int, int] = None,
+        day: list[int, int] = None,
+    ):
         self.year = year
         self.month = month
         self.day = day
 
-    def datetime(self, now_dt: datetime):
+    def datetime(self, now_dt: datetime = datetime.now()):
+        data = {
+            "year": random.choice(self.year) if self.year else None,
+            "month": random.choice(self.month) if self.month else None,
+            "day": random.choice(self.day) if self.day else None,
+        }
         items = dict(
             filter(  # noqa
-                lambda it: it[1] is not None and isinstance(it[1], int),
-                self.__dict__.items(),
+                lambda it: it[1] is not None and isinstance(it[1], int), data.items()
             )
         )
         return now_dt.replace(**items)
 
 
-def rnd_string():
-    return "".join(
-        [random.choice(string.ascii_letters) for _ in range(random.randint(5, 10))]
-    )
+def rnd_string(length=24):
+    return "".join([random.choice(string.ascii_letters) for _ in range(length)])
 
 
 def rnd_password():
@@ -62,7 +72,7 @@ async def create_user(count: int = 100):
         for i in range(count):
             counter += i
             is_superuser = True if role == "admin" else False
-            full_name: str = f"{faker.name()}-{rnd_string()}"
+            full_name: str = f"{fake.name()}-{rnd_string()}"
             username = full_name.replace(" ", "")
             user_in = UserCreateInput(
                 email=f"{username}_{role}_{i}@gmail.com",
@@ -108,16 +118,21 @@ async def create_product(
     count = len(categories) * multiplier
     for i in range(count):
         product_in = ProductCreateInput(
-            title=rnd_string(),
+            title=fake.ecommerce_name(),
             category_id=random.choice(categories).id,
-            price=random.randint(multiplier * 10, count),
+            price=random.randint(1000, 100000),
             description=rnd_string(),
             stock=multiplier * 10,
-            created_at=created_at.datetime(datetime.now()),
-            updated_at=created_at.datetime(datetime.now()),
+            created_at=created_at.datetime(),
+            updated_at=created_at.datetime(),
         )
-        product = await Product.prisma().create(product_in, include={"category": True})
-        products.append(product)
+        try:
+            product = await Product.prisma().create(
+                product_in, include={"category": True}
+            )
+            products.append(product)
+        except UniqueViolationError:
+            pass
     return products
 
 
@@ -126,8 +141,11 @@ async def create_orders(users: list[User], created_at: RandomDateTime):
     for user in users:
         order = await Order.prisma().create(
             data={
+                "status": OrderStatus.pending,
+                "cost": 0.0,
                 "user": {"connect": {"id": user.id}},
-                "created_at": created_at.datetime(datetime.now()),
+                "created_at": created_at.datetime(),
+                "updated_at": created_at.datetime(),
             },
             include={"user": True},
         )
@@ -142,59 +160,42 @@ async def update_orders(
     products_choice_weight=10,
 ):
     _orders: list[Order] = []
+    k = random.randint(1, products_choice_weight)
     for order in orders:
-        rnd_products: list[Product] = [
-            x
-            for x in random.choices(
-                products, k=random.randint(1, products_choice_weight)
-            )
-        ]
-        rnd_products_ids = [{"id": x.id} for x in rnd_products]
+        rnd_products: list[Product] = [x for x in random.choices(products, k=k)]
         rnd_products_cost = sum(list(map(lambda x: x.price, rnd_products)))
         order = await Order.prisma().update(
             data={
                 "status": random.choice([OrderStatus.completed, OrderStatus.canceled]),
-                "products": {"set": rnd_products_ids},
+                "order_products": {
+                    "create": [
+                        {
+                            "product_id": x.id,
+                        }
+                        for x in rnd_products
+                    ],
+                },
                 "cost": {"set": rnd_products_cost},
-                "updated_at": created_at.datetime(datetime.now()),
+                "updated_at": created_at.datetime(),
             },
             where={"id": order.id},
-            include={"products": True},
+            include={"order_products": True},
         )
-        _orders.append(order)
-        if order.status == OrderStatus.completed:
-            product = await Product.prisma().update_many(
-                data={"stock": {"decrement": 1}},
-                where={"id": {"in": order.product_ids}},
+        for p in rnd_products:
+            order_product = await OrderProduct.prisma().update(
+                data={"product": {"connect": {"id": p.id}}}, where={"id": order.id}
             )
-            if not product:
-                raise
-        if order.status == OrderStatus.canceled:
+        _orders.append(order)
+        data = None
+        if order.status == OrderStatus.completed:
+            data = {"stock": {"decrement": 1}}
+        if data:
             for p in rnd_products:
-                product_ = await Product.prisma().update(
-                    data={"orders": {"disconnect": [{"id": order.id}]}},
+                product = await Product.prisma().update(
+                    data=data,
                     where={"id": p.id},
                 )
-                if not product_:
-                    raise
     return _orders
-
-
-async def delete_orders(orders: list[Order]):
-    for order in orders:
-        await Order.prisma().delete(where={"id": order.id}, include={"user": True})
-
-
-async def delete_product(products: list[Product]):
-    for product in products:
-        await Product.prisma().delete(
-            where={"id": product.id}, include={"category": True, "carts": True}
-        )
-
-
-async def delete_category(categories: list[Category]):
-    for category in categories:
-        await Product.prisma().delete(where={"id": category.id})
 
 
 @pytest.mark.asyncio
@@ -204,8 +205,8 @@ async def test_data(prisma_client: Prisma):
     cat = await create_category()
     now = datetime.now()
     created_at = RandomDateTime(
-        random.choice([x for x in range(now.year - 3, now.year)]),
-        random.randint(1, 12),
+        [now.year - 1, now.year],
+        [1, datetime.now().month],
     )
     prod = await create_product(cat, created_at=created_at)
     for _ in range(3):

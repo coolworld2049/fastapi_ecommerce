@@ -51,6 +51,8 @@ async def create_first_superuser():
         return user
     except UniqueViolationError as e:
         logger.info(f"first superuser already exists")
+    except OperationFailure as e:
+        logger.info(f"first superuser already exists")
 
 
 async def init_db():
