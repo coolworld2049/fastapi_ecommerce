@@ -1,9 +1,8 @@
-import json
 from pathlib import Path
 
 from fastapi import FastAPI
 from prisma import Prisma
-from prisma.errors import DataError, UniqueViolationError, PrismaError
+from prisma.errors import PrismaError
 from pydantic.error_wrappers import ValidationError
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware

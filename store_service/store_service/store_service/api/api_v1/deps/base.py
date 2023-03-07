@@ -5,12 +5,14 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
-from prisma.bases import _PrismaModel
 from prisma.models import User
-from starlette import status
 from uvicorn.main import logger
 
 from store_service.core.config import settings
+from store_service.api.api_v1.deps.custom_exception import (
+    BadCredentialsException,
+    PermissionDeniedException,
+)
 
 oauth2Scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.api_prefix}/login/access-token"
@@ -20,11 +22,6 @@ oauth2Scheme = OAuth2PasswordBearer(
 async def get_current_user(
     token: str = Depends(oauth2Scheme),
 ) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
         payload = jwt.decode(
             token=token,
@@ -34,15 +31,15 @@ async def get_current_user(
         )
         sub = payload.get("sub")
         if not sub:
-            raise credentials_exception
+            raise BadCredentialsException
     except JWTError:
-        raise credentials_exception
+        raise BadCredentialsException
 
     user = await User.prisma().find_unique(
         where={"id": str(sub)}, include={"orders": True}
     )
     if user is None:
-        raise credentials_exception
+        raise BadCredentialsException
     return user
 
 
@@ -68,7 +65,7 @@ async def get_current_active_superuser(
 class RoleChecker:
     def __init__(
         self,
-        resource: _PrismaModel | Any | None = None,
+        resource: Any | None = None,
         roles: list = None,
     ):
         self.resource = resource
@@ -83,4 +80,4 @@ class RoleChecker:
                     logger.info(
                         f"Details: current_user role is '{current_user.role}', required roles: {self.roles}"
                     )
-                raise HTTPException(status_code=403, detail="Operation not permitted")
+                raise PermissionDeniedException

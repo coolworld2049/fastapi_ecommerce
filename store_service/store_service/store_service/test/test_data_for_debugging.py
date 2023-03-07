@@ -1,3 +1,4 @@
+import json
 import random
 import string
 from datetime import datetime
@@ -5,6 +6,7 @@ from datetime import datetime
 import faker_commerce
 import pytest
 from faker import Faker
+from httpx import AsyncClient
 from prisma import Prisma
 from prisma.enums import OrderStatus
 from prisma.errors import UniqueViolationError
@@ -13,6 +15,7 @@ from prisma.types import UserCreateInput, CategoryCreateInput, ProductCreateInpu
 from uvicorn.main import logger
 
 from store_service.core.auth import hash_password
+from store_service.core.config import settings
 from store_service.db.base import dbapp
 from store_service.validator.user import UserValidator
 
@@ -67,12 +70,13 @@ async def create_user(count: int = 100):
         "guest": count // 2,
     }
     counter = 0
+    users_with_plain_password: list[UserCreateInput] = []
     users: list[User] = []
     for role, _count in roles_count.items():
         for i in range(_count):
             counter += i
             is_superuser = True if role == "admin" else False
-            full_name: str = f"{fake.name()}-{rnd_string()}"
+            full_name: str = f"{fake.name()}_{rnd_string(4)}"
             username = full_name.replace(" ", "")
             user_in = UserCreateInput(
                 email=f"{username}_{role}_{i}@gmail.com",
@@ -82,6 +86,7 @@ async def create_user(count: int = 100):
                 is_superuser=is_superuser,
                 full_name=full_name,
             )
+            users_with_plain_password.append(user_in.copy())
             try:
                 UserValidator(user_in).validate()
                 user_in.update({"password": hash_password(user_in.get("password"))})
@@ -98,6 +103,8 @@ async def create_user(count: int = 100):
             except Exception as e:
                 logger.info(e.args)
                 raise
+    with open("test_users_with_plain_password.json", "w") as wf:
+        wf.write(json.dumps(users_with_plain_password, indent=4))
     return users
 
 
@@ -200,15 +207,16 @@ async def update_orders(
 
 @pytest.mark.asyncio
 async def test_data(prisma_client: Prisma):
-    await prisma_client.connect()
-    us = await create_user(count=100)
-    cat = await create_category()
-    now = datetime.now()
-    created_at = RandomDateTime(
-        [now.year - 1, now.year],
-        [1, datetime.now().month],
-    )
-    prod = await create_product(cat, created_at=created_at)
-    for _ in range(3):
-        orders = await create_orders(us, created_at=created_at)
-        await update_orders(orders, prod, created_at=created_at)
+    if settings.DEBUG:
+        await prisma_client.connect()
+        us = await create_user(count=100)
+        cat = await create_category()
+        now = datetime.now()
+        created_at = RandomDateTime(
+            [now.year - 1, now.year],
+            [1, datetime.now().month],
+        )
+        prod = await create_product(cat, created_at=created_at)
+        for _ in range(3):
+            orders = await create_orders(us, created_at=created_at)
+            await update_orders(orders, prod, created_at=created_at)

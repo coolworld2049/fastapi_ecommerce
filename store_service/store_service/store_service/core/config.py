@@ -1,19 +1,19 @@
 from datetime import datetime, timedelta
 from typing import Union
 
-from pydantic import AnyHttpUrl, BaseSettings, validator
 from dotenv import load_dotenv
+from pydantic import BaseSettings, validator
 
 load_dotenv()
 
 
 class Settings(BaseSettings):
     api_prefix = "/api/v1"
-    enable_rbac = False
+    enable_rbac = True
 
     APP_NAME: str
     DEBUG: bool
-    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: list[str] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, list[str]]) -> Union[list[str], str]:
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
-    MONGODB_URL: str
+    DATABASE_URL: str
 
     @property
     def cart_expires_timestamp(self):
@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        env_file = ".env.dev"
 
 
 settings = Settings()
