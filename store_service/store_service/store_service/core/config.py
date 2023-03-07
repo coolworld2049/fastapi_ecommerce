@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Union
 
-from pydantic import AnyHttpUrl, BaseSettings, validator
 from dotenv import load_dotenv
+from pydantic import BaseSettings, validator
 
 load_dotenv()
 
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     APP_NAME: str
     DEBUG: bool
-    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: list[str] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, list[str]]) -> Union[list[str], str]:

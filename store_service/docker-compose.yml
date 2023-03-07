@@ -1,12 +1,15 @@
 version: '3.9'
+
 services:
-  
-  mongo:
-    image: candis/mongo-replica-set
+
+  mongodb_prod:
+    image: prismagraphql/mongo-single-replica:4.4.3-bionic
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=prisma
+      - INIT_WAIT_SEC=3
     ports:
       - "27017:27017"
-      - "27018:27018"
-      - "27019:27019"
 
   store_service:
     build: .
@@ -14,6 +17,6 @@ services:
     env_file:
       - .env
     environment:
-      - MONGODB_URL=mongodb://mongo:27017,mongo:27018,mongo:27019/app?replicaSet=rs0&readPreference=primary&ssl=false
+      - DATABASE_URL=mongodb://root:prisma@mongodb_prod:27017/app?authSource=admin&retryWrites=true&w=majority
     ports:
       - ${PORT}:${PORT}
