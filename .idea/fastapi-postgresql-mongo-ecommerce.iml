@@ -18,6 +18,7 @@
     <option name="TEMPLATE_FOLDERS">
       <list>
         <option value="$MODULE_DIR$/employee_service/employee_service/employee_service/templates" />
+        <option value="$MODULE_DIR$/store_service/store_service/store_service/templates" />
       </list>
     </option>
   </component>

@@ -29,7 +29,7 @@ class SalesRevenue(BaseModel):
 
 
 async def get_orders_for_period(
-        start_datetime: datetime, end_datetime: datetime, request_params: RequestParams
+    start_datetime: datetime, end_datetime: datetime, request_params: RequestParams
 ):
     cost = {"cost": True}
     orders_for_period = await Order.prisma().group_by(
@@ -57,23 +57,23 @@ async def get_orders_for_period(
     dependencies=[Depends(RoleChecker(roles=["admin"]))],
 )
 async def sales_analytics(
-        start_datetime: datetime = Param(
-            datetime.now().replace(year=datetime.now().year - 1),
-            description="ISO 8601 format",
-        ),
-        end_datetime: datetime = Param(datetime.now(), description="ISO 8601 format"),
-        products: bool = True,
-        in_orders: bool = False,
-        buyers: bool = False,
-        request_params: RequestParams = Depends(
-            params.parse_query_params(
-                use_order=False,
-                order_example=None,
-                range_description="Explanation: The range applicable for the 'Order' collection.",
-                where_example='{"status": "completed"}',
-                where_add_description=f"""`status`=`{[x.name for x in OrderStatus]}`""",
-            )
-        ),
+    start_datetime: datetime = Param(
+        datetime.now().replace(year=datetime.now().year - 1),
+        description="ISO 8601 format",
+    ),
+    end_datetime: datetime = Param(datetime.now(), description="ISO 8601 format"),
+    products: bool = True,
+    in_orders: bool = False,
+    buyers: bool = False,
+    request_params: RequestParams = Depends(
+        params.parse_query_params(
+            use_order=False,
+            order_example=None,
+            range_description="Explanation: The range applicable for the 'Order' collection.",
+            where_example='{"status": "completed"}',
+            where_add_description=f"""`status`=`{[x.name for x in OrderStatus]}`""",
+        )
+    ),
 ) -> SalesRevenue:
     start = time.time()
     orders_products = await get_orders_for_period(
@@ -114,9 +114,7 @@ async def sales_analytics(
             "created_at": datetime.now(),
         },
         elapsed_time_sec=f"{end - start}",
-        details={
-            "product_count": len(products_in_order_products)
-        }
+        details={"product_count": len(products_in_order_products)},
     )
     _sales_revenue = SalesRevenue(
         analytic_response=analytic_response,
@@ -138,20 +136,20 @@ class QuantitySoldCategory(BaseModel):
     dependencies=[Depends(RoleChecker(roles=["admin"]))],
 )
 async def categories_sales_analytic(
-        start_datetime: datetime = Param(
-            datetime.now().replace(year=datetime.now().year - 1),
-            description="ISO 8601 format",
-        ),
-        end_datetime: datetime = Param(datetime.now(), description="ISO 8601 format"),
-        request_params: RequestParams = Depends(
-            params.parse_query_params(
-                use_order=False,
-                order_example=None,
-                range_description="Explanation: The range applicable for the 'Order' collection.",
-                where_example='{"status": "completed"}',
-                where_add_description=f"""`status`=`{[x.name for x in OrderStatus]}`""",
-            )
-        ),
+    start_datetime: datetime = Param(
+        datetime.now().replace(year=datetime.now().year - 1),
+        description="ISO 8601 format",
+    ),
+    end_datetime: datetime = Param(datetime.now(), description="ISO 8601 format"),
+    request_params: RequestParams = Depends(
+        params.parse_query_params(
+            use_order=False,
+            order_example=None,
+            range_description="Explanation: The range applicable for the 'Order' collection.",
+            where_example='{"status": "completed"}',
+            where_add_description=f"""`status`=`{[x.name for x in OrderStatus]}`""",
+        )
+    ),
 ) -> dict[str, AnalyticResponse | list[QuantitySoldCategory]]:
     start = time.time()
     orders_products = await get_orders_for_period(
@@ -168,9 +166,7 @@ async def categories_sales_analytic(
             "created_at": datetime.now(),
         },
         elapsed_time_sec=f"{end - start}",
-        details={
-            "category_count": len(sold_product_category_ids)
-        }
+        details={"category_count": len(sold_product_category_ids)},
     )
     quantity_sold_category = {
         "analytic_response": analytic_response,
@@ -178,7 +174,8 @@ async def categories_sales_analytic(
             QuantitySoldCategory(
                 category_id=x,
                 quantity_sold_products_by_status=len(
-                    {y.order_id for y in orders_products if y.product.category_id == x}),
+                    {y.order_id for y in orders_products if y.product.category_id == x}
+                ),
             )
             for x in sold_product_category_ids
         ],

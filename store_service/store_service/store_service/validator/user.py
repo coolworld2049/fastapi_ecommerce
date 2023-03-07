@@ -8,7 +8,10 @@ from starlette.exceptions import HTTPException
 from uvicorn.main import logger
 
 password_exp = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-password_conditions = "Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+password_conditions = (
+    "Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one "
+    "special character"
+)
 username_exp = "[A-Za-z_0-9]*"
 
 
