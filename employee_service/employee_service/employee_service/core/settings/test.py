@@ -12,4 +12,4 @@ class TestAppSettings(AppSettings):
     LOGGING_LEVEL: int = logging.DEBUG
 
     class Config(AppSettings.Config):
-        env_file = ".env"
+        env_file = ".env.dev"
