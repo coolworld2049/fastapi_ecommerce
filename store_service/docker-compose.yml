@@ -9,7 +9,6 @@ services:
       - .env
     environment:
       - DEBUG=False
-      - DATABASE_URL=mongodb://localhost:27117,localhost:27118/app
     ports:
       - ${PORT}:${PORT}
 
