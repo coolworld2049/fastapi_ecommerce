@@ -171,3 +171,4 @@ cython_debug/
 !/mongodb/.env
 !/mongodb/.env
 !/mongodb/.env
+!/.env
