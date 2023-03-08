@@ -9,6 +9,7 @@ RUN apt-get -y update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get upgrade -y
 
 COPY store_service/requirements.txt /app/requirements.txt
 
