@@ -13,6 +13,7 @@ services:
       - .env
     environment:
       - DEBUG=False
+      - PORT=80
       - DATABASE_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
     ports:
       - ${PORT}:${PORT}
