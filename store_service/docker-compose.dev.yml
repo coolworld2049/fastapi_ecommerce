@@ -1,12 +1,20 @@
 version: '3.9'
 
+networks:
+  app_tier:
+    name: mss_network
+
 services:
 
-  mongodb:
-    image: prismagraphql/mongo-single-replica:4.4.3-bionic
+  store_service:
+    build: .
+    command: ./start.sh
+    env_file:
+      - .env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=prisma
-      - INIT_WAIT_SEC=3
+      - DATABASE_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
     ports:
-      - "27017:27017"
+      - ${PORT}:${PORT}
+    networks:
+      - app_tier
+

@@ -215,17 +215,24 @@ async def update_order_status(id: str, order_status_in: OrderStatus) -> Optional
     "/",
     dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
 )
-async def set_order_status_deleted(
+async def delete_order(
     current_user: User = Depends(get_current_active_user),
 ) -> dict[str, Any]:
     order = await get_current_user_order(current_user)
+    data = {
+        "status": OrderStatus.deleted
+    }
+    order_product_ids = list(map(lambda x: x.id, order.order_products)) if order.order_products else None
+    if order_product_ids:
+        data.update(
+            {
+                "order_products": {
+                    "disconnect": {"id": x} for x in order_product_ids
+                }
+            }
+        )
     order = await order.prisma().update(
-        data={
-            "status": OrderStatus.deleted,
-            "order_products": {
-                "disconnect": {"id": x.id} for x in order.order_products
-            },
-        },
+        data=data,
         where={"id": order.id},
         include={"order_products": True},
     )
