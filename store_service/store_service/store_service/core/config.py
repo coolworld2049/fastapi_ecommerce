@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = ".env.dev"
+        env_file = ".env.mongodb_cluster_dev"
 
 
 settings = Settings()
