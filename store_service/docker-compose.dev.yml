@@ -1,5 +1,10 @@
 version: '3.9'
 
+networks:
+  app_tier:
+    name: mss_network
+    external: true
+
 services:
 
   store_service:
@@ -7,8 +12,8 @@ services:
     command: ./start.sh
     env_file:
       - .env
-    environment:
-      - DEBUG=False
     ports:
       - ${PORT}:${PORT}
+    networks:
+      - app_tier
 

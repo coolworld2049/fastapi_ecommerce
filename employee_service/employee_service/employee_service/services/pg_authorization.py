@@ -27,7 +27,7 @@ async def is_rolname_exist(db: AsyncSession, current_user: User):
         {"db_user": current_user.username},
     )
     result = _result.fetchone()._data[0]  # noqa
-    if get_app_settings().APP_ENV in ["mongodb_cluster_dev", "test"]:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info(
             f"""{f'role "{current_user.username}" exist' if result else f'role "{current_user.username}" not exist'}""",
         )
@@ -43,7 +43,7 @@ async def create_user_in_role(db: AsyncSession, current_user: User):
         "db_name": db.bind.url.database,
     }
     await db.execute(text(q), params=params)
-    if get_app_settings().APP_ENV in ["mongodb_cluster_dev", "test"]:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info("created")
 
 
@@ -54,26 +54,26 @@ async def drop_user_in_role(db: AsyncSession | Connection, current_user: User):
         await db.close()
     elif isinstance(db, AsyncSession):
         await db.execute(text(q))
-    if get_app_settings().APP_ENV in ["mongodb_cluster_dev", "test"]:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info(current_user.username)
 
 
 async def get_session_user(db: AsyncSession):
     q = """select session_user, current_user"""
     check_session_role_q_result: Result = await db.execute(text(q))
-    if get_app_settings().APP_ENV in ["mongodb_cluster_dev", "test"]:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info(check_session_role_q_result.scalar())
 
 
 async def set_session_user(db: AsyncSession, current_user: User):
     q = """set session authorization """ + current_user.username
-    if get_app_settings().APP_ENV in ["mongodb_cluster_dev", "test"]:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info(current_user.username)
     await db.execute(text(q))
 
 
 async def reset_session_user(db: AsyncSession):
     q = """reset session authorization"""
-    if get_app_settings().APP_ENV in ["mongodb_cluster_dev", "test"]:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info("reset")
     await db.execute(text(q))

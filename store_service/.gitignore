@@ -168,3 +168,4 @@ cython_debug/
 #.idea/
 
 /store_service/store_service/test/.benchmarks/
+!/mongodb/.env

@@ -1,14 +1,13 @@
-#! /usr/bin/env bash
+#! /bin/bash -x
 
 set -e
 
-cd ./mongodb_cluster/dev
+cd ./mongodb
 
 docker-compose -f docker-compose.yml up -d
 
-. init.sh
+. local.sh
 
 cd ..
-cd ..
 
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose -f docker-compose.yml up -d --force-recreate

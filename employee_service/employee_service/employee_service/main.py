@@ -79,7 +79,7 @@ app = get_application()
 @app.on_event("startup")
 async def startup():
     logger.opt(colors=True).warning("<m>Application startup!</m>")
-    if get_app_settings().APP_ENV.name == "mongodb_cluster_dev":
+    if get_app_settings().APP_ENV.name == "dev":
         await init_db()
 
 
