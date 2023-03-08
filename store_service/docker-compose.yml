@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
+      - DATABASE_URL=mongodb://your_admin:your_password@127.0.0.1:27117,127.0.0.1:27118/?authMechanism=DEFAULT
     ports:
       - ${PORT}:${PORT}
     networks:
