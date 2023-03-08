@@ -6,7 +6,7 @@ cd ./mongodb
 
 docker-compose -f docker-compose.yml up -d
 
-. init.sh
+. local.sh
 
 cd ..
 
