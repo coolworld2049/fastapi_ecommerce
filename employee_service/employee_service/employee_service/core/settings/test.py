@@ -12,4 +12,4 @@ class TestAppSettings(AppSettings):
     LOGGING_LEVEL: int = logging.DEBUG
 
     class Config(AppSettings.Config):
-        env_file = ".env.dev"
+        env_file = ".env.mongodb_cluster_dev"

@@ -57,7 +57,7 @@ services:
     env_file:
       - .env
     environment:
-      - APP_ENV=prod
+      - APP_ENV=mongodb_cluster_prod
       - DEBUG=False
       - PG_HOST=postgres
       - RABBITMQ_HOST=queue
