@@ -169,3 +169,5 @@ cython_debug/
 
 /store_service/store_service/test/.benchmarks/
 !/mongodb/.env
+!/mongodb/.env
+!/mongodb/.env
