@@ -1,6 +1,4 @@
-FROM python:3.11-alpine
-
-RUN apt-get update && apt-get install -y iputils-ping
+FROM python:3.11
 
 COPY store_service/requirements.txt /app/requirements.txt
 
