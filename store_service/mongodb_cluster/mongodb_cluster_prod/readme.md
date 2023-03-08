@@ -131,7 +131,7 @@ docker-compose exec router01 sh -c "mongosh < /scripts/init-router.js"
 
 ### 👉 Step 4: Setup authentication
 
-Default account is `your_admin` / `your_password`
+Default account is `root` / `root`
 
 ```bash
 docker-compose exec configsvr01 bash "/scripts/auth.js"
@@ -154,19 +154,19 @@ Okay, at this time your cluster is ready !
 Firstly, you need to access to router, it will ask your password:
 
 ```bash
-docker-compose exec router01 mongosh --port 27017 -u "your_admin" --authenticationDatabase admin
+docker-compose exec router01 mongosh --port 27017 -u "root" --authenticationDatabase admin
 ```
 
-Enter your password, in this case password is `your_password`, then run these commands to create database and enable sharding.
+Enter your password, in this case password is `root`, then run these commands to create database and enable sharding.
 
-Here we will create database `MyDatabase` and collection `MyCollection`
+Here we will create database `app` and collection `MyCollection`
 
 ```
-// Enable sharding for database `MyDatabase`
-sh.enableSharding("MyDatabase")
+// Enable sharding for database `app`
+sh.enableSharding("app")
 
 // Setup shardingKey for collection `MyCollection`**
-db.adminCommand( { shardCollection: "MyDatabase.MyCollection", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
+// db.adminCommand( { shardCollection: "app.MyCollection", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
 
 ```
 
@@ -177,7 +177,7 @@ db.adminCommand( { shardCollection: "MyDatabase.MyCollection", key: { oemNumber:
 Btw, here is mongodb connection string if you want to try to connect mongodb cluster with MongoDB Compass from your host computer
 
 ```
-mongodb://your_admin:your_password@127.0.0.1:27117,127.0.0.1:27118/?authMechanism=DEFAULT
+mongodb://root:root@127.0.0.1:27117,127.0.0.1:27118/?authMechanism=DEFAULT
 ```
 
 And if you are .NET developer there is a sample READ/WRITE data in mongodb cluster here: [https://github.com/minhhungit/mongodb-cluster-docker-compose/tree/master/client](https://github.com/minhhungit/mongodb-cluster-docker-compose/tree/master/client)
@@ -189,13 +189,13 @@ And if you are .NET developer there is a sample READ/WRITE data in mongodb clust
 ### ✅ Verify the status of the sharded cluster [🔝](#-table-of-contents)
 
 ```
-docker exec -it router-01 bash -c "echo 'sh.status()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
+docker exec -it router-01 bash -c "echo 'sh.status()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
 ```
 
 or
 
 ```bash
-docker-compose exec router01 mongosh --port 27017 -u "your_admin" --authenticationDatabase admin
+docker-compose exec router01 mongosh --port 27017 -u "root" --authenticationDatabase admin
 sh.status()
 ```
 
@@ -230,9 +230,9 @@ sh.status()
 > You should see 1 PRIMARY, 2 SECONDARY
 
 ```bash
-docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
-docker exec -it shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
-docker exec -it shard-03-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
+docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
+docker exec -it shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
+docker exec -it shard-03-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
 ```
 *Sample Result:*
 ```ps1
@@ -372,8 +372,8 @@ bye
 
 ### ✅ Check database status [🔝](#-table-of-contents)
 ```bash
-docker-compose exec router01 mongosh --port 27017 -u "your_admin" --authenticationDatabase admin
-use MyDatabase
+docker-compose exec router01 mongosh --port 27017 -u "root" --authenticationDatabase admin
+use app
 db.stats()
 db.MyCollection.getShardDistribution()
 ```
@@ -383,7 +383,7 @@ db.MyCollection.getShardDistribution()
 {
         "raw" : {
                 "rs-shard-01/shard01-a:27017,shard01-b:27017,shard01-c:27017" : {
-                        "db" : "MyDatabase",
+                        "db" : "app",
                         "collections" : 1,
                         "views" : 0,
                         "objects" : 0,
@@ -398,7 +398,7 @@ db.MyCollection.getShardDistribution()
                         "ok" : 1
                 },
                 "rs-shard-03/shard03-a:27017,shard03-b:27017,shard03-c:27017" : {
-                        "db" : "MyDatabase",
+                        "db" : "app",
                         "collections" : 1,
                         "views" : 0,
                         "objects" : 0,
@@ -413,7 +413,7 @@ db.MyCollection.getShardDistribution()
                         "ok" : 1
                 },
                 "rs-shard-02/shard02-a:27017,shard02-b:27017,shard02-c:27017" : {
-                        "db" : "MyDatabase",
+                        "db" : "app",
                         "collections" : 1,
                         "views" : 0,
                         "objects" : 0,
@@ -455,12 +455,12 @@ db.MyCollection.getShardDistribution()
 ## 🔎 More commands [🔝](#-table-of-contents)
 
 ```bash
-docker exec -it mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
+docker exec -it mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
 
-docker exec -it shard-01-node-a bash -c "echo 'rs.help()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
-docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin" 
-docker exec -it shard-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin" 
-docker exec -it shard-01-node-a bash -c "echo 'rs.printSlaveReplicationInfo()' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
+docker exec -it shard-01-node-a bash -c "echo 'rs.help()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
+docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin" 
+docker exec -it shard-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin" 
+docker exec -it shard-01-node-a bash -c "echo 'rs.printSlaveReplicationInfo()' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
 ```
 
 For step 4, you also can exec command directly in container, run bellow command line by line (for example configserver) :
@@ -469,14 +469,14 @@ For step 4, you also can exec command directly in container, run bellow command 
 docker-compose exec configsvr01 mongosh --port 27017
 rs.initiate({_id: "rs-config-server", configsvr: true, version: 1, members: [ { _id: 0, host : 'configsvr01:27017' }, { _id: 1, host : 'configsvr02:27017' }, { _id: 2, host : 'configsvr03:27017' } ] });
 use admin;
-db.createUser({user: "your_admin", pwd: "your_password", roles:[{role: "root", db: "admin"}]});
+db.createUser({user: "root", pwd: "root", roles:[{role: "root", db: "admin"}]});
 exit;
 ```
 
 Try to insert some documents, make sure that you switched to database that have just created by using:
 
 ```
-use MyDatabase
+use app
 ```
 
 then run:
@@ -504,7 +504,7 @@ docker exec -it shard-03-node-a bash -c "echo 'rs.status().members.forEach(funct
 
 If you configured authentication then use this syntax:
 ```
-docker exec -it mongo-config-01 bash -c "echo 'rs.status().members.forEach(function (m) { print(m.stateStr.split(\`":\`").shift()) })' | mongosh --port 27017 -u 'your_admin' -p 'your_password' --authenticationDatabase admin"
+docker exec -it mongo-config-01 bash -c "echo 'rs.status().members.forEach(function (m) { print(m.stateStr.split(\`":\`").shift()) })' | mongosh --port 27017 -u 'root' -p 'root' --authenticationDatabase admin"
 ```
 
 ---
