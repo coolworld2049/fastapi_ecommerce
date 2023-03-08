@@ -20,7 +20,9 @@ class Settings(BaseSettings):
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):
-            return v
+            return list(filter(lambda x: x not in ["http://", "https://"], v))
+        elif v in ["http://", "https://"]:
+            raise
         raise ValueError(v)
 
     DOMAIN: str
@@ -40,7 +42,7 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = ".env.mongodb_cluster_dev"
+        env_file = ".env.dev"
 
 
 settings = Settings()

@@ -13,8 +13,11 @@ services:
     command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
     ports:
       - 27117:27017
+    env_file:
+      - .env
     volumes:
       - ./scripts:/scripts
+      - ./mongod.conf:/etc/mongod.conf
     networks:
       - app_tier
 

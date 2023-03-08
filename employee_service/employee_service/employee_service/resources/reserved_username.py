@@ -108,7 +108,7 @@ reserved_usernames_list = [
     "design",
     "designer",
     "destroy",
-    "mongodb_cluster_dev",
+    "dev",
     "devel",
     "developer",
     "developers",
