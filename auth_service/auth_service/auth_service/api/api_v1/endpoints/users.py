@@ -1,22 +1,21 @@
 from typing import Any
 from typing import List
+
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
 from fastapi.encoders import jsonable_encoder
-from fastapi.params import Query
 from pydantic.networks import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud
-from auth_service import schemas
 from auth_service import models
+from auth_service import schemas
 from auth_service.api.dependencies import auth
 from auth_service.api.dependencies import database
 from auth_service.api.dependencies import params
-from auth_service.models import UserRole
 from auth_service.models.user import User
 
 router = APIRouter()
@@ -104,7 +103,7 @@ async def read_user_me(
 
 @router.get("/{id}", response_model=schemas.User)
 async def read_user_by_id(
-    id: int,
+    id: str,
     current_user: models.User = Depends(auth.get_current_active_user),  # noqa
     db: AsyncSession = Depends(database.get_db),
 ) -> Any:
@@ -123,7 +122,7 @@ async def read_user_by_id(
 @router.put("/{id}", response_model=schemas.User)
 async def update_user(
     *,
-    id: int,
+    id: str,
     db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserUpdate,
     current_user: models.User = Depends(auth.get_current_active_superuser),  # noqa
@@ -144,7 +143,7 @@ async def update_user(
 @router.delete("/{id}", response_model=schemas.User)
 async def delete_user(
     *,
-    id: int,
+    id: str,
     db: AsyncSession = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_user),  # noqa
 ) -> Any:
@@ -160,30 +159,4 @@ async def delete_user(
         raise HTTPException(status_code=404, detail="Superuser cannot be removed")
 
     user = await crud.user.remove(db=db, id=id)
-    return user
-
-
-@router.get("/role/{rolname}", response_model=List[schemas.User])
-async def read_users_by_role_id(
-    response: Response,
-    rolname: str = Query(None),
-    db: AsyncSession = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),  # noqa
-    request_params: models.RequestParams = Depends(
-        params.parse_react_admin_params(User),
-    ),
-) -> Any:
-    """
-    Retrieve users.
-    """
-    roles = None
-
-    if rolname in UserRole.to_list():
-        roles = [rolname]
-    elif not roles:
-        raise HTTPException(404, "role not set")
-    user, total = await crud.user.get_multi_with_role(db, request_params, roles)
-    response.headers[
-        "Content-Range"
-    ] = f"{request_params.skip}-{request_params.skip + len(user)}/{total}"
     return user

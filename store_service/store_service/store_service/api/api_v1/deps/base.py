@@ -15,9 +15,7 @@ from store_service.api.api_v1.deps.custom_exception import (
 from store_service.core.config import settings
 from store_service.schemas.user import User
 
-oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=settings.AUTH_SERVICE_API
-)
+oauth2Scheme = OAuth2PasswordBearer(tokenUrl=settings.AUTH_SERVICE_API)
 
 
 async def get_current_user(

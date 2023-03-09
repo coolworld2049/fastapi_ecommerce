@@ -17,4 +17,3 @@ class UserBase(BaseModel):
 
 class User(UserBase):
     id: str
-

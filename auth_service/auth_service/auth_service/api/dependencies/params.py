@@ -14,29 +14,28 @@ from sqlalchemy.orm import DeclarativeMeta
 
 
 def parse_react_admin_params(
-        model: DeclarativeMeta | Any,
+    model: DeclarativeMeta | Any,
 ) -> Callable[[str | None, str | None], RequestParams]:
     """Parses sort and range parameters coming from a react-admin request"""
 
     def inner(
-            range_: Optional[str] = Query(
-                None,
-                alias="range",
-                description="Format: `[start, end]`",
-                example="[0, 10]",
-            ),
-            sort_: Optional[str] = Query(
-                None,
-                alias="sort",
-                description='Format: `["field_name", "direction"]`',
-                example='["id", "ASC"]',
-            ),
-
-            filter_: Optional[str] = Query(
-                None,
-                alias="filter",
-                description='Format: `{"field_name": "value"}`',
-            ),
+        range_: Optional[str] = Query(
+            None,
+            alias="range",
+            description="Format: `[start, end]`",
+            example="[0, 10]",
+        ),
+        sort_: Optional[str] = Query(
+            None,
+            alias="sort",
+            description='Format: `["field_name", "direction"]`',
+            example='["id", "ASC"]',
+        ),
+        filter_: Optional[str] = Query(
+            None,
+            alias="filter",
+            description='Format: `{"field_name": "value"}`',
+        ),
     ):
         skip, limit = 0, 50
         if range_:

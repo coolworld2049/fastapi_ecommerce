@@ -20,17 +20,12 @@ from auth_service.services.security import verify_password
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    async def is_exists(self, db: AsyncSession, *, id: int) -> Any:
-        q = select(User).filter(self.model.id == id)
-        result: Result = await db.execute(q)
-        return result.first()
-
     # noinspection PyMethodMayBeStatic
     async def get_by_id(
         self,
         db: AsyncSession,
         *,
-        id: int,
+        id: str,
         role: str = None,
     ) -> Optional[User]:
         q: Select = select(User)

@@ -23,9 +23,7 @@ async def get_current_user_order(
     order_status: OrderStatus = OrderStatus.pending,
 ) -> Order | None:
     current_user_orders = await Order.prisma().find_many(
-        where={
-            "user_id": {"equals": current_user.id}
-        }
+        where={"user_id": {"equals": current_user.id}}
     )
     order = list(filter(lambda x: x.status == OrderStatus.pending, current_user_orders))
     if not len(order) > 0:
@@ -202,17 +200,15 @@ async def delete_order(
     current_user: User = Depends(get_current_active_user),
 ) -> dict[str, Any]:
     order = await get_current_user_order(current_user)
-    data = {
-        "status": OrderStatus.deleted
-    }
-    order_product_ids = list(map(lambda x: x.id, order.order_products)) if order.order_products else None
+    data = {"status": OrderStatus.deleted}
+    order_product_ids = (
+        list(map(lambda x: x.id, order.order_products))
+        if order.order_products
+        else None
+    )
     if order_product_ids:
         data.update(
-            {
-                "order_products": {
-                    "disconnect": {"id": x} for x in order_product_ids
-                }
-            }
+            {"order_products": {"disconnect": {"id": x} for x in order_product_ids}}
         )
     order = await order.prisma().update(
         data=data,

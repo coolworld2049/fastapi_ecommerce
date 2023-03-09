@@ -9,8 +9,8 @@ from auth_service.api.dependencies.auth import oauth2Scheme
 from auth_service.core.config import get_app_settings
 
 
-def random_lower_string() -> str:
-    return "".join(random.choices(string.ascii_lowercase, k=32))
+def random_lower_string(n=32) -> str:
+    return "".join(random.choices(string.ascii_lowercase, k=n))
 
 
 def random_email() -> EmailStr:

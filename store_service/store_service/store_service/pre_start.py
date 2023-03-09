@@ -20,9 +20,10 @@ wait_seconds = 1
 )
 async def init() -> None:
     from store_service.db.base import dbapp
+
     try:
         status = await dbapp.command("serverStatus")
-        assert status['ok'] == 1.0
+        assert status["ok"] == 1.0
     except Exception as e:
         logger.info(e.args)
         raise e

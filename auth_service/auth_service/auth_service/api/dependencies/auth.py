@@ -39,7 +39,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = await crud.user.get_by_id(db=db, id=int(token_data.sub))
+    user = await crud.user.get_by_id(db=db, id=token_data.sub)
     if user is None:
         raise credentials_exception
     # await authorization_in_db(db, user)

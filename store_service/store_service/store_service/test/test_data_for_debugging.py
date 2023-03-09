@@ -20,10 +20,10 @@ fake.add_provider(faker_commerce.Provider)
 
 class RandomDateTime:
     def __init__(
-            self,
-            year: list[int, int] = None,
-            month: list[int, int] = None,
-            day: list[int, int] = None,
+        self,
+        year: list[int, int] = None,
+        month: list[int, int] = None,
+        day: list[int, int] = None,
     ):
         self.year = year
         self.month = month
@@ -68,7 +68,7 @@ async def create_category(count=20):
 
 
 async def create_product(
-        categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
+    categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
 ):
     products: list[Product] = []
     count = len(categories) * multiplier
@@ -110,10 +110,10 @@ async def create_orders(users: list[User], created_at: RandomDateTime):
 
 
 async def update_orders(
-        orders: list[Order],
-        products: list[Product],
-        created_at: RandomDateTime,
-        products_choice_weight=10,
+    orders: list[Order],
+    products: list[Product],
+    created_at: RandomDateTime,
+    products_choice_weight=10,
 ):
     _orders: list[Order] = []
     k = random.randint(1, products_choice_weight)

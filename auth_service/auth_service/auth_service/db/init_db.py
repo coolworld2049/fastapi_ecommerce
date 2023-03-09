@@ -35,7 +35,7 @@ async def execute_sql_file(path: pathlib.Path, async_conn: Connection):
 
 async def create_all_models(_engine: AsyncEngine):
     async with _engine.begin() as conn:
-        if get_app_settings().DEBUG:
+        if get_app_settings().APP_ENV == "test":
             await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
         await conn.run_sync(Base.metadata.create_all, checkfirst=True)
         logger.info(f"metadata.create_all")
