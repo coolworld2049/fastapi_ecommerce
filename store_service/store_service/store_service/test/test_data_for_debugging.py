@@ -1,4 +1,3 @@
-import json
 import random
 import string
 from datetime import datetime
@@ -6,18 +5,14 @@ from datetime import datetime
 import faker_commerce
 import pytest
 from faker import Faker
-from httpx import AsyncClient
 from prisma import Prisma
 from prisma.enums import OrderStatus
 from prisma.errors import UniqueViolationError
-from prisma.models import User, Category, Product, Order, OrderProduct
-from prisma.types import UserCreateInput, CategoryCreateInput, ProductCreateInput
-from uvicorn.main import logger
+from prisma.models import Category, Product, Order, OrderProduct
+from prisma.types import CategoryCreateInput, ProductCreateInput
 
-from store_service.core.auth import hash_password
 from store_service.core.config import settings
-from store_service.db.base import dbapp
-from store_service.validator.user import UserValidator
+from store_service.schemas.user import User
 
 fake = Faker()
 fake.add_provider(faker_commerce.Provider)
@@ -25,10 +20,10 @@ fake.add_provider(faker_commerce.Provider)
 
 class RandomDateTime:
     def __init__(
-        self,
-        year: list[int, int] = None,
-        month: list[int, int] = None,
-        day: list[int, int] = None,
+            self,
+            year: list[int, int] = None,
+            month: list[int, int] = None,
+            day: list[int, int] = None,
     ):
         self.year = year
         self.month = month
@@ -62,52 +57,6 @@ def rnd_password():
     )
 
 
-async def create_user(count: int = 100):
-    roles_count = {
-        "admin": count // 4,
-        "manager": count // 3,
-        "customer": count,
-        "guest": count // 2,
-    }
-    counter = 0
-    users_with_plain_password: list[UserCreateInput] = []
-    users: list[User] = []
-    for role, _count in roles_count.items():
-        for i in range(_count):
-            counter += i
-            is_superuser = True if role == "admin" else False
-            full_name: str = f"{fake.name()}_{rnd_string(4)}"
-            username = full_name.replace(" ", "")
-            user_in = UserCreateInput(
-                email=f"{username}_{role}_{i}@gmail.com",
-                username=username,
-                role=role,
-                password=rnd_password(),
-                is_superuser=is_superuser,
-                full_name=full_name,
-            )
-            users_with_plain_password.append(user_in.copy())
-            try:
-                UserValidator(user_in).validate()
-                user_in.update({"password": hash_password(user_in.get("password"))})
-                user = await User.prisma().create(data=user_in)
-                users.append(user)
-                db_user = await dbapp.command(  # noqa
-                    "createUser",
-                    user_in.get("username"),
-                    pwd=hash_password(
-                        user_in.get("password"),
-                    ),
-                    roles=[{"role": user_in.get("role"), "db": dbapp.name}],
-                )
-            except Exception as e:
-                logger.info(e.args)
-                raise
-    with open("test_users_with_plain_password.json", "w") as wf:
-        wf.write(json.dumps(users_with_plain_password, indent=4))
-    return users
-
-
 async def create_category(count=20):
     categories: list[Category] = []
     for i in range(count):
@@ -119,7 +68,7 @@ async def create_category(count=20):
 
 
 async def create_product(
-    categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
+        categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
 ):
     products: list[Product] = []
     count = len(categories) * multiplier
@@ -150,7 +99,7 @@ async def create_orders(users: list[User], created_at: RandomDateTime):
             data={
                 "status": OrderStatus.pending,
                 "cost": 0.0,
-                "user": {"connect": {"id": user.id}},
+                "user_id": user.id,
                 "created_at": created_at.datetime(),
                 "updated_at": created_at.datetime(),
             },
@@ -161,10 +110,10 @@ async def create_orders(users: list[User], created_at: RandomDateTime):
 
 
 async def update_orders(
-    orders: list[Order],
-    products: list[Product],
-    created_at: RandomDateTime,
-    products_choice_weight=10,
+        orders: list[Order],
+        products: list[Product],
+        created_at: RandomDateTime,
+        products_choice_weight=10,
 ):
     _orders: list[Order] = []
     k = random.randint(1, products_choice_weight)
@@ -209,7 +158,7 @@ async def update_orders(
 async def test_data(prisma_client: Prisma):
     if settings.DEBUG:
         await prisma_client.connect()
-        us = await create_user(count=100)
+        us = ...
         cat = await create_category()
         now = datetime.now()
         created_at = RandomDateTime(

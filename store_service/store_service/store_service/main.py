@@ -13,7 +13,6 @@ from uvicorn.main import logger
 
 from store_service.api.api_v1.api import api_router
 from store_service.core.config import settings
-from store_service.db.init_db import init_db
 
 current_file = Path(__file__)
 current_file_dir = current_file.parent
@@ -73,7 +72,6 @@ def get_application() -> FastAPI:
     @application.on_event("startup")
     async def startup() -> None:
         await prisma.connect()
-        await init_db()
 
     @application.on_event("shutdown")
     async def shutdown() -> None:

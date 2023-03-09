@@ -3,7 +3,7 @@ from typing import Optional, Any
 
 from fastapi import APIRouter, Depends
 from prisma.enums import OrderStatus
-from prisma.models import Order, User, Product, OrderProduct
+from prisma.models import Order, Product, OrderProduct
 from prisma.partials import OrderWithoutRelations
 from prisma.types import OrderInclude
 from starlette import status
@@ -12,6 +12,7 @@ from starlette.exceptions import HTTPException
 from store_service.api.api_v1.deps import params
 from store_service.api.api_v1.deps.base import RoleChecker, get_current_active_user
 from store_service.api.api_v1.deps.params import RequestParams
+from store_service.schemas.user import User
 
 router = APIRouter()
 
@@ -21,35 +22,17 @@ async def get_current_user_order(
     include: Optional[OrderInclude] = None,
     order_status: OrderStatus = OrderStatus.pending,
 ) -> Order | None:
-    order = list(filter(lambda x: x.status == OrderStatus.pending, current_user.orders))
+    current_user_orders = await Order.prisma().find_many(
+        where={
+            "user_id": {"equals": current_user.id}
+        }
+    )
+    order = list(filter(lambda x: x.status == OrderStatus.pending, current_user_orders))
     if not len(order) > 0:
         return None
     order = order[0]
     order = await Order.prisma().find_unique(where={"id": order.id}, include=include)
     return order
-
-
-def get_order_products(order: Order) -> list[OrderProduct] | None:
-    if not order.order_products:
-        return None
-    order_products = [
-        x for x in list(filter(lambda x: x.order_id == order.id, order.order_products))
-    ]
-    if not len(order_products) > 0:
-        return None
-    return order_products
-
-
-def get_order_product_ids(order: Order) -> list[str | str] | None:
-    if not order.order_products:
-        return None
-    order_product_ids = [
-        x.id
-        for x in list(filter(lambda x: x.order_id == order.id, order.order_products))
-    ]
-    if not len(order_product_ids) > 0:
-        return None
-    return order_product_ids
 
 
 @router.get(
@@ -97,7 +80,7 @@ async def create_order(
         data={
             "status": OrderStatus.pending,
             "cost": 0.0,
-            "user": {"connect": {"id": current_user.id}},
+            "user_id": current_user.id,
         },
         include={"order_products": True},
     )

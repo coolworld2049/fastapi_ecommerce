@@ -1,4 +1,3 @@
-import ast
 import json
 from collections.abc import Callable
 from json import JSONDecodeError
@@ -6,14 +5,14 @@ from typing import Optional, Any
 
 from fastapi import HTTPException
 from fastapi import Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RequestParams(BaseModel):
-    take: Optional[int] = None
-    skip: Optional[int] = None
-    order: Optional[dict] = None
-    where: Optional[dict] = None
+    take: Optional[int] = Field(None, alias="limit")
+    skip: Optional[int] = Field(None, alias="skip")
+    order: Optional[dict] = Field(None, alias="sort")
+    where: Optional[dict] = Field(None, alias="filter")
 
 
 def parse_query_params(
@@ -21,7 +20,7 @@ def parse_query_params(
     use_order=True,
     use_where=True,
     range_example="[0,50]",
-    order_example='{"id": "asc"}',
+    order_example='{"id": "ASC"}',
     where_example: Any = None,
     range_description: str = "",
     where_add_description: str = "",
@@ -30,21 +29,21 @@ def parse_query_params(
         range_: Optional[str] = Query(
             None,
             alias="range",
-            description="Format: `[skip, limit]`, infinity: `[skip, null]` "
+            description="Format: `[start, end]`, infinity: `[start, null]` "
             + range_description,
             example=range_example,
             include_in_schema=use_range,
         ),
-        order_: Optional[str] = Query(
+        sort_: Optional[str] = Query(
             None,
-            alias="order",
-            description='Format: `{"field_name", "asc/desc"}`',
+            alias="sort",
+            description='Format: `{"field_name", "ASC/DESC"}`',
             example=order_example,
             include_in_schema=use_order,
         ),
         where_: Optional[str] = Query(
             None,
-            alias="where",
+            alias="filter",
             description='Format: `{"field_name": "value"}`, ' + where_add_description,
             example=where_example,
             include_in_schema=use_where,
@@ -60,9 +59,9 @@ def parse_query_params(
                     skip, limit = start, (end - start + 1)
 
             order = None
-            if order_:
+            if sort_:
                 order = {}
-                order_by: dict = json.loads(order_)
+                order_by: dict = json.loads(sort_)
                 if len(order_by) > 0:
                     for k, v in order_by.items():
                         try:

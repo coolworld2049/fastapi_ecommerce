@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
     DATABASE_URL: str
+    AUTH_SERVICE_API: str = 'http://127.0.0.1:8001/api/v1/login/access-token'
 
     @property
     def cart_expires_timestamp(self):
