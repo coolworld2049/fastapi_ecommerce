@@ -42,7 +42,7 @@ async def read_all_orders(
     request_params: RequestParams = Depends(params.parse_query_params()),
 ) -> list[Order]:
     order = await Order.prisma().find_many(
-        **request_params.dict(exclude_none=True), include={"order_products": True}
+        **request_params.dict(exclude_none=True)
     )
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

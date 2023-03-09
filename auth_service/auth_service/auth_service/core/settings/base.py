@@ -9,7 +9,7 @@ load_dotenv()
 
 
 class AppEnvTypes(str, Enum):
-    prod: str = "mongodb_cluster_prod"
+    prod: str = "prod"
     dev: str = "dev"
     test: str = "test"
 

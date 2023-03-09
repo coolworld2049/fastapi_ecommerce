@@ -94,7 +94,7 @@ async def root(request: Request):
     response = templates.TemplateResponse(
         "index.html",
         context={
-            "app_name": app.title,
+            "app_name": app.title.replace("_", " "),
             "request": request,
             "proto": "http",
             "host": get_app_settings().DOMAIN,

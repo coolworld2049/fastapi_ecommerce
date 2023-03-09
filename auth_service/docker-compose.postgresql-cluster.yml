@@ -1,8 +1,5 @@
 version: '3.9'
 
-networks:
-  app-tier:
-    driver: bridge
 
 services:
 
@@ -22,14 +19,13 @@ services:
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
       - POSTGRESQL_TIMEZONE=${TZ}
       - POSTGRESQL_LOG_TIMEZONE=${TZ}
-    networks:
-      - app-tier
+    
 
 
   postgresql_slave1:
     image: bitnami/postgresql:latest
     ports:
-      - ${PG_PORT_SLAVE_1}:${PG_PORT}
+      - 5433:${PG_PORT}
     depends_on:
       - postgresql_master
     environment:
@@ -40,14 +36,13 @@ services:
       - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
       - POSTGRESQL_USERNAME=${POSTGRES_USER}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-    networks:
-      - app-tier
+    
 
 
   postgresql_slave2:
     image: bitnami/postgresql:latest
     ports:
-      - ${PG_PORT_SLAVE_2}:${PG_PORT}
+      - 5434:${PG_PORT}
     depends_on:
       - postgresql_master
     environment:
@@ -58,8 +53,7 @@ services:
       - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
       - POSTGRESQL_USERNAME=${POSTGRES_USER}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-    networks:
-      - app-tier
+    
 
 
   pgbouncer_master:
@@ -75,8 +69,7 @@ services:
       - POSTGRESQL_DATABASE=${POSTGRES_DB}
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6432
-    networks:
-      - app-tier
+    
 
 
   pgbouncer_slave1:
@@ -92,8 +85,7 @@ services:
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6433
       - POSTGRESQL_HOST=postgresql_slave1
-    networks:
-      - app-tier
+    
 
 
   pgbouncer_slave2:
@@ -109,5 +101,4 @@ services:
       - POSTGRESQL_DATABASE=${POSTGRES_DB}
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6434
-    networks:
-      - app-tier
+    

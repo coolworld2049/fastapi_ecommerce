@@ -20,7 +20,7 @@ services:
     env_file:
       - .env
     environment:
-      - APP_ENV=mongodb_cluster_prod
+      - APP_ENV=prod
       - DEBUG=False
       - PG_HOST=postgres
       - RABBITMQ_HOST=queue
@@ -29,9 +29,3 @@ services:
       - postgres
     ports:
       - ${PORT}:${PORT}
-    networks:
-      - auth_service_net
-
-networks:
-  auth_service_net:
-    name: custom_network

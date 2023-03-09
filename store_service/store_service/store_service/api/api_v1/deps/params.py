@@ -9,10 +9,10 @@ from pydantic import BaseModel, Field
 
 
 class RequestParams(BaseModel):
-    take: Optional[int] = Field(None, alias="limit")
-    skip: Optional[int] = Field(None, alias="skip")
-    order: Optional[dict] = Field(None, alias="sort")
-    where: Optional[dict] = Field(None, alias="filter")
+    take: Optional[int] = None
+    skip: Optional[int] = None
+    order: Optional[dict] = None
+    where: Optional[dict] = None
 
 
 def parse_query_params(

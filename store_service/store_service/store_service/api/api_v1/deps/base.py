@@ -15,11 +15,11 @@ from store_service.api.api_v1.deps.custom_exception import (
 from store_service.core.config import settings
 from store_service.schemas.user import User
 
-oauth2Scheme = OAuth2PasswordBearer(tokenUrl=settings.AUTH_SERVICE_API)
+oauth2Scheme = OAuth2PasswordBearer(tokenUrl=settings.AUTH_SERVICE_API + "/api/v1/login/access-token")
 
 
 async def get_current_user(
-    token: str = Depends(oauth2Scheme),
+        token: str = Depends(oauth2Scheme),
 ) -> User:
     try:
         payload = jwt.decode(
@@ -41,7 +41,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: User = Depends(get_current_user),
+        current_user: User = Depends(get_current_user),
 ) -> User:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
@@ -49,7 +49,7 @@ async def get_current_active_user(
 
 
 async def get_current_active_superuser(
-    current_user: User = Depends(get_current_active_user),
+        current_user: User = Depends(get_current_active_user),
 ) -> User:
     if not current_user.is_superuser:
         raise HTTPException(
@@ -61,9 +61,9 @@ async def get_current_active_superuser(
 
 class RoleChecker:
     def __init__(
-        self,
-        resource: Any | None = None,
-        roles: list = None,
+            self,
+            resource: Any | None = None,
+            roles: list = None,
     ):
         self.resource = resource
         self.roles = roles

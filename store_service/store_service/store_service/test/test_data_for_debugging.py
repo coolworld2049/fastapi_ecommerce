@@ -2,6 +2,7 @@ import random
 import string
 from datetime import datetime
 
+import aiohttp
 import faker_commerce
 import pytest
 from faker import Faker
@@ -20,10 +21,10 @@ fake.add_provider(faker_commerce.Provider)
 
 class RandomDateTime:
     def __init__(
-        self,
-        year: list[int, int] = None,
-        month: list[int, int] = None,
-        day: list[int, int] = None,
+            self,
+            year: list[int, int] = None,
+            month: list[int, int] = None,
+            day: list[int, int] = None,
     ):
         self.year = year
         self.month = month
@@ -57,6 +58,32 @@ def rnd_password():
     )
 
 
+async def get_token(username: str, password: str):
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    body = {
+        "username": username,
+        "password": password
+    }
+    async with aiohttp.ClientSession(settings.AUTH_SERVICE_API, headers=headers) as session:
+        async with session.post("/api/v1/login/access-token", data=body) as resp:
+            resp = await resp.json()
+            return resp.get("access_token")
+
+
+async def get_users(count=100, *, token: str):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    async with aiohttp.ClientSession(settings.AUTH_SERVICE_API, headers=headers) as session:
+        async with session.get(f"""/api/v1/users?range=[0, {count}]&sort=["id", "ASC"]""") as resp:
+            resp = await resp.json()
+            return resp
+
+
 async def create_category(count=20):
     categories: list[Category] = []
     for i in range(count):
@@ -68,7 +95,7 @@ async def create_category(count=20):
 
 
 async def create_product(
-    categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
+        categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
 ):
     products: list[Product] = []
     count = len(categories) * multiplier
@@ -102,18 +129,17 @@ async def create_orders(users: list[User], created_at: RandomDateTime):
                 "user_id": user.id,
                 "created_at": created_at.datetime(),
                 "updated_at": created_at.datetime(),
-            },
-            include={"user": True},
+            }
         )
         orders.append(order)
     return orders
 
 
 async def update_orders(
-    orders: list[Order],
-    products: list[Product],
-    created_at: RandomDateTime,
-    products_choice_weight=10,
+        orders: list[Order],
+        products: list[Product],
+        created_at: RandomDateTime,
+        products_choice_weight=10,
 ):
     _orders: list[Order] = []
     k = random.randint(1, products_choice_weight)
@@ -158,14 +184,16 @@ async def update_orders(
 async def test_data(prisma_client: Prisma):
     if settings.DEBUG:
         await prisma_client.connect()
-        us = ...
-        cat = await create_category()
+        token = await get_token(settings.FIRST_SUPERUSER_EMAIL, settings.FIRST_SUPERUSER_PASSWORD)
+        users = await get_users(count=300, token=token)
+        users = [User(**x) for x in users]
+        categories = await create_category()
         now = datetime.now()
         created_at = RandomDateTime(
             [now.year - 1, now.year],
             [1, datetime.now().month],
         )
-        prod = await create_product(cat, created_at=created_at)
+        products = await create_product(categories, created_at=created_at)
         for _ in range(3):
-            orders = await create_orders(us, created_at=created_at)
-            await update_orders(orders, prod, created_at=created_at)
+            orders = await create_orders(users, created_at=created_at)
+            await update_orders(orders, products, created_at=created_at)
