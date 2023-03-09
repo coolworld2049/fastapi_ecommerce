@@ -9,6 +9,7 @@ services:
       - .env
     environment:
       - DEBUG=False
+      - AUTH_SERVICE_API=http://host.docker.internal:8001
     ports:
       - ${PORT}:${PORT}
 

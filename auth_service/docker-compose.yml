@@ -2,18 +2,6 @@ version: '3.9'
 
 services:
 
-  postgres:
-    image: postgres:15
-    env_file:
-      - .env
-    environment:
-      - PGPORT=${PG_PORT}
-      - PGTZ=${TZ}
-    ports:
-      - ${PG_PORT}:${PG_PORT}
-    networks:
-      - auth_service_net
-
   auth_service:
     build: .
     command: ./start.sh
@@ -22,10 +10,6 @@ services:
     environment:
       - APP_ENV=prod
       - DEBUG=False
-      - PG_HOST=postgres
-      - RABBITMQ_HOST=queue
-      - REDIS_HOST=redis
-    depends_on:
-      - postgres
+      - PG_HOST=host.docker.internal
     ports:
       - ${PORT}:${PORT}
