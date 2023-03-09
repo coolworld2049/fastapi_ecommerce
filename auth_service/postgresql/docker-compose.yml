@@ -7,7 +7,7 @@ services:
     image: bitnami/postgresql:latest
     hostname: postgresql_master
     ports:
-      - ${PG_PORT}:${PG_PORT}
+      - 127.0.0.1:${PG_PORT}:${PG_PORT}
     environment:
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repl_user
@@ -17,8 +17,8 @@ services:
       - POSTGRESQL_DATABASE=${POSTGRES_DB}
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
-      - POSTGRESQL_TIMEZONE=${TZ}
-      - POSTGRESQL_LOG_TIMEZONE=${TZ}
+      - POSTGRESQL_TIMEZONE=${PG_TZ}
+      - POSTGRESQL_LOG_TIMEZONE=${PG_TZ}
     
 
 

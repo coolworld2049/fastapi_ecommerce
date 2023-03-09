@@ -20,7 +20,6 @@ class AppSettings(BaseAppSettings):
     version: str = "0.0.0"
 
     APP_NAME: str
-    TZ: str
     DEBUG: bool
 
     DOMAIN: str
@@ -30,8 +29,6 @@ class AppSettings(BaseAppSettings):
     JWT_ALGORITHM: str
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-    REFRESH_TOKEN_EXPIRE_MINUTES: int
-    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str

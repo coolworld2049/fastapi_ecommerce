@@ -3,18 +3,26 @@ from prisma.models import Category, Product, Order
 common_excluded = ["created_at", "updated_at"]
 
 # Category
-Category.create_partial("CategoryWithoutRelations", exclude_relational_fields=True)
-
 Category.create_partial(
-    "CategoryCreate", exclude_relational_fields=True, exclude=["id", *common_excluded]
+    "CategoryWithoutRelations", exclude_relational_fields=True
 )
 
 Category.create_partial(
-    "CategoryUpdate", exclude_relational_fields=True, exclude=["id", *common_excluded]
+    "CategoryCreate",
+    exclude_relational_fields=True,
+    exclude=["id", *common_excluded],
+)
+
+Category.create_partial(
+    "CategoryUpdate",
+    exclude_relational_fields=True,
+    exclude=["id", *common_excluded],
 )
 
 # Product
-Product.create_partial("ProductWithoutRelations", exclude_relational_fields=True)
+Product.create_partial(
+    "ProductWithoutRelations", exclude_relational_fields=True
+)
 
 Product.create_partial(
     "ProductCreate",

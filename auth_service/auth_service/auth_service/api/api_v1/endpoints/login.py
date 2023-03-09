@@ -35,7 +35,9 @@ async def login_access_token(
             db=db,
         )
     except HTTPException as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=e.detail)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=e.detail
+        )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,

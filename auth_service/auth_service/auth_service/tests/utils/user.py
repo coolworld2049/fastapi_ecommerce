@@ -20,7 +20,9 @@ async def user_authentication_headers(
 ) -> Dict[str, str]:
     data = {"username": email, "password": password}
 
-    r = await client.post(f"{get_app_settings().api_v1}/login/access-token", data=data)
+    r = await client.post(
+        f"{get_app_settings().api_v1}/login/access-token", data=data
+    )
     token = r.cookies.get(oauth2Scheme.token_name)
     headers = {"Authorization": f"Bearer {token}"}
     return headers
@@ -64,7 +66,9 @@ async def authentication_token_from_email(
         user_in_update = schemas.UserUpdate(
             password=password, password_confirm=password
         )
-        user = await crud.user.update(db, db_obj=user, obj_in=user_in_update)  # noqa
+        user = await crud.user.update(
+            db, db_obj=user, obj_in=user_in_update
+        )  # noqa
 
     return await user_authentication_headers(
         client=client, email=email, password=password

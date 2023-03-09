@@ -10,7 +10,10 @@ from starlette import status
 from starlette.exceptions import HTTPException
 
 from store_service.api.api_v1.deps import params
-from store_service.api.api_v1.deps.base import RoleChecker, get_current_active_user
+from store_service.api.api_v1.deps.base import (
+    RoleChecker,
+    get_current_active_user,
+)
 from store_service.api.api_v1.deps.params import RequestParams
 from store_service.schemas.user import User
 
@@ -25,11 +28,15 @@ async def get_current_user_order(
     current_user_orders = await Order.prisma().find_many(
         where={"user_id": {"equals": current_user.id}}
     )
-    order = list(filter(lambda x: x.status == OrderStatus.pending, current_user_orders))
+    order = list(
+        filter(lambda x: x.status == OrderStatus.pending, current_user_orders)
+    )
     if not len(order) > 0:
         return None
     order = order[0]
-    order = await Order.prisma().find_unique(where={"id": order.id}, include=include)
+    order = await Order.prisma().find_unique(
+        where={"id": order.id}, include=include
+    )
     return order
 
 
@@ -57,7 +64,9 @@ async def read_all_orders(
 async def read_order(
     current_user: User = Depends(get_current_active_user),
 ) -> Optional[Order]:
-    order = await get_current_user_order(current_user, include={"order_products": True})
+    order = await get_current_user_order(
+        current_user, include={"order_products": True}
+    )
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return order
@@ -113,7 +122,8 @@ async def add_products_to_order(
         include={"order_products": True},
     )
     order_product = await OrderProduct.prisma().update(
-        data={"product": {"connect": {"id": product_id}}}, where={"id": order.id}
+        data={"product": {"connect": {"id": product_id}}},
+        where={"id": order.id},
     )
     product = await product.prisma().update(
         data={"stock": {"decrement": 1}},
@@ -134,7 +144,9 @@ async def delete_product_from_order(
     product = await Product.prisma().find_unique(where={"id": product_id})
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    order = await get_current_user_order(current_user, include={"order_products": True})
+    order = await get_current_user_order(
+        current_user, include={"order_products": True}
+    )
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     order_products_where_product_id = list(
@@ -148,7 +160,8 @@ async def delete_product_from_order(
     order = await order.prisma().update(
         data={
             "cost": {
-                "decrement": float(product.price) * len(order_products_where_product_id)
+                "decrement": float(product.price)
+                * len(order_products_where_product_id)
             },
             "order_products": {
                 "delete": [
@@ -167,7 +180,9 @@ async def delete_product_from_order(
     )
     product = await Product.prisma().update_many(
         data={"stock": {"decrement": 1}},
-        where={"id": {"in": [x.id for x in order_products_without_product_id]}},
+        where={
+            "id": {"in": [x.id for x in order_products_without_product_id]}
+        },
     )
     return order
 
@@ -177,7 +192,9 @@ async def delete_product_from_order(
     response_model=OrderWithoutRelations,
     dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
 )
-async def update_order_status(id: str, order_status_in: OrderStatus) -> Optional[Order]:
+async def update_order_status(
+    id: str, order_status_in: OrderStatus
+) -> Optional[Order]:
     if order_status_in == OrderStatus.deleted:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -208,7 +225,11 @@ async def delete_order(
     )
     if order_product_ids:
         data.update(
-            {"order_products": {"disconnect": {"id": x} for x in order_product_ids}}
+            {
+                "order_products": {
+                    "disconnect": {"id": x} for x in order_product_ids
+                }
+            }
         )
     order = await order.prisma().update(
         data=data,

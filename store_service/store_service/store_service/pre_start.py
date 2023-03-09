@@ -6,7 +6,7 @@ from tenacity import before_log
 from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_fixed
-from uvicorn.main import logger
+from loguru import logger
 
 max_tries = 60 * 2
 wait_seconds = 1

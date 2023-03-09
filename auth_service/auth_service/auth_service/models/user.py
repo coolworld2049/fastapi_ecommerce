@@ -12,7 +12,9 @@ from auth_service.mixins.base import TimestampsMixin
 from auth_service.models.enums import UserRole
 
 user_role_enum = ENUM(
-    *UserRole.to_list(), name=UserRole.snake_case_name(), metadata=Base.metadata
+    *UserRole.to_list(),
+    name=UserRole.snake_case_name(),
+    metadata=Base.metadata
 )
 
 
@@ -30,4 +32,6 @@ class User(Base, TimestampsMixin):
     full_name = Column(Text)
     username = Column(Text, nullable=False, unique=True)
     is_active = Column(Boolean, nullable=False, server_default=text("true"))
-    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
+    is_superuser = Column(
+        Boolean, nullable=False, server_default=text("false")
+    )

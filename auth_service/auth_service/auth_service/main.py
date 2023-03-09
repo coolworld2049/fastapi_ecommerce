@@ -2,7 +2,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -17,6 +16,10 @@ from auth_service.api.openapi import use_route_names_as_operation_ids
 from auth_service.core.config import get_app_settings
 from auth_service.db.init_db import init_db
 from auth_service.db.session import SessionLocal, engine
+from auth_service.middlewares.http import (
+    add_process_time_header,
+    catch_exceptions_middleware,
+)
 
 current_file = Path(__file__)
 current_file_dir = current_file.parent
@@ -38,7 +41,9 @@ def get_application() -> FastAPI:
     use_route_names_as_operation_ids(application)
 
     application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(RequestValidationError, http422_error_handler)
+    application.add_exception_handler(
+        RequestValidationError, http422_error_handler
+    )
 
     application.add_middleware(
         CORSMiddleware,
@@ -55,11 +60,11 @@ def get_application() -> FastAPI:
         ],
     )
 
-    # if application.debug:
-    #     application.middleware("http")(add_process_time_header)
-    #
-    # if not application.debug:
-    #     application.middleware("http")(catch_exceptions_middleware)
+    if application.debug:
+        application.middleware("http")(add_process_time_header)
+
+    if not application.debug:
+        application.middleware("http")(catch_exceptions_middleware)
 
     application.mount(
         "/templates",
@@ -75,7 +80,6 @@ app = get_application()
 
 @app.on_event("startup")
 async def startup():
-    logger.opt(colors=True).warning("<m>Application startup!</m>")
     if get_app_settings().APP_ENV.name == "dev":
         await init_db()
 
@@ -83,10 +87,7 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await SessionLocal.close_all()
-    logger.opt(colors=True).warning("all sessionmaker session closed")
     await engine.dispose()
-    logger.opt(colors=True).warning("engine disposed")
-    logger.opt(colors=True).warning("<y>Application shutdown!</y>")
 
 
 @app.get("/")

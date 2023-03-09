@@ -21,10 +21,10 @@ fake.add_provider(faker_commerce.Provider)
 
 class RandomDateTime:
     def __init__(
-            self,
-            year: list[int, int] = None,
-            month: list[int, int] = None,
-            day: list[int, int] = None,
+        self,
+        year: list[int, int] = None,
+        month: list[int, int] = None,
+        day: list[int, int] = None,
     ):
         self.year = year
         self.month = month
@@ -38,14 +38,17 @@ class RandomDateTime:
         }
         items = dict(
             filter(  # noqa
-                lambda it: it[1] is not None and isinstance(it[1], int), data.items()
+                lambda it: it[1] is not None and isinstance(it[1], int),
+                data.items(),
             )
         )
         return now_dt.replace(**items)
 
 
 def rnd_string(length=24):
-    return "".join([random.choice(string.ascii_letters) for _ in range(length)])
+    return "".join(
+        [random.choice(string.ascii_letters) for _ in range(length)]
+    )
 
 
 def rnd_password():
@@ -61,14 +64,15 @@ def rnd_password():
 async def get_token(username: str, password: str):
     headers = {
         "accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded",
     }
-    body = {
-        "username": username,
-        "password": password
-    }
-    async with aiohttp.ClientSession(settings.AUTH_SERVICE_API, headers=headers) as session:
-        async with session.post("/api/v1/login/access-token", data=body) as resp:
+    body = {"username": username, "password": password}
+    async with aiohttp.ClientSession(
+        settings.AUTH_SERVICE_URL, headers=headers
+    ) as session:
+        async with session.post(
+            "/api/v1/login/access-token", data=body
+        ) as resp:
             resp = await resp.json()
             return resp.get("access_token")
 
@@ -76,10 +80,14 @@ async def get_token(username: str, password: str):
 async def get_users(count=100, *, token: str):
     headers = {
         "accept": "application/json",
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
     }
-    async with aiohttp.ClientSession(settings.AUTH_SERVICE_API, headers=headers) as session:
-        async with session.get(f"""/api/v1/users?range=[0, {count}]&sort=["id", "ASC"]""") as resp:
+    async with aiohttp.ClientSession(
+        settings.AUTH_SERVICE_URL, headers=headers
+    ) as session:
+        async with session.get(
+            f"""/api/v1/users?range=[0, {count}]&sort=["id", "ASC"]"""
+        ) as resp:
             resp = await resp.json()
             return resp
 
@@ -95,7 +103,10 @@ async def create_category(count=20):
 
 
 async def create_product(
-        categories: list[Category], multiplier: int = 100, *, created_at: RandomDateTime
+    categories: list[Category],
+    multiplier: int = 100,
+    *,
+    created_at: RandomDateTime,
 ):
     products: list[Product] = []
     count = len(categories) * multiplier
@@ -136,15 +147,17 @@ async def create_orders(users: list[User], created_at: RandomDateTime):
 
 
 async def update_orders(
-        orders: list[Order],
-        products: list[Product],
-        created_at: RandomDateTime,
-        products_choice_weight=10,
+    orders: list[Order],
+    products: list[Product],
+    created_at: RandomDateTime,
+    products_choice_weight=10,
 ):
     _orders: list[Order] = []
     k = random.randint(1, products_choice_weight)
     for order in orders:
-        rnd_products: list[Product] = [x for x in random.choices(products, k=k)]
+        rnd_products: list[Product] = [
+            x for x in random.choices(products, k=k)
+        ]
         rnd_products_cost = sum(list(map(lambda x: x.price, rnd_products)))
         order = await Order.prisma().update(
             data={
@@ -165,7 +178,8 @@ async def update_orders(
         )
         for p in rnd_products:
             order_product = await OrderProduct.prisma().update(
-                data={"product": {"connect": {"id": p.id}}}, where={"id": order.id}
+                data={"product": {"connect": {"id": p.id}}},
+                where={"id": order.id},
             )
         _orders.append(order)
         data = None
@@ -184,7 +198,9 @@ async def update_orders(
 async def test_data(prisma_client: Prisma):
     if settings.DEBUG:
         await prisma_client.connect()
-        token = await get_token(settings.FIRST_SUPERUSER_EMAIL, settings.FIRST_SUPERUSER_PASSWORD)
+        token = await get_token(
+            settings.FIRST_SUPERUSER_EMAIL, settings.FIRST_SUPERUSER_PASSWORD
+        )
         users = await get_users(count=300, token=token)
         users = [User(**x) for x in users]
         categories = await create_category()

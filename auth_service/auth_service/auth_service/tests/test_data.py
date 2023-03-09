@@ -42,7 +42,8 @@ async def create_users(count=100):
                 username=f"{r.name}{i}{random.randint(1000, 10000)}",
                 full_name=fake.name(),
                 age=random.randint(18, 25),
-                phone="+7" + "".join(random.choice(string.digits) for _ in range(10)),
+                phone="+7"
+                + "".join(random.choice(string.digits) for _ in range(10)),
                 role=r.name,
             )
             users_cred_list.append(

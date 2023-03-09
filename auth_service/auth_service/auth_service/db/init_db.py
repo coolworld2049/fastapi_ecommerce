@@ -65,7 +65,8 @@ async def create_first_superuser(db: AsyncSession):
 
 async def execute_sql_files(
     conn: Connection,
-    path_to_sql_dir: pathlib.Path = pathlib.Path(__file__).parent.__str__() + "/sql",
+    path_to_sql_dir: pathlib.Path = pathlib.Path(__file__).parent.__str__()
+    + "/sql",
 ):
     for sql_f in pathlib.Path(path_to_sql_dir).iterdir():
         if not sql_f.is_dir() and not sql_f.name.startswith("_"):

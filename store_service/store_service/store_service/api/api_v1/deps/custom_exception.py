@@ -18,7 +18,8 @@ class PermissionDeniedException(HTTPException):
 class RequiresAuthenticationException(HTTPException):
     def __init__(self):
         super().__init__(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Requires authentication"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Requires authentication",
         )
 
 

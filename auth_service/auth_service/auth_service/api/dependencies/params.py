@@ -50,7 +50,9 @@ def parse_react_admin_params(
             elif sort_order.lower() == "desc":
                 direction = desc
             else:
-                raise HTTPException(400, f"Invalid sort direction {sort_order}")
+                raise HTTPException(
+                    400, f"Invalid sort direction {sort_order}"
+                )
             order_by = direction(model.__table__.c[sort_column])
         filter_by = None
         if filter_:
@@ -58,7 +60,9 @@ def parse_react_admin_params(
             if len(ft) > 0:
                 fb = []
                 filter_dict: dict = dict(
-                    filter(lambda it: str(it[0]).isdigit() is False, ft.items()),
+                    filter(
+                        lambda it: str(it[0]).isdigit() is False, ft.items()
+                    ),
                 )
                 for k, v in filter_dict.items():
                     if v is None:
@@ -69,7 +73,8 @@ def parse_react_admin_params(
                         else:
                             if str(k).split("_")[-1] == "date":
                                 fb.append(
-                                    model.__table__.c[k] >= datetime.fromisoformat(v),
+                                    model.__table__.c[k]
+                                    >= datetime.fromisoformat(v),
                                 )
                             else:
                                 fb.append(model.__table__.c[k].ilike(f"{v}%"))
@@ -82,7 +87,9 @@ def parse_react_admin_params(
                             v = [int(x) for x in v]
                         fb.append(model.__table__.c[k].in_(tuple(v)))
                     else:
-                        raise HTTPException(400, f"Invalid filters {filter_dict}")
+                        raise HTTPException(
+                            400, f"Invalid filters {filter_dict}"
+                        )
                 if len(fb) > 0:
                     filter_by = and_(*fb)
 

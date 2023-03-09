@@ -44,7 +44,8 @@ def parse_query_params(
         where_: Optional[str] = Query(
             None,
             alias="filter",
-            description='Format: `{"field_name": "value"}`, ' + where_add_description,
+            description='Format: `{"field_name": "value"}`, '
+            + where_add_description,
             example=where_example,
             include_in_schema=use_where,
         ),
@@ -85,7 +86,9 @@ def parse_query_params(
                             else:
                                 where_by.update({k: v})
                         except:
-                            raise HTTPException(400, f"Invalid where param {k}: {v}")
+                            raise HTTPException(
+                                400, f"Invalid where param {k}: {v}"
+                            )
         except JSONDecodeError as jse:
             raise HTTPException(400, f"Invalid query params. {jse}")
         _rp = {"skip": skip, "take": limit, "order": order, "where": where_by}

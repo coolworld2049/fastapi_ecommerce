@@ -16,3 +16,5 @@ pytest-asyncio
 faker==17.6.0
 faker-commerce
 aiohttp
+loguru
+pre-commit

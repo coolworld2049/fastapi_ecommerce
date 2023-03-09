@@ -10,7 +10,9 @@ from pydantic.types import UUID
 from auth_service.models import UserRole
 from auth_service.resources.reserved_username import reserved_usernames_list
 
-password_exp = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+password_exp = (
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+)
 password_conditions = """
 Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
 """
@@ -38,7 +40,9 @@ class UserBase(UserOptional):
             username_exp,
             value,
         ), "Invalid characters in username"
-        assert value not in reserved_usernames_list, "This username is reserved"
+        assert (
+            value not in reserved_usernames_list
+        ), "This username is reserved"
         return value
 
     @validator("phone")
@@ -60,12 +64,18 @@ class UserCreate(UserBase):
         def values_match_ratio(a, b):
             return SequenceMatcher(None, a, b).ratio() if a and b else None
 
-        if values.get("email") and values.get("username") and values.get("password"):
+        if (
+            values.get("email")
+            and values.get("username")
+            and values.get("password")
+        ):
             username_password_match: float = values_match_ratio(
                 values.get("username"),
                 values.get("password"),
             )
-            assert username_password_match < 0.5, "Password must not match username"
+            assert (
+                username_password_match < 0.5
+            ), "Password must not match username"
 
             email_password_match: float = values_match_ratio(
                 values.get("email").split("@")[0],

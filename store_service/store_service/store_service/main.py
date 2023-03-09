@@ -9,7 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.templating import Jinja2Templates
-from uvicorn.main import logger
+from loguru import logger
 
 from store_service.api.api_v1.api import api_router
 from store_service.core.config import settings
@@ -27,13 +27,21 @@ templates = Jinja2Templates(directory=project_templates_html_path)
 def get_application() -> FastAPI:
     application = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
 
+    settings.configure_logging()
+
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.BACKEND_CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         expose_headers=["Content-Range", "Range"],
-        allow_headers=["*", "Authorization", "Content-Type", "Content-Range", "Range"],
+        allow_headers=[
+            "*",
+            "Authorization",
+            "Content-Type",
+            "Content-Range",
+            "Range",
+        ],
     )
 
     application.include_router(api_router, prefix=settings.api_prefix)

@@ -31,5 +31,7 @@ def create_access_token(
         algorithm=get_app_settings().JWT_ALGORITHM,
     )
 
-    token = schemas.Token(access_token=encoded_jwt, token_type="bearer", **to_encode)
+    token = schemas.Token(
+        access_token=encoded_jwt, token_type="bearer", **to_encode
+    )
     return token

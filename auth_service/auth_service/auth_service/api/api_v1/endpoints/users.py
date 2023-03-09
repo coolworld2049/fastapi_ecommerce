@@ -125,7 +125,9 @@ async def update_user(
     id: str,
     db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(auth.get_current_active_superuser),  # noqa
+    current_user: models.User = Depends(
+        auth.get_current_active_superuser
+    ),  # noqa
 ) -> Any:
     """
     Update a user.
@@ -154,9 +156,13 @@ async def delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="Item not found")
     if user.is_active:
-        raise HTTPException(status_code=404, detail="Acive user cannot be removed")
+        raise HTTPException(
+            status_code=404, detail="Acive user cannot be removed"
+        )
     if user.is_superuser:
-        raise HTTPException(status_code=404, detail="Superuser cannot be removed")
+        raise HTTPException(
+            status_code=404, detail="Superuser cannot be removed"
+        )
 
     user = await crud.user.remove(db=db, id=id)
     return user

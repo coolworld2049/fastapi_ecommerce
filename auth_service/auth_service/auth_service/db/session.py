@@ -11,7 +11,9 @@ from sqlalchemy.orm import sessionmaker, DeclarativeMeta
 
 from auth_service.core.config import get_app_settings
 
-engine: AsyncEngine = create_async_engine(get_app_settings().postgres_asyncpg_dsn)
+engine: AsyncEngine = create_async_engine(
+    get_app_settings().postgres_asyncpg_dsn
+)
 
 
 Base: DeclarativeMeta = declarative_base()

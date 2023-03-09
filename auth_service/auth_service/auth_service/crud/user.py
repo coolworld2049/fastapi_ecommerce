@@ -45,7 +45,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         obj_in_data = obj_in.dict(exclude_none=True)
-        obj_in_data.update({"hashed_password": get_password_hash(obj_in.password)})
+        obj_in_data.update(
+            {"hashed_password": get_password_hash(obj_in.password)}
+        )
         obj_in_data.pop("password")
         obj_in_data.pop("password_confirm")
         db_obj = self.model(**obj_in_data)  # noqa
@@ -70,7 +72,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await super().update(db, db_obj=db_obj, obj_in=obj_in)
         return result
 
-    async def constr_user_role_filter(self, roles: list[str], column: Any = None):
+    async def constr_user_role_filter(
+        self, roles: list[str], column: Any = None
+    ):
         c_filter = None
         if roles:
             if column is None:

@@ -89,7 +89,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         r = result.scalars().all()
         return r, total.fetchone().count
 
-    async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
+    async def create(
+        self, db: AsyncSession, *, obj_in: CreateSchemaType
+    ) -> ModelType:
         db_obj = self.model(**obj_in.dict(exclude_none=True))
         try:
             db.add(db_obj)

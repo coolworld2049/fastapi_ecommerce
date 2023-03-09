@@ -8,7 +8,9 @@ from auth_service.db.session import SessionLocal
 
 async def get_pg_stat_activity(db: AsyncSession):
     if get_app_settings().APP_ENV in ["dev", "test"]:
-        result = await db.execute(text("""select count(*) from pg_stat_activity;"""))
+        result = await db.execute(
+            text("""select count(*) from pg_stat_activity;""")
+        )
         logger.info(f"db_connection_count={result.fetchone()}")
 
 
