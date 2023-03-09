@@ -2,7 +2,11 @@ from typing import Optional, Any
 
 from fastapi import APIRouter, HTTPException, Depends
 from prisma.models import Category
-from prisma.partials import CategoryWithoutRelations, CategoryCreate, CategoryUpdate
+from prisma.partials import (
+    CategoryWithoutRelations,
+    CategoryCreate,
+    CategoryUpdate,
+)
 from starlette import status
 
 from store_service.api.api_v1.deps import params
@@ -16,7 +20,9 @@ router = APIRouter()
     "/",
     response_model=list[CategoryWithoutRelations],
     dependencies=[
-        Depends(RoleChecker(Category, ["admin", "manager", "customer", "guest"]))
+        Depends(
+            RoleChecker(Category, ["admin", "manager", "customer", "guest"])
+        )
     ],
 )
 async def read_categories(
@@ -42,7 +48,9 @@ async def create_category(category_in: CategoryCreate) -> Optional[Category]:
     "/{id}",
     response_model=CategoryWithoutRelations,
     dependencies=[
-        Depends(RoleChecker(Category, ["admin", "manager", "customer", "guest"]))
+        Depends(
+            RoleChecker(Category, ["admin", "manager", "customer", "guest"])
+        )
     ],
 )
 async def read_category_by_id(
@@ -57,7 +65,9 @@ async def read_category_by_id(
     response_model=CategoryWithoutRelations,
     dependencies=[Depends(RoleChecker(Category, ["admin", "manager"]))],
 )
-async def update_category(id: str, category_in: CategoryUpdate) -> Optional[Category]:
+async def update_category(
+    id: str, category_in: CategoryUpdate
+) -> Optional[Category]:
     return await Category.prisma().update(
         where={
             "id": id,

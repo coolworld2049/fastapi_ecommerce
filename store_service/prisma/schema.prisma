@@ -3,16 +3,12 @@ generator client {
   partial_type_generator = "./prisma/partial_types.py"
   interface              = asyncio
   recursive_type_depth   = 8
+  previewFeatures        = ["fullTextIndex"]
 }
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
-}
-
-enum CartStatus {
-  active
-  inactive
+  url      = env("MONGODB_URL")
 }
 
 enum OrderStatus {
@@ -26,20 +22,6 @@ enum OrderStatus {
   disputed
   partially_refunded
   deleted
-}
-
-model User {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  email        String    @unique
-  username     String    @unique
-  password     String
-  role         String    @default("guest")
-  is_active    Boolean   @default(true)
-  is_superuser Boolean   @default(false)
-  full_name    String?
-  created_at   DateTime? @default(now())
-  updated_at   DateTime? @updatedAt
-  orders       Order[]
 }
 
 model Category {
@@ -70,8 +52,7 @@ model Order {
   cost           Float?
   created_at     DateTime?      @default(now())
   updated_at     DateTime?      @updatedAt
-  user           User?          @relation(fields: [user_id], references: [id])
-  user_id        String?        @db.ObjectId
+  user_id        String
   order_products OrderProduct[]
 }
 

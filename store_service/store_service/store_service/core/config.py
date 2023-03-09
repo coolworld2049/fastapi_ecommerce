@@ -1,8 +1,14 @@
+import logging
+import sys
 from datetime import datetime, timedelta
+from logging.handlers import RotatingFileHandler
 from typing import Union
 
 from dotenv import load_dotenv
+from loguru import logger
 from pydantic import BaseSettings, validator
+
+from store_service.core.logging import InterceptHandler
 
 load_dotenv()
 
@@ -16,7 +22,9 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v: Union[str, list[str]]) -> Union[list[str], str]:
+    def assemble_cors_origins(
+        cls, v: Union[str, list[str]]
+    ) -> Union[list[str], str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):
@@ -33,12 +41,31 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
-    DATABASE_URL: str
+    MONGODB_URL: str
+    AUTH_SERVICE_URL: str
 
-    @property
-    def cart_expires_timestamp(self):
-        expire = datetime.now() + timedelta(minutes=60)
-        return expire
+    LOGGING_LEVEL: int = logging.INFO
+    LOGGERS: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
+    LOG_FILE_MAX_BYTES = 314572800
+
+    def configure_logging(self) -> None:
+        logging.getLogger().handlers = [InterceptHandler()]
+        for logger_name in self.LOGGERS:
+            logging_logger = logging.getLogger(logger_name)
+            logging_logger.handlers = [
+                InterceptHandler(level=self.LOGGING_LEVEL),
+                RotatingFileHandler(
+                    "access.log",
+                    maxBytes=self.LOG_FILE_MAX_BYTES,
+                    backupCount=1,
+                ),
+            ]
+
+        logger.configure(
+            handlers=[
+                {"sink": sys.stdout, "level": self.LOGGING_LEVEL},
+            ]
+        )
 
     class Config:
         case_sensitive = True

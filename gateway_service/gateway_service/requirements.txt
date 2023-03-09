@@ -1,9 +1,0 @@
-fastapi[all]==0.92.0
-uvicorn==0.20.0
-gunicorn==20.1.0
-beanie==1.17
-pydantic[all]==1.10.5
-starlette==0.25.0
-python-dotenv==1.0.0
-Jinja2
-fastapi_gateway

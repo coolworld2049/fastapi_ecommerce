@@ -9,11 +9,10 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.templating import Jinja2Templates
-from uvicorn.main import logger
+from loguru import logger
 
 from store_service.api.api_v1.api import api_router
 from store_service.core.config import settings
-from store_service.db.init_db import init_db
 
 current_file = Path(__file__)
 current_file_dir = current_file.parent
@@ -28,13 +27,21 @@ templates = Jinja2Templates(directory=project_templates_html_path)
 def get_application() -> FastAPI:
     application = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
 
+    settings.configure_logging()
+
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.BACKEND_CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         expose_headers=["Content-Range", "Range"],
-        allow_headers=["*", "Authorization", "Content-Type", "Content-Range", "Range"],
+        allow_headers=[
+            "*",
+            "Authorization",
+            "Content-Type",
+            "Content-Range",
+            "Range",
+        ],
     )
 
     application.include_router(api_router, prefix=settings.api_prefix)
@@ -73,7 +80,6 @@ def get_application() -> FastAPI:
     @application.on_event("startup")
     async def startup() -> None:
         await prisma.connect()
-        await init_db()
 
     @application.on_event("shutdown")
     async def shutdown() -> None:
@@ -93,7 +99,7 @@ async def root(request: Request):
     response = templates.TemplateResponse(
         "index.html",
         context={
-            "app_name": app.title,
+            "app_name": app.title.replace("_", " "),
             "request": request,
             "proto": "http",
             "host": settings.DOMAIN,

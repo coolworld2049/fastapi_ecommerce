@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+
+  auth_service:
+    build: .
+    command: ./start.sh
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=prod
+      - DEBUG=False
+      - PG_HOST=host.docker.internal
+    ports:
+      - ${PORT}:${PORT}

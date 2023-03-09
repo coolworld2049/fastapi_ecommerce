@@ -29,7 +29,9 @@ class SalesRevenue(BaseModel):
 
 
 async def get_orders_for_period(
-    start_datetime: datetime, end_datetime: datetime, request_params: RequestParams
+    start_datetime: datetime,
+    end_datetime: datetime,
+    request_params: RequestParams,
 ):
     cost = {"cost": True}
     orders_for_period = await Order.prisma().group_by(
@@ -46,7 +48,8 @@ async def get_orders_for_period(
     )
     order_ids = list(map(lambda x: x.get("id"), orders_for_period))
     orders_products = await OrderProduct.prisma().find_many(
-        where={"order_id": {"in": order_ids}}, include={"order": True, "product": True}
+        where={"order_id": {"in": order_ids}},
+        include={"order": True, "product": True},
     )
     return orders_products
 
@@ -61,7 +64,9 @@ async def sales_analytics(
         datetime.now().replace(year=datetime.now().year - 1),
         description="ISO 8601 format",
     ),
-    end_datetime: datetime = Param(datetime.now(), description="ISO 8601 format"),
+    end_datetime: datetime = Param(
+        datetime.now(), description="ISO 8601 format"
+    ),
     products: bool = True,
     in_orders: bool = False,
     buyers: bool = False,
@@ -140,7 +145,9 @@ async def categories_sales_analytic(
         datetime.now().replace(year=datetime.now().year - 1),
         description="ISO 8601 format",
     ),
-    end_datetime: datetime = Param(datetime.now(), description="ISO 8601 format"),
+    end_datetime: datetime = Param(
+        datetime.now(), description="ISO 8601 format"
+    ),
     request_params: RequestParams = Depends(
         params.parse_query_params(
             use_order=False,
@@ -155,7 +162,9 @@ async def categories_sales_analytic(
     orders_products = await get_orders_for_period(
         start_datetime, end_datetime, request_params
     )
-    sold_product_category_ids = {x.product.category_id for x in orders_products}
+    sold_product_category_ids = {
+        x.product.category_id for x in orders_products
+    }
 
     end = time.time()
     analytic_response = AnalyticResponse(
@@ -174,7 +183,11 @@ async def categories_sales_analytic(
             QuantitySoldCategory(
                 category_id=x,
                 quantity_sold_products_by_status=len(
-                    {y.order_id for y in orders_products if y.product.category_id == x}
+                    {
+                        y.order_id
+                        for y in orders_products
+                        if y.product.category_id == x
+                    }
                 ),
             )
             for x in sold_product_category_ids

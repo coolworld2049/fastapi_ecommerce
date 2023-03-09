@@ -9,6 +9,8 @@ services:
       - .env
     environment:
       - DEBUG=False
+      - MONGODB_HOST=host.docker.internal
+      - AUTH_SERVICE_URL=http://host.docker.internal:8001
     ports:
       - ${PORT}:${PORT}
 

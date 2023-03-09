@@ -15,9 +15,10 @@ def event_loop():
 @pytest_asyncio.fixture(scope="module")
 async def client():
     from store_service.main import app
+
     async with AsyncClient(
-            app=app,
-            base_url=f"http://{settings.DOMAIN}:{settings.PORT}",
+        app=app,
+        base_url=f"http://{settings.DOMAIN}:{settings.PORT}",
     ) as c:
         yield c
 

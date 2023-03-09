@@ -1,4 +1,5 @@
-#! /usr/bin/env bash
+#! /bin/bash -x
+
 set -e
 
 if [ -f /app/app/main.py ]; then

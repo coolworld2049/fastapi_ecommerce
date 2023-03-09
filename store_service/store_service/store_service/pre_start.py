@@ -6,7 +6,7 @@ from tenacity import before_log
 from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_fixed
-from uvicorn.main import logger
+from loguru import logger
 
 max_tries = 60 * 2
 wait_seconds = 1
@@ -20,9 +20,10 @@ wait_seconds = 1
 )
 async def init() -> None:
     from store_service.db.base import dbapp
+
     try:
         status = await dbapp.command("serverStatus")
-        assert status['ok'] == 1.0
+        assert status["ok"] == 1.0
     except Exception as e:
         logger.info(e.args)
         raise e
