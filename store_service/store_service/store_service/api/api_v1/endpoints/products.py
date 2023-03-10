@@ -13,9 +13,9 @@ from prisma.partials import (
 )
 from starlette import status
 
-from store_service.api.api_v1.deps import params
-from store_service.api.api_v1.deps.base import RoleChecker
-from store_service.api.api_v1.deps.params import RequestParams
+from store_service.api.api_v1.dependencies import params
+from store_service.api.api_v1.dependencies.auth import RoleChecker
+from store_service.api.api_v1.dependencies.params import RequestParams
 
 router = APIRouter()
 
@@ -24,9 +24,7 @@ router = APIRouter()
     "/",
     response_model=list[ProductWithoutRelations],
     dependencies=[
-        Depends(
-            RoleChecker(Product, ["admin", "manager", "customer", "guest"])
-        )
+        Depends(RoleChecker(["admin", "manager", "customer", "guest"]))
     ],
 )
 async def read_products(
@@ -42,9 +40,7 @@ async def read_products(
     "/category",
     response_model=list[ProductWithoutRelations],
     dependencies=[
-        Depends(
-            RoleChecker(Product, ["admin", "manager", "customer", "guest"])
-        )
+        Depends(RoleChecker(["admin", "manager", "customer", "guest"]))
     ],
 )
 async def read_products_by_category(
@@ -69,7 +65,7 @@ async def read_products_by_category(
 @router.post(
     "/",
     response_model=ProductWithoutRelations,
-    dependencies=[Depends(RoleChecker(Product, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def create_product(product_in: ProductCreate) -> Optional[Product]:
     product = await Product.prisma().create(data=product_in.dict())
@@ -79,7 +75,7 @@ async def create_product(product_in: ProductCreate) -> Optional[Product]:
 @router.get(
     "/{id}",
     response_model=ProductWithoutRelations,
-    dependencies=[Depends(RoleChecker(Product, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def read_product_by_id(
     id: str,
@@ -91,7 +87,7 @@ async def read_product_by_id(
 @router.put(
     "/{id}",
     response_model=ProductWithoutRelations,
-    dependencies=[Depends(RoleChecker(Product, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def update_product(
     id: str, product_in: ProductUpdate
@@ -104,7 +100,7 @@ async def update_product(
 @router.patch(
     "/{id}/product/{category_id}",
     response_model=ProductWithoutRelations,
-    dependencies=[Depends(RoleChecker(Product, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def update_product_category(
     id: str, category_id: str
@@ -116,7 +112,7 @@ async def update_product_category(
 
 @router.delete(
     "/{id}",
-    dependencies=[Depends(RoleChecker(Product, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def delete_product(id: str) -> dict[str, Any]:
     await Product.prisma().delete(

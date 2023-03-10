@@ -7,9 +7,9 @@ from prisma.enums import OrderStatus
 from prisma.models import Order, OrderProduct
 from pydantic import BaseModel
 
-from store_service.api.api_v1.deps import params
-from store_service.api.api_v1.deps.base import RoleChecker
-from store_service.api.api_v1.deps.params import RequestParams
+from store_service.api.api_v1.dependencies import params
+from store_service.api.api_v1.dependencies.auth import RoleChecker
+from store_service.api.api_v1.dependencies.params import RequestParams
 
 router = APIRouter()
 
@@ -57,7 +57,7 @@ async def get_orders_for_period(
 @router.get(
     "/sales",
     response_model=SalesRevenue,
-    dependencies=[Depends(RoleChecker(roles=["admin"]))],
+    dependencies=[Depends(RoleChecker(["admin"]))],
 )
 async def sales_analytics(
     start_datetime: datetime = Param(
@@ -138,7 +138,7 @@ class QuantitySoldCategory(BaseModel):
 @router.get(
     "/sales/category",
     response_model=dict[str, AnalyticResponse | list[QuantitySoldCategory]],
-    dependencies=[Depends(RoleChecker(roles=["admin"]))],
+    dependencies=[Depends(RoleChecker(["admin"]))],
 )
 async def categories_sales_analytic(
     start_datetime: datetime = Param(

@@ -3,7 +3,6 @@ generator client {
   partial_type_generator = "./prisma/partial_types.py"
   interface              = asyncio
   recursive_type_depth   = 8
-  previewFeatures        = ["fullTextIndex"]
 }
 
 datasource db {

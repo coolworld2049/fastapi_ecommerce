@@ -43,6 +43,7 @@ async def create_user_in_role(db: AsyncSession, current_user: User):
         "db_name": db.bind.url.database,
     }
     await db.execute(text(q), params=params)
+    await db.commit()
     if get_app_settings().APP_ENV in ["dev", "test"]:
         logger.info("created")
 

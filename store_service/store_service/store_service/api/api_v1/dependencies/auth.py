@@ -1,5 +1,4 @@
 import json
-from typing import Any
 
 from fastapi import Depends
 from fastapi import HTTPException
@@ -8,7 +7,7 @@ from jose import JWTError
 from jose import jwt
 from loguru import logger
 
-from store_service.api.api_v1.deps.custom_exception import (
+from store_service.api.api_v1.dependencies.custom_exception import (
     BadCredentialsException,
     PermissionDeniedException,
 )
@@ -64,19 +63,16 @@ async def get_current_active_superuser(
 class RoleChecker:
     def __init__(
         self,
-        resource: Any | None = None,
         roles: list = None,
     ):
-        self.resource = resource
         self.roles = roles
 
     async def __call__(
         self, current_user: User = Depends(get_current_active_user)
     ):
-        if settings.enable_rbac and self.roles:
-            if current_user.role not in self.roles:
-                if settings.DEBUG:
-                    logger.warning(
-                        f"Details: current_user role is '{current_user.role}', required roles: {self.roles}"
-                    )
-                raise PermissionDeniedException
+        if current_user.role not in self.roles and settings.enable_rbac:
+            if settings.DEBUG:
+                logger.warning(
+                    f"Details: current_user role is '{current_user.role}', required roles: {self.roles}"
+                )
+            raise PermissionDeniedException

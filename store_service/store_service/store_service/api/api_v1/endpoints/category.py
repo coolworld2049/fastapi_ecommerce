@@ -9,9 +9,9 @@ from prisma.partials import (
 )
 from starlette import status
 
-from store_service.api.api_v1.deps import params
-from store_service.api.api_v1.deps.base import RoleChecker
-from store_service.api.api_v1.deps.params import RequestParams
+from store_service.api.api_v1.dependencies import params
+from store_service.api.api_v1.dependencies.auth import RoleChecker
+from store_service.api.api_v1.dependencies.params import RequestParams
 
 router = APIRouter()
 
@@ -20,9 +20,7 @@ router = APIRouter()
     "/",
     response_model=list[CategoryWithoutRelations],
     dependencies=[
-        Depends(
-            RoleChecker(Category, ["admin", "manager", "customer", "guest"])
-        )
+        Depends(RoleChecker(["admin", "manager", "customer", "guest"]))
     ],
 )
 async def read_categories(
@@ -37,7 +35,7 @@ async def read_categories(
 @router.post(
     "/",
     response_model=CategoryWithoutRelations,
-    dependencies=[Depends(RoleChecker(Category, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def create_category(category_in: CategoryCreate) -> Optional[Category]:
     category = await Category.prisma().create(category_in.dict())
@@ -48,9 +46,7 @@ async def create_category(category_in: CategoryCreate) -> Optional[Category]:
     "/{id}",
     response_model=CategoryWithoutRelations,
     dependencies=[
-        Depends(
-            RoleChecker(Category, ["admin", "manager", "customer", "guest"])
-        )
+        Depends(RoleChecker(["admin", "manager", "customer", "guest"]))
     ],
 )
 async def read_category_by_id(
@@ -63,7 +59,7 @@ async def read_category_by_id(
 @router.put(
     "/{id}",
     response_model=CategoryWithoutRelations,
-    dependencies=[Depends(RoleChecker(Category, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def update_category(
     id: str, category_in: CategoryUpdate
@@ -78,7 +74,7 @@ async def update_category(
 
 @router.delete(
     "/{id}",
-    dependencies=[Depends(RoleChecker(Category, ["admin", "manager"]))],
+    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def delete_category(id: str) -> dict[str, Any]:
     where = {
