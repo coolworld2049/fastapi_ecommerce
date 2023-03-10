@@ -7,12 +7,8 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
 from auth_service import crud, schemas
-from auth_service import models
-from auth_service.api.dependencies import auth
 from auth_service.api.dependencies import database
 from auth_service.core.config import get_app_settings
 from auth_service.services import jwt
@@ -55,26 +51,3 @@ async def login_access_token(
         expires_delta=exp,
     )
     return token
-
-
-@router.post("/login/test-token", response_model=schemas.User)
-def test_token(
-    current_user: models.User = Depends(auth.get_current_user),
-) -> Any:
-    """
-    Test access token
-    """
-    return current_user
-
-
-@router.get("/logout")
-def logout(
-    request: Request,
-    current_user: models.User = Depends(auth.get_current_user),  # noqa
-) -> Any:
-    """
-    Logout
-    """
-    response = JSONResponse({"status": "logout"})
-    ...
-    return response

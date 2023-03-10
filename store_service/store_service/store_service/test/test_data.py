@@ -1,95 +1,18 @@
 import random
-import string
 from datetime import datetime
 
-import aiohttp
 import faker_commerce
 import pytest
-from faker import Faker
+from httpx import AsyncClient
 from prisma import Prisma
 from prisma.enums import OrderStatus
 from prisma.errors import UniqueViolationError
 from prisma.models import Category, Product, Order, OrderProduct
 from prisma.types import CategoryCreateInput, ProductCreateInput
 
-from store_service.core.config import settings
 from store_service.schemas.user import User
-
-fake = Faker()
-fake.add_provider(faker_commerce.Provider)
-
-
-class RandomDateTime:
-    def __init__(
-        self,
-        year: list[int, int] = None,
-        month: list[int, int] = None,
-        day: list[int, int] = None,
-    ):
-        self.year = year
-        self.month = month
-        self.day = day
-
-    def datetime(self, now_dt: datetime = datetime.now()):
-        data = {
-            "year": random.choice(self.year) if self.year else None,
-            "month": random.choice(self.month) if self.month else None,
-            "day": random.choice(self.day) if self.day else None,
-        }
-        items = dict(
-            filter(  # noqa
-                lambda it: it[1] is not None and isinstance(it[1], int),
-                data.items(),
-            )
-        )
-        return now_dt.replace(**items)
-
-
-def rnd_string(length=24):
-    return "".join(
-        [random.choice(string.ascii_letters) for _ in range(length)]
-    )
-
-
-def rnd_password():
-    length = 10
-    return (
-        f"{''.join(random.choice(string.ascii_letters) for _ in range(length)).capitalize()}"
-        f"{random.choice(string.ascii_uppercase)}"
-        f"{random.randint(0, 9)}"
-        f"{random.choice('@$!%*?&')}"
-    )
-
-
-async def get_token(username: str, password: str):
-    headers = {
-        "accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-    body = {"username": username, "password": password}
-    async with aiohttp.ClientSession(
-        settings.AUTH_SERVICE_URL, headers=headers
-    ) as session:
-        async with session.post(
-            "/api/v1/login/access-token", data=body
-        ) as resp:
-            resp = await resp.json()
-            return resp.get("access_token")
-
-
-async def get_users(count=100, *, token: str):
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {token}",
-    }
-    async with aiohttp.ClientSession(
-        settings.AUTH_SERVICE_URL, headers=headers
-    ) as session:
-        async with session.get(
-            f"""/api/v1/users?range=[0, {count}]&sort=["id", "ASC"]"""
-        ) as resp:
-            resp = await resp.json()
-            return resp
+from store_service.test.auth_service.test_users import get_users
+from store_service.test.utils import RandomDateTime, rnd_string, fake
 
 
 async def create_category(count=20):
@@ -114,7 +37,7 @@ async def create_product(
         product_in = ProductCreateInput(
             title=fake.ecommerce_name(),
             category_id=random.choice(categories).id,
-            price=random.randint(1000, 100000),
+            price=random.randint(100, 100000),
             description=rnd_string(),
             stock=multiplier * 10,
             created_at=created_at.datetime(),
@@ -195,21 +118,18 @@ async def update_orders(
 
 
 @pytest.mark.asyncio
-async def test_data(prisma_client: Prisma):
-    if settings.DEBUG:
-        await prisma_client.connect()
-        token = await get_token(
-            settings.FIRST_SUPERUSER_EMAIL, settings.FIRST_SUPERUSER_PASSWORD
-        )
-        users = await get_users(count=300, token=token)
-        users = [User(**x) for x in users]
-        categories = await create_category()
-        now = datetime.now()
-        created_at = RandomDateTime(
-            [now.year - 1, now.year],
-            [1, datetime.now().month],
-        )
-        products = await create_product(categories, created_at=created_at)
-        for _ in range(3):
-            orders = await create_orders(users, created_at=created_at)
-            await update_orders(orders, products, created_at=created_at)
+async def test_data(prisma_client: Prisma, auth_service_client: AsyncClient):
+    await prisma_client.connect()
+    users = await get_users(count=100, auth_service_client=auth_service_client)
+    categories = await create_category()
+    now = datetime.now()
+    created_at = RandomDateTime(
+        [now.year - 1, now.year],
+        [1, datetime.now().month],
+    )
+    products = await create_product(
+        categories, multiplier=10, created_at=created_at
+    )
+    for _ in range(2):
+        orders = await create_orders(users, created_at=created_at)
+        await update_orders(orders, products, created_at=created_at)

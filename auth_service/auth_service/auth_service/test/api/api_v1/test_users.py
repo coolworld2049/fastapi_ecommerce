@@ -10,12 +10,12 @@ from auth_service import crud, schemas
 from auth_service import models
 from auth_service.core.config import get_app_settings
 from auth_service.models.enums import UserRole
-from auth_service.tests.test_data import fake
-from auth_service.tests.utils.utils import (
+from auth_service.test.test_data import fake
+from auth_service.test.utils.utils import (
     gen_random_password,
     random_lower_string,
 )
-from auth_service.tests.utils.utils import random_email
+from auth_service.test.utils.utils import random_email
 
 
 @pytest.mark.asyncio
@@ -69,7 +69,7 @@ async def test_get_users_normal_user_me(
 @pytest.mark.asyncio
 async def test_create_user_new_email(
     client: AsyncClient,
-    superuser_token_headers: dict,
+    superuser_token_headers: Dict[str, str],
     db: AsyncSession,
 ) -> None:
     email = random_email()
@@ -80,7 +80,7 @@ async def test_create_user_new_email(
         username=username,
         password=password,
         password_confirm=password,
-        role=UserRole.admin,
+        role=UserRole.admin.name,
     )
     r = await client.post(
         f"{get_app_settings().api_v1}/users/",

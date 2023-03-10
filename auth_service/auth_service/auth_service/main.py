@@ -60,10 +60,10 @@ def get_application() -> FastAPI:
         ],
     )
 
-    if application.debug:
+    if get_app_settings().APP_ENV in ["dev", "test"]:
         application.middleware("http")(add_process_time_header)
 
-    if not application.debug:
+    if not application.debug and get_app_settings().APP_ENV == "prod":
         application.middleware("http")(catch_exceptions_middleware)
 
     application.mount(

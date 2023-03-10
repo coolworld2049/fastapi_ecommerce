@@ -5,11 +5,10 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud, schemas
-from auth_service.api.dependencies.auth import oauth2Scheme
 from auth_service.core.config import get_app_settings
 from auth_service.models.user import User
-from auth_service.tests.utils.utils import gen_random_password
-from auth_service.tests.utils.utils import random_email
+from auth_service.test.utils.utils import gen_random_password
+from auth_service.test.utils.utils import random_email
 
 
 async def user_authentication_headers(
@@ -23,7 +22,7 @@ async def user_authentication_headers(
     r = await client.post(
         f"{get_app_settings().api_v1}/login/access-token", data=data
     )
-    token = r.cookies.get(oauth2Scheme.token_name)
+    token = r.json().get("access_token")
     headers = {"Authorization": f"Bearer {token}"}
     return headers
 

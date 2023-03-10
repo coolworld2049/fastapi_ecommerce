@@ -18,7 +18,7 @@ from auth_service.db.init_db import (
 from auth_service.db.session import SessionLocal, pg_database
 from auth_service.models.enums import UserRole
 from auth_service.models.user import User
-from auth_service.tests.utils.utils import gen_random_password
+from auth_service.test.utils.utils import gen_random_password
 
 fake = Faker()
 
@@ -68,8 +68,5 @@ async def test_init_db(db: AsyncSession):
     conn = await pg_database.get_connection()
     await truncate_tables(conn)
     await init_db()
-    await create_users(50)
-    if get_app_settings().APP_ENV not in ["test", "dev"]:
-        await truncate_tables(conn)
-        await create_first_superuser(db)
+    await create_users(100 if get_app_settings().APP_ENV == "dev" else 10)
     await conn.close()
