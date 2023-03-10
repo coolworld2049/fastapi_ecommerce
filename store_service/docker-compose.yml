@@ -5,12 +5,12 @@ services:
   store_service:
     build: .
     command: ./start.sh
-    env_file:
-      - .env
     environment:
       - DEBUG=False
-      - MONGODB_HOST=host.docker.internal
+      - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
       - AUTH_SERVICE_URL=http://host.docker.internal:8001
+    env_file:
+      - .env
     ports:
       - ${PORT}:${PORT}
 

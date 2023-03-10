@@ -13,12 +13,23 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope="module")
-async def client():
+async def store_service_client():
     from store_service.main import app
 
     async with AsyncClient(
         app=app,
         base_url=f"http://{settings.DOMAIN}:{settings.PORT}",
+    ) as c:
+        yield c
+
+
+@pytest_asyncio.fixture(scope="module")
+async def auth_service_client():
+    from auth_service.main import app
+
+    async with AsyncClient(
+        app=app,
+        base_url=settings.AUTH_SERVICE_URL,
     ) as c:
         yield c
 

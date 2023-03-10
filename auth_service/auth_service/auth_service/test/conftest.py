@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from auth_service.core.config import get_app_settings
 from auth_service.db.session import SessionLocal
 from auth_service.main import app
-from auth_service.tests.utils.user import authentication_token_from_email
-from auth_service.tests.utils.utils import get_superuser_token_headers
+from auth_service.test.utils.user import authentication_token_from_email
+from auth_service.test.utils.utils import get_superuser_token_headers
 
 environ["APP_ENV"] = "test"
 

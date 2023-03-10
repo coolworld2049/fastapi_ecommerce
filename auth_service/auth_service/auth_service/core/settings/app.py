@@ -87,6 +87,6 @@ class AppSettings(BaseAppSettings):
 
         logger.configure(
             handlers=[
-                {"sink": sys.stderr, "level": self.LOGGING_LEVEL},
+                {"sink": sys.stdout, "level": self.LOGGING_LEVEL},
             ]
         )
