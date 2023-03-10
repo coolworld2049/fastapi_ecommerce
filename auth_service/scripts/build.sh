@@ -19,7 +19,7 @@ docker-compose exec -it postgresql_master psql -U ${POSTGRES_USER} -W ${POSTGRES
 
 set -e
 
-docker-compose up --detach --scale auth_service=3
+docker-compose up -d
 
 docker-compose -f docker-compose.tools.yml up -d
 
