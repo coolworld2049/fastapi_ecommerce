@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
+    PRISMA_STUDIO_PORT: int
     MONGODB_URL: str
     AUTH_SERVICE_URL: str
 

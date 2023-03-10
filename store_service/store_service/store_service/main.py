@@ -100,6 +100,7 @@ async def root(request: Request):
         "index.html",
         context={
             "app_name": app.title.replace("_", " "),
+            "prisma_studio_port": settings.PRISMA_STUDIO_PORT,
             "request": request,
             "proto": "http",
             "host": settings.DOMAIN,

@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+
+  prisma-studio:
+    build:
+      context: ..
+      dockerfile: prisma_studio/Dockerfile
+    command: /init.sh
+    environment:
+      - PRISMA_STUDIO_PORT=${PRISMA_STUDIO_PORT}
+      - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
+    ports:
+      - ${PRISMA_STUDIO_PORT}:${PRISMA_STUDIO_PORT}

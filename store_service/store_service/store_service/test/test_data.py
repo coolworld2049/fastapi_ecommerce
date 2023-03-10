@@ -1,7 +1,6 @@
 import random
 from datetime import datetime
 
-import faker_commerce
 import pytest
 from httpx import AsyncClient
 from prisma import Prisma
@@ -130,6 +129,6 @@ async def test_data(prisma_client: Prisma, auth_service_client: AsyncClient):
     products = await create_product(
         categories, multiplier=10, created_at=created_at
     )
-    for _ in range(2):
+    for _ in range(3):
         orders = await create_orders(users, created_at=created_at)
         await update_orders(orders, products, created_at=created_at)

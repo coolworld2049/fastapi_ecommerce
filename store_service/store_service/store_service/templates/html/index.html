@@ -23,14 +23,15 @@
         }
 
     </style>
-    <title>{{app_name}}</title>
+    <title>{{ app_name }}</title>
 </head>
 <body>
 <div class="container">
-    <p style="margin-bottom: 5%; color: azure; font-size: 60px; font-weight: lighter">{{app_name}}</p>
-    <a href={{proto}}://{{host}}:{{port}}/docs><p>docs</p></a>
-    <a href={{proto}}://{{host}}:{{port}}/redoc><p>redoc</p></a>
-    <a href={{proto}}://{{host}}:{{port}}{{openapi_path}}><p>openapi.json</p></a>
+    <p style="margin-bottom: 5%; color: azure; font-size: 60px; font-weight: lighter">{{ app_name }}</p>
+    <a href={{ proto }}://{{ host }}:{{ prisma_studio_port }}><p>prisma studio</p></a>
+    <a href={{ proto }}://{{ host }}:{{ port }}/docs><p>docs</p></a>
+    <a href={{ proto }}://{{ host }}:{{ port }}/redoc><p>redoc</p></a>
+    <a href={{ proto }}://{{ host }}:{{ port }}{{ openapi_path }}><p>openapi.json</p></a>
 </div>
 </body>
 </html>
