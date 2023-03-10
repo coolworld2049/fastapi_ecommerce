@@ -9,12 +9,12 @@ from prisma.types import OrderInclude
 from starlette import status
 from starlette.exceptions import HTTPException
 
-from store_service.api.api_v1.deps import params
-from store_service.api.api_v1.deps.base import (
+from store_service.api.api_v1.dependencies import params
+from store_service.api.api_v1.dependencies.auth import (
     RoleChecker,
     get_current_active_user,
 )
-from store_service.api.api_v1.deps.params import RequestParams
+from store_service.api.api_v1.dependencies.params import RequestParams
 from store_service.schemas.user import User
 
 router = APIRouter()
@@ -43,7 +43,7 @@ async def get_current_user_order(
 @router.get(
     "/all",
     response_model=list[OrderWithoutRelations],
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def read_all_orders(
     request_params: RequestParams = Depends(params.parse_query_params()),
@@ -59,7 +59,7 @@ async def read_all_orders(
 @router.get(
     "/",
     response_model=Order,
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def read_order(
     current_user: User = Depends(get_current_active_user),
@@ -75,7 +75,7 @@ async def read_order(
 @router.post(
     "/",
     response_model=OrderWithoutRelations,
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def create_order(
     current_user: User = Depends(get_current_active_user),
@@ -97,7 +97,7 @@ async def create_order(
 @router.patch(
     "/product/add",
     response_model=OrderWithoutRelations,
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def add_products_to_order(
     product_id: str,
@@ -135,7 +135,7 @@ async def add_products_to_order(
 @router.patch(
     "/product/delete",
     response_model=OrderWithoutRelations,
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def delete_product_from_order(
     product_id: str,
@@ -190,7 +190,7 @@ async def delete_product_from_order(
 @router.patch(
     "/status",
     response_model=OrderWithoutRelations,
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def update_order_status(
     id: str, order_status_in: OrderStatus
@@ -211,7 +211,7 @@ async def update_order_status(
 
 @router.delete(
     "/",
-    dependencies=[Depends(RoleChecker(Order, ["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def delete_order(
     current_user: User = Depends(get_current_active_user),

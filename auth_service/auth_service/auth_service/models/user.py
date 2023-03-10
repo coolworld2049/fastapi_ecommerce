@@ -1,11 +1,11 @@
 import uuid
 
 from bson import ObjectId
-from sqlalchemy import Boolean, String, func
+from sqlalchemy import Boolean, String
 from sqlalchemy import Column
 from sqlalchemy import Text
 from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import ENUM, UUID
+from sqlalchemy.dialects.postgresql import ENUM
 
 from auth_service.db.session import Base
 from auth_service.mixins.base import TimestampsMixin
