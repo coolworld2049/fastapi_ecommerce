@@ -1,4 +1,6 @@
-#      
+![](https://img.shields.io/badge/code%20style-black-000000.svg)
+
+---
 
 <div>
 <img src="assets/fastapi-logo.png" alt="fastapi-logo" height="60" /> 
