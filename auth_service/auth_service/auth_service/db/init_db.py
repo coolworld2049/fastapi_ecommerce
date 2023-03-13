@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
-from auth_service.core.settings.base import AppEnvTypes
 from auth_service.db.session import Base
 from auth_service.db.session import SessionLocal
 from auth_service.db.session import engine
@@ -33,12 +32,23 @@ async def execute_sql_file(path: pathlib.Path, async_conn: Connection):
         logger.info(f"{path.name}: {e.args}")
 
 
+async def drop_all_models(_engine: AsyncEngine):
+    async with _engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
+        logger.info(f"metadata.drop_all")
+
+
 async def create_all_models(_engine: AsyncEngine):
     async with _engine.begin() as conn:
-        if get_app_settings().APP_ENV == "test":
-            await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
         await conn.run_sync(Base.metadata.create_all, checkfirst=True)
         logger.info(f"metadata.create_all")
+
+
+async def remove_first_superuser(db: AsyncSession):
+    await crud.user.remove(
+        db,
+        email=get_app_settings().FIRST_SUPERUSER_EMAIL,
+    )
 
 
 async def create_first_superuser(db: AsyncSession):
@@ -75,8 +85,6 @@ async def execute_sql_files(
 
 async def init_db():
     conn = await pg_database.get_connection()
-    if get_app_settings().APP_ENV == AppEnvTypes.test:
-        await truncate_tables(conn)
     await create_all_models(engine)
     await execute_sql_files(conn)
     async with SessionLocal() as db:

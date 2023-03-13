@@ -23,4 +23,5 @@ black==23.1.0
 faker==17.3.0
 pytest
 pytest-asyncio
+pytest-cov
 pre-commit

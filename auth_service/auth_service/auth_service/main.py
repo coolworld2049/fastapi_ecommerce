@@ -1,12 +1,9 @@
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
-from starlette.templating import Jinja2Templates
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.api.errors.http_error import http_error_handler
@@ -21,22 +18,15 @@ from auth_service.middlewares.http import (
     catch_exceptions_middleware,
 )
 
-current_file = Path(__file__)
-current_file_dir = current_file.parent
-project_root = current_file_dir.parent
-project_root_absolute = project_root.resolve()
-project_templates_path = project_root_absolute / "auth_service/templates"
-project_templates_html_path = project_templates_path / "html/"
-
-templates = Jinja2Templates(directory=project_templates_html_path)
-
 
 def get_application() -> FastAPI:
     get_app_settings().configure_logging()
 
     application = FastAPI(**get_app_settings().fastapi_kwargs)
 
-    application.include_router(api_router, prefix=get_app_settings().api_v1)
+    application.include_router(
+        api_router, prefix=get_app_settings().api_prefix
+    )
     custom_openapi(application)
     use_route_names_as_operation_ids(application)
 
@@ -66,12 +56,6 @@ def get_application() -> FastAPI:
     if not application.debug and get_app_settings().APP_ENV == "prod":
         application.middleware("http")(catch_exceptions_middleware)
 
-    application.mount(
-        "/templates",
-        StaticFiles(directory=project_templates_path),
-        name="templates",
-    )
-
     return application
 
 
@@ -92,14 +76,15 @@ async def shutdown():
 
 @app.get("/")
 async def root(request: Request):
-    response = templates.TemplateResponse(
-        "index.html",
+    response = get_app_settings().templates.TemplateResponse(
+        "/html/index.html",
         context={
             "app_name": app.title.replace("_", " "),
             "request": request,
             "proto": "http",
             "host": get_app_settings().DOMAIN,
             "port": get_app_settings().PORT,
+            "api_prefix": get_app_settings().api_prefix,
             "openapi_path": f"{app.openapi_url}",
         },
     )

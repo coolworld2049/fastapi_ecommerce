@@ -41,11 +41,12 @@ async def db() -> AsyncGenerator:
 
 # noinspection PyShadowingNames
 @pytest_asyncio.fixture(scope="module")
-async def superuser_token_headers(client: AsyncClient) -> Dict[str, str]:
-    return await get_superuser_token_headers(client)
+async def superuser_token_headers(
+    client: AsyncClient, db: AsyncSession
+) -> Dict[str, str]:
+    return await get_superuser_token_headers(client, db)
 
 
-# noinspection PyShadowingNames
 @pytest_asyncio.fixture(scope="module")
 async def normal_user_token_headers(
     client: AsyncClient, db: AsyncSession
@@ -53,5 +54,6 @@ async def normal_user_token_headers(
     return await authentication_token_from_email(
         client=client,
         email=get_app_settings().FIRST_SUPERUSER_EMAIL,
+        password=get_app_settings().FIRST_SUPERUSER_PASSWORD,
         db=db,
     )

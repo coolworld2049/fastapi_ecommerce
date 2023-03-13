@@ -1,11 +1,10 @@
 import re
 from datetime import datetime
 from difflib import SequenceMatcher
-from typing import Optional, Any
+from typing import Optional
 
 from loguru import logger
 from pydantic import EmailStr, validator, root_validator, BaseModel
-from pydantic.types import UUID
 
 from auth_service.models import UserRole
 from auth_service.resources.reserved_username import reserved_usernames_list
@@ -104,6 +103,10 @@ class UserCreate(UserBase):
 
 # Properties to receive via API on update
 class UserUpdate(UserCreate):
+    pass
+
+
+class UserUpdateMe(UserOptional):
     pass
 
 

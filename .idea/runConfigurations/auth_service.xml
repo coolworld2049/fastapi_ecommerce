@@ -7,7 +7,7 @@
     <option name="PARENT_ENVS" value="true" />
     <option name="SDK_HOME" value="C:\Users\R\PycharmProjects\fastapi-postgresql-mongo-ecommerce\venv\Scripts\python.exe" />
     <option name="SDK_NAME" value="Python 3.11 (fastapi-postgresql-mongo-ecommerce)" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/auth_service" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/auth_service/auth_service" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />

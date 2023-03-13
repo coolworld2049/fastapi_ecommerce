@@ -11,11 +11,11 @@ from store_service.api.api_v1.dependencies.custom_exception import (
     BadCredentialsException,
     PermissionDeniedException,
 )
-from store_service.core.config import settings
+from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=settings.AUTH_SERVICE_URL + "/api/v1/login/access-token"
+    tokenUrl=get_app_settings().AUTH_SERVICE_URL + "/api/v1/login/access-token"
 )
 
 
@@ -25,8 +25,8 @@ async def get_current_user(
     try:
         payload = jwt.decode(
             token=token,
-            key=settings.JWT_SECRET_KEY,
-            algorithms=settings.JWT_ALGORITHM,
+            key=get_app_settings().JWT_SECRET_KEY,
+            algorithms=get_app_settings().JWT_ALGORITHM,
             options={"verify_aud": False},
         )
         sub = payload.get("sub")
@@ -70,9 +70,9 @@ class RoleChecker:
     async def __call__(
         self, current_user: User = Depends(get_current_active_user)
     ):
-        if current_user.role not in self.roles and settings.enable_rbac:
-            if settings.DEBUG:
-                logger.warning(
-                    f"Details: current_user role is '{current_user.role}', required roles: {self.roles}"
-                )
+        if get_app_settings().DEBUG:
+            logger.debug(
+                f"current_user '{current_user.email}' with role '{current_user.role}', required roles: {self.roles}"
+            )
+        if current_user.role not in self.roles:
             raise PermissionDeniedException

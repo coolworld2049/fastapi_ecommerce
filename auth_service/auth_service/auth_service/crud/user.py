@@ -58,6 +58,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         except SQLAlchemyError as e:
             await db.rollback()
             logger.error(e.args)
+            raise
         return db_obj
 
     async def update(
@@ -115,6 +116,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     # noinspection PyMethodMayBeStatic,PyShadowingNames
     def is_superuser(self, user: User) -> bool:
         return user.is_superuser
+
+    async def remove(self, db: AsyncSession, *, email: str):
+        obj = await self.get_by_email(db, email=email)
+        try:
+            await db.delete(obj)
+            await db.commit()
+        except SQLAlchemyError as e:
+            logger.error(e.args)
+            raise
+        return obj
 
 
 user = CRUDUser(User)

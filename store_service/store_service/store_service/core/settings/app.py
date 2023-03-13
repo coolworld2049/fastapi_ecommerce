@@ -8,15 +8,15 @@ from typing import Any
 from loguru import logger
 from starlette.templating import Jinja2Templates
 
-from auth_service.core.logging import InterceptHandler
-from auth_service.core.settings.base import BaseAppSettings
+from store_service.core.logging import InterceptHandler
+from store_service.core.settings.base import BaseAppSettings
 
 
 class AppSettings(BaseAppSettings):
     docs_url: str = "/docs"
-    api_prefix: str = "/api/v1"
+    api_perfix: str = "/api/v1"
     openapi_prefix: str = ""
-    openapi_url: str = f"{api_prefix}/openapi.json"
+    openapi_url: str = f"{api_perfix}/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
     version: str = "0.0.0"
@@ -28,21 +28,18 @@ class AppSettings(BaseAppSettings):
     PORT: int
 
     BACKEND_CORS_ORIGINS: list[str]
-    JWT_ALGORITHM: str
+    JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
 
-    PG_HOST: str
-    PG_PORT: int
-    POSTGRES_DB: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    PG_DRIVER: str = "asyncpg"
+    MONGODB_URL: str
+    AUTH_SERVICE_URL: str
+    PRISMA_STUDIO_PORT: int = 5555
 
-    LOGGING_LEVEL: int = logging.INFO
+    LOGGING_LEVEL: int = logging.ERROR
     LOGGERS: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
     LOG_FILE_MAX_BYTES = 314572800
 
@@ -60,19 +57,6 @@ class AppSettings(BaseAppSettings):
             "title": self.title,
             "version": self.version,
         }
-
-    @property
-    def raw_postgres_dsn(self):
-        return (
-            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
-            f"{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}"
-        )
-
-    @property
-    def postgres_asyncpg_dsn(self):
-        return self.raw_postgres_dsn.replace(
-            "postgresql", f"postgresql+{self.PG_DRIVER}"
-        )
 
     @property
     def project_templates_path(self):
