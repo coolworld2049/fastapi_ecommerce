@@ -1,9 +1,9 @@
 FROM python:3.11-slim
 
-COPY ./prisma /prisma
+COPY . /prisma
 
 COPY ./prisma_studio/init.sh /
 
-RUN pip install prisma
+RUN pip install --no-cache prisma
 
 

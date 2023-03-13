@@ -18,3 +18,4 @@ faker-commerce
 aiohttp
 loguru
 pre-commit
+pytest-cov

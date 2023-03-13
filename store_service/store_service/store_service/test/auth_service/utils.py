@@ -1,20 +1,21 @@
-from httpx import AsyncClient
+from aiohttp import ClientSession
 
-from store_service.core.config import settings
+from store_service.core.config import get_app_settings
 
 
-async def get_auth_service_token(auth_service_client: AsyncClient) -> str:
+async def get_auth_service_token(auth_service_client: ClientSession) -> str:
     headers = {
         "accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
     }
     body = {
-        "username": settings.FIRST_SUPERUSER_EMAIL,
-        "password": settings.FIRST_SUPERUSER_PASSWORD,
+        "username": get_app_settings().FIRST_SUPERUSER_EMAIL,
+        "password": get_app_settings().FIRST_SUPERUSER_PASSWORD,
     }
-    resp = await auth_service_client.post(
+    async with auth_service_client.post(
         "/api/v1/login/access-token", headers=headers, data=body
-    )
-    token = resp.json().get("access_token")
-    assert token
-    return token
+    ) as resp:
+        data = await resp.json()
+        token = data.get("access_token")
+        assert token, data
+        return token

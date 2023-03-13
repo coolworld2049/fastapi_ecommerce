@@ -2,13 +2,11 @@ from typing import Any
 from typing import List
 
 from fastapi import APIRouter
-from fastapi import Body
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
-from fastapi.encoders import jsonable_encoder
-from pydantic.networks import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from auth_service import crud
 from auth_service import models
@@ -64,8 +62,10 @@ async def create_user(
             status_code=400,
             detail="The user with this username already exists in the system.",
         )
-    new_user = await crud.user.create(db, obj_in=user_in)
-    return new_user
+    user = await crud.user.create(db, obj_in=user_in)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    return user
 
 
 @router.put(
@@ -78,20 +78,15 @@ async def create_user(
 async def update_user_me(
     *,
     db: AsyncSession = Depends(database.get_db),
-    password: str = Body(None),
-    email: EmailStr = Body(None),
+    user_in: schemas.UserUpdateMe,
     current_user: models.User = Depends(auth.get_current_active_user),
 ) -> Any:
     """
     Update own user.
     """
-    current_user_data = jsonable_encoder(current_user)
-    user_in = schemas.UserUpdate(**current_user_data)
-    if password:
-        user_in.password = password
-    if email:
-        user_in.email = email
     user = await crud.user.update(db, db_obj=current_user, obj_in=user_in)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     return user
 
 

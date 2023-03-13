@@ -2,10 +2,6 @@
 
 set -e
 
-docker-compose up -d
-
-sleep 5
-
 docker-compose exec configsvr01 sh -c "mongosh < /scripts/init-configserver.js"
 docker-compose exec shard01-a sh -c "mongosh < /scripts/init-shard01.js"
 docker-compose exec shard02-a sh -c "mongosh < /scripts/init-shard02.js"
@@ -25,12 +21,12 @@ docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 270
 docker exec -it shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
 
 
-docker-compose exec router01 mongosh --port 27017 --eval '
-use app,
-db.stats(),
-db.User.getShardDistribution()
-'
-docker exec -it mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017"
-docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
-docker exec -it shard-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017"
-docker exec -it shard-01-node-a bash -c "echo 'rs.printSecondaryReplicationInfo()' | mongosh --port 27017"
+#docker-compose exec router01 mongosh --port 27017 --eval '
+#use app,
+#db.stats(),
+#db.User.getShardDistribution()
+#'
+#docker exec -it mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017"
+#docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+#docker exec -it shard-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017"
+#docker exec -it shard-01-node-a bash -c "echo 'rs.printSecondaryReplicationInfo()' | mongosh --port 27017"

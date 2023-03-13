@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 from fastapi.params import Param
 from prisma.enums import OrderStatus
-from prisma.models import Order, OrderProduct
+from prisma.models import Order, OrderProduct, Category
 from pydantic import BaseModel
 
 from store_service.api.api_v1.dependencies import params
@@ -17,7 +17,7 @@ router = APIRouter()
 class AnalyticResponse(BaseModel):
     request_params: RequestParams
     report: dict | None
-    elapsed_time_sec: float | None
+    elapsed_time_sec: float | int | None
     details: dict | None
 
 
@@ -67,16 +67,16 @@ async def sales_analytics(
     end_datetime: datetime = Param(
         datetime.now(), description="ISO 8601 format"
     ),
-    products: bool = True,
-    in_orders: bool = False,
-    buyers: bool = False,
+    show_products: bool = Param(True, description="list of `products`"),
+    show_product_orders: bool = Param(False, description="field `in_orders`"),
+    show_product_buyers: bool = Param(False, description="field `buyers`"),
     request_params: RequestParams = Depends(
         params.parse_query_params(
             use_order=False,
             order_example=None,
             range_description="Explanation: The range applicable for the 'Order' collection.",
             where_example='{"status": "completed"}',
-            where_add_description=f"""`status`=`{[x.name for x in OrderStatus]}`""",
+            where_add_description=f"""available statuses: `{[x.name for x in OrderStatus]}`""",
         )
     ),
 ) -> SalesRevenue:
@@ -91,7 +91,7 @@ async def sales_analytics(
             {
                 "product": x.product.id,
                 "in_orders": {y.order_id for y in orders_products}
-                if in_orders
+                if show_product_orders
                 else None,
                 "buyers": {
                     "customers": {
@@ -102,13 +102,13 @@ async def sales_analytics(
                         }
                     }
                 }
-                if buyers
+                if show_product_buyers
                 else None,
             }
             for x in orders_products
         ]
-        if products
-        else None
+        if show_products
+        else []
     )
     end = time.time()
     analytic_response = AnalyticResponse(
@@ -118,7 +118,7 @@ async def sales_analytics(
             "end_datetime": end_datetime,
             "created_at": datetime.now(),
         },
-        elapsed_time_sec=f"{end - start}",
+        elapsed_time_sec=f"{end - start:0.5f}",
         details={"product_count": len(products_in_order_products)},
     )
     _sales_revenue = SalesRevenue(
@@ -132,6 +132,7 @@ async def sales_analytics(
 
 class QuantitySoldCategory(BaseModel):
     category_id: str | None
+    category: dict | None
     quantity_sold_products_by_status: int | None
 
 
@@ -148,6 +149,7 @@ async def categories_sales_analytic(
     end_datetime: datetime = Param(
         datetime.now(), description="ISO 8601 format"
     ),
+    verbose: bool = Param(False, description="show `category` collection"),
     request_params: RequestParams = Depends(
         params.parse_query_params(
             use_order=False,
@@ -182,6 +184,9 @@ async def categories_sales_analytic(
         "categories": [
             QuantitySoldCategory(
                 category_id=x,
+                category=await Category.prisma().find_unique(where={"id": x})
+                if verbose
+                else None,
                 quantity_sold_products_by_status=len(
                     {
                         y.order_id

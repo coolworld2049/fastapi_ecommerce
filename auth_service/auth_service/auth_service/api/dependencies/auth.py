@@ -16,7 +16,7 @@ from auth_service.core.config import get_app_settings
 from auth_service.models.user import User
 
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{get_app_settings().api_v1}/login/access-token"
+    tokenUrl=f"{get_app_settings().api_prefix}/login/access-token"
 )
 
 

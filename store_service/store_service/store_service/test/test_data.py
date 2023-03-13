@@ -2,7 +2,7 @@ import random
 from datetime import datetime
 
 import pytest
-from httpx import AsyncClient
+from aiohttp import ClientSession
 from prisma import Prisma
 from prisma.enums import OrderStatus
 from prisma.errors import UniqueViolationError
@@ -117,7 +117,7 @@ async def update_orders(
 
 
 @pytest.mark.asyncio
-async def test_data(prisma_client: Prisma, auth_service_client: AsyncClient):
+async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
     await prisma_client.connect()
     users = await get_users(count=100, auth_service_client=auth_service_client)
     categories = await create_category()

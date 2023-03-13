@@ -217,6 +217,8 @@ async def delete_order(
     current_user: User = Depends(get_current_active_user),
 ) -> dict[str, Any]:
     order = await get_current_user_order(current_user)
+    if not order:
+        raise HTTPException(status_code=status.HTTP_200_OK)
     data = {"status": OrderStatus.deleted}
     order_product_ids = (
         list(map(lambda x: x.id, order.order_products))

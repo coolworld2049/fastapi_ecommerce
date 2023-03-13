@@ -6,10 +6,11 @@ cd auth_service/scripts
 
 . ./build.sh
 
-cd ../..
+cd ..
+
+sleep 3
 
 cd store_service/scripts
 
 . ./build.sh
 
-cd ../..

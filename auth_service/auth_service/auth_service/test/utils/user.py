@@ -20,7 +20,7 @@ async def user_authentication_headers(
     data = {"username": email, "password": password}
 
     r = await client.post(
-        f"{get_app_settings().api_v1}/login/access-token", data=data
+        f"{get_app_settings().api_prefix}/login/access-token", data=data
     )
     token = r.json().get("access_token")
     headers = {"Authorization": f"Bearer {token}"}
@@ -44,31 +44,9 @@ async def authentication_token_from_email(
     *,
     client: AsyncClient,
     email: EmailStr | str,
+    password: str,
     db: AsyncSession,
 ) -> Dict[str, str]:
-    """
-    Return a valid token for the user with given email.
-
-    If the user doesn't exist it is created first.
-    """
-    password = gen_random_password()
-    user = await crud.user.get_by_email(db, email=email)
-    if not user:
-        user_in_create = schemas.UserCreate(
-            username=email,
-            email=email,
-            password=password,
-            password_confirm=password,
-        )
-        user = await crud.user.create(db, obj_in=user_in_create)  # noqa
-    else:
-        user_in_update = schemas.UserUpdate(
-            password=password, password_confirm=password
-        )
-        user = await crud.user.update(
-            db, db_obj=user, obj_in=user_in_update
-        )  # noqa
-
     return await user_authentication_headers(
         client=client, email=email, password=password
     )

@@ -4,8 +4,6 @@ from typing import Optional, Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Param
 from prisma.models import Product, Category
-
-
 from prisma.partials import (
     ProductWithoutRelations,
     ProductCreate,
@@ -51,10 +49,7 @@ async def read_products_by_category(
 ) -> list[Product]:
     category = await Category.prisma().find_unique(where={"name": name})
     if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="category name not exist",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     where = {"category_id": category.id}
     rp = request_params.dict(exclude_none=True)
     where.update(rp.pop("where")) if rp.get("where") else None
@@ -115,6 +110,9 @@ async def update_product_category(
     dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
 async def delete_product(id: str) -> dict[str, Any]:
+    product = await Product.prisma().find_unique(where={"id": id})
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     await Product.prisma().delete(
         where={
             "id": id,
