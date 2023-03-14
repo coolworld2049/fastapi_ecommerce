@@ -3,7 +3,6 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from starlette.staticfiles import StaticFiles
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.api.errors.http_error import http_error_handler

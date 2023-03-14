@@ -1,10 +1,9 @@
-fastapi[all]==0.93.0
-uvicorn==0.20.0
+fastapi[all]==0.94.1
+uvicorn==0.21.0
 gunicorn==20.1.0
 prisma==0.8.2
-pydantic==1.10.5
-pydantic[email]
-starlette==0.25.0
+pydantic[all, email]==1.10.6
+starlette==0.26.1
 python-dotenv==1.0.0
 python-jose
 passlib
