@@ -7,10 +7,10 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.exc import ProgrammingError
 
-sys.path = ["", ".."] + sys.path[1:]  # noqa
+sys.path = ["", ".."] + sys.path[1:]
 
-from auth_service.core.config import get_app_settings  # noqa
-from auth_service.db.session import Base  # noqa
+from auth_service.core.config import get_app_settings
+from auth_service.db.session import Base
 
 
 # this is the Alembic Config object, which provides

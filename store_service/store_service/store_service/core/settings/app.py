@@ -37,6 +37,8 @@ class AppSettings(BaseAppSettings):
 
     MONGODB_URL: str
     AUTH_SERVICE_URL: str
+    AUTH_SERVICE_LOGIN_URL: str
+
     PRISMA_STUDIO_PORT: int = 5555
 
     LOGGING_LEVEL: int = logging.ERROR

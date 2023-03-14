@@ -11,10 +11,10 @@ from starlette import status
 from auth_service import crud
 from auth_service import models
 from auth_service import schemas
-from auth_service.api.dependencies import auth
-from auth_service.api.dependencies import database
-from auth_service.api.dependencies import params
-from auth_service.api.dependencies.auth import RoleChecker
+from auth_service.api.deps import auth
+from auth_service.api.deps import database
+from auth_service.api.deps import params
+from auth_service.api.deps.auth import RoleChecker
 from auth_service.models.user import User
 
 router = APIRouter()
@@ -76,10 +76,9 @@ async def create_user(
     ],
 )
 async def update_user_me(
-    *,
-    db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserUpdateMe,
-    current_user: models.User = Depends(auth.get_current_active_user),
+    db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user),
 ) -> Any:
     """
     Update own user.
@@ -100,7 +99,7 @@ async def update_user_me(
 async def read_user_me(
     response: Response,
     db: AsyncSession = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(auth.get_current_user),
 ) -> Any:
     """
     Get current user.

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -7,8 +8,6 @@ from starlette.requests import Request
 from auth_service.api.api_v1.api import api_router
 from auth_service.api.errors.http_error import http_error_handler
 from auth_service.api.errors.validation_error import http422_error_handler
-from auth_service.api.openapi import custom_openapi
-from auth_service.api.openapi import use_route_names_as_operation_ids
 from auth_service.core.config import get_app_settings
 from auth_service.db.init_db import init_db
 from auth_service.db.session import SessionLocal, engine
@@ -26,8 +25,6 @@ def get_application() -> FastAPI:
     application.include_router(
         api_router, prefix=get_app_settings().api_prefix
     )
-    custom_openapi(application)
-    use_route_names_as_operation_ids(application)
 
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(
@@ -49,11 +46,9 @@ def get_application() -> FastAPI:
         ],
     )
 
-    if get_app_settings().APP_ENV in ["dev", "test"]:
-        application.middleware("http")(add_process_time_header)
+    application.middleware("http")(add_process_time_header)
 
-    if not application.debug and get_app_settings().APP_ENV == "prod":
-        application.middleware("http")(catch_exceptions_middleware)
+    application.middleware("http")(catch_exceptions_middleware)
 
     return application
 
@@ -69,6 +64,7 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
+    logger.info("Application shutdown!")
     await SessionLocal.close_all()
     await engine.dispose()
 

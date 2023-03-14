@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 
 from auth_service.db.session import Base
 from auth_service.mixins.base import TimestampsMixin
-from auth_service.models.enums import UserRole
+from auth_service.models.user_role import UserRole
 
 user_role_enum = ENUM(
     *UserRole.to_list(),

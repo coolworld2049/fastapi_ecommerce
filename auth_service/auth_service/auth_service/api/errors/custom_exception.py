@@ -1,6 +1,21 @@
 from fastapi import HTTPException, status
 
 
+class DuplicateUserException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The user with this username already exists.",
+        )
+
+
+class InactiveUserException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user"
+        )
+
+
 class BadCredentialsException(HTTPException):
     def __init__(self):
         super().__init__(

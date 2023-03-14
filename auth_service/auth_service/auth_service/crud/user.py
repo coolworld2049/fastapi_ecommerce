@@ -50,7 +50,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         )
         obj_in_data.pop("password")
         obj_in_data.pop("password_confirm")
-        db_obj = self.model(**obj_in_data)  # noqa
+        db_obj = self.model(**obj_in_data)
         try:
             db.add(db_obj)
             await db.commit()
@@ -103,9 +103,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db: AsyncSession,
     ) -> Optional[User]:
         user = await self.get_by_email(db, email=email)
-        if not user:
-            return None
-        if not verify_password(password, user.hashed_password):
+        if not user or not verify_password(password, user.hashed_password):
             return None
         return user
 

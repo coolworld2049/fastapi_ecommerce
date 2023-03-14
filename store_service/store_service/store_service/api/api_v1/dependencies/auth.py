@@ -15,7 +15,7 @@ from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=get_app_settings().AUTH_SERVICE_URL + "/api/v1/login/access-token"
+    tokenUrl=get_app_settings().AUTH_SERVICE_LOGIN_URL
 )
 
 

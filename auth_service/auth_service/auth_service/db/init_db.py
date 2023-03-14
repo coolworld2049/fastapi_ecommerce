@@ -11,7 +11,7 @@ from auth_service.db.session import Base
 from auth_service.db.session import SessionLocal
 from auth_service.db.session import engine
 from auth_service.db.session import pg_database
-from auth_service.models.enums import UserRole
+from auth_service.models.user_role import UserRole
 
 
 async def truncate_tables(conn: Connection):
@@ -84,8 +84,8 @@ async def execute_sql_files(
 
 
 async def init_db():
-    conn = await pg_database.get_connection()
     await create_all_models(engine)
+    conn = await pg_database.get_connection()
     await execute_sql_files(conn)
     async with SessionLocal() as db:
         await create_first_superuser(db)

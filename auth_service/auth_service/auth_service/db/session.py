@@ -19,7 +19,7 @@ engine: AsyncEngine = create_async_engine(
 Base: DeclarativeMeta = declarative_base()
 Base.metadata.bind = engine
 
-SessionLocal = sessionmaker(  # noqa
+SessionLocal = sessionmaker(
     engine,
     class_=AsyncSession,
     autocommit=False,
@@ -30,22 +30,24 @@ SessionLocal = sessionmaker(  # noqa
 pg_database = Database(get_app_settings().raw_postgres_dsn)
 
 
-# noinspection PyUnusedLocal
-@event.listens_for(Engine, "before_cursor_execute")
-def before_cursor_execute(
-    conn, cursor, statement, parameters, context, executemany
-):  # noqa
-    conn.info.setdefault("query_start_time", []).append(time.time())
-    logger.debug(
-        f"Start Query: {statement}",
-    )
+if get_app_settings().DEBUG:
+
+    @event.listens_for(Engine, "before_cursor_execute")
+    def before_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
+        conn.info.setdefault("query_start_time", []).append(time.time())
+        logger.debug(
+            f"Start Query: {statement}",
+        )
 
 
-# noinspection PyUnusedLocal
-@event.listens_for(Engine, "after_cursor_execute")
-def after_cursor_execute(
-    conn, cursor, statement, parameters, context, executemany
-):  # noqa
-    total = time.time() - conn.info["query_start_time"].pop(-1)
-    logger.debug("Query Complete!")
-    logger.debug(f"Total Time: {total:0.4f}")
+if get_app_settings().DEBUG:
+
+    @event.listens_for(Engine, "after_cursor_execute")
+    def after_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
+        total = time.time() - conn.info["query_start_time"].pop(-1)
+        logger.debug("Query Complete!")
+        logger.debug(f"Total Time: {total:0.4f}")

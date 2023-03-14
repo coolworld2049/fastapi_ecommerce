@@ -2,5 +2,5 @@
 # imported by Alembic
 
 
-from auth_service.db.session import Base  # noqa
-from auth_service.models import *  # noqa
+from auth_service.db.session import Base
+from auth_service.models import *

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from auth_service import crud, schemas
 from auth_service import models
 from auth_service.core.config import get_app_settings
-from auth_service.models.enums import UserRole
+from auth_service.models.user_role import UserRole
 from auth_service.test.test_data import fake
 from auth_service.test.utils.utils import (
     gen_random_password,

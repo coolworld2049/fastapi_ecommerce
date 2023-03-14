@@ -24,7 +24,7 @@ class RandomDateTime:
             "day": random.choice(self.day) if self.day else None,
         }
         items = dict(
-            filter(  # noqa
+            filter(
                 lambda it: it[1] is not None and isinstance(it[1], int),
                 data.items(),
             )

@@ -16,7 +16,7 @@ class AppSettings(BaseAppSettings):
     docs_url: str = "/docs"
     api_prefix: str = "/api/v1"
     openapi_prefix: str = ""
-    openapi_url: str = f"{api_prefix}/openapi.json"
+    openapi_url: str = f"/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
     version: str = "0.0.0"
@@ -43,7 +43,7 @@ class AppSettings(BaseAppSettings):
     PG_DRIVER: str = "asyncpg"
 
     LOGGING_LEVEL: int = logging.INFO
-    LOGGERS: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
+    LOGGERS: tuple = ("uvicorn.asgi", "uvicorn.access")
     LOG_FILE_MAX_BYTES = 314572800
 
     class Config:

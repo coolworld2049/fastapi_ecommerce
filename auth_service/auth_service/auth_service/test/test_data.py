@@ -16,7 +16,7 @@ from auth_service.db.init_db import (
     drop_all_models,
 )
 from auth_service.db.session import SessionLocal, engine
-from auth_service.models.enums import UserRole
+from auth_service.models.user_role import UserRole
 from auth_service.models.user import User
 from auth_service.test.utils.utils import (
     gen_random_password,

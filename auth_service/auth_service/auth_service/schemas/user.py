@@ -9,13 +9,13 @@ from pydantic import EmailStr, validator, root_validator, BaseModel
 from auth_service.models import UserRole
 from auth_service.resources.reserved_username import reserved_usernames_list
 
-password_exp = (
+PASSWORD_REGEXP = (
     r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
 )
-password_conditions = """
+PASSWORD_REGEXP_DESCRIPTION = """
 Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
 """
-username_exp = "[A-Za-z_0-9]*"
+USERNAME_REGEXP = "[A-Za-z_0-9]*"
 
 
 class UserOptional(BaseModel):
@@ -23,12 +23,15 @@ class UserOptional(BaseModel):
     phone: Optional[str]
 
 
-class UserBase(UserOptional):
-    email: Optional[EmailStr]
-    username: Optional[str]
+class UserSpec(BaseModel):
     role: UserRole = UserRole.guest
     is_active: bool = True
     is_superuser: bool = False
+
+
+class UserBase(UserOptional):
+    email: Optional[EmailStr]
+    username: Optional[str]
 
     class Config:
         use_enum_values = True
@@ -36,7 +39,7 @@ class UserBase(UserOptional):
     @validator("username")
     def validate_username(cls, value):  # noqa
         assert re.match(
-            username_exp,
+            USERNAME_REGEXP,
             value,
         ), "Invalid characters in username"
         assert (
@@ -88,7 +91,7 @@ class UserCreate(UserBase):
         if values.get("password_confirm"):
             assert values.get("password") == values.get(
                 "password_confirm"
-            ), "Passwords mismatch."
+            ), "Passwords mismatch"
         if values.get("id") is None:
             try:
                 return cls.check_password_strongness(values)
@@ -97,12 +100,17 @@ class UserCreate(UserBase):
 
     @validator("password")
     def validate_password(cls, value):  # noqa
-        assert re.match(password_exp, value, flags=re.M), password_conditions
+        assert re.match(
+            PASSWORD_REGEXP, value, flags=re.M
+        ), PASSWORD_REGEXP_DESCRIPTION
         return value
 
 
-# Properties to receive via API on update
-class UserUpdate(UserCreate):
+class UserCreateOpen(UserCreate, UserOptional):
+    pass
+
+
+class UserUpdate(UserCreate, UserSpec):
     pass
 
 
@@ -110,21 +118,10 @@ class UserUpdateMe(UserOptional):
     pass
 
 
-class UserInDBBase(UserBase):
+class User(UserBase):
     id: Optional[str] = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
-
-
-# Additional properties to return via API
-class User(UserInDBBase):
-    class Config:
-        use_enum_values = True
-
-
-# Additional properties stored in DB but not returned by API
-class UserInDB(UserInDBBase):
-    _hashed_password: str
