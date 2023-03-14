@@ -9,12 +9,12 @@ from prisma.types import OrderInclude
 from starlette import status
 from starlette.exceptions import HTTPException
 
-from store_service.api.api_v1.dependencies import params
-from store_service.api.api_v1.dependencies.auth import (
+from store_service.api.api_v1.deps import params
+from store_service.api.api_v1.deps.auth import (
     RoleChecker,
     get_current_active_user,
 )
-from store_service.api.api_v1.dependencies.params import RequestParams
+from store_service.api.api_v1.deps.params import RequestParams
 from store_service.schemas.user import User
 
 router = APIRouter()
@@ -58,7 +58,7 @@ async def read_all_orders(
 
 @router.get(
     "/",
-    response_model=Order,
+    response_model=OrderWithoutRelations,
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def read_order(
@@ -80,9 +80,6 @@ async def read_order(
 async def create_order(
     current_user: User = Depends(get_current_active_user),
 ) -> Optional[Order]:
-    order = await get_current_user_order(current_user)
-    if order:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT)
     order = await Order.prisma().create(
         data={
             "status": OrderStatus.pending,

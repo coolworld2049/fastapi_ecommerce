@@ -7,9 +7,9 @@ from prisma.enums import OrderStatus
 from prisma.models import Order, OrderProduct, Category
 from pydantic import BaseModel
 
-from store_service.api.api_v1.dependencies import params
-from store_service.api.api_v1.dependencies.auth import RoleChecker
-from store_service.api.api_v1.dependencies.params import RequestParams
+from store_service.api.api_v1.deps import params
+from store_service.api.api_v1.deps.auth import RoleChecker
+from store_service.api.api_v1.deps.params import RequestParams
 
 router = APIRouter()
 

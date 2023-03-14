@@ -37,7 +37,7 @@ class UserBase(UserOptional):
         use_enum_values = True
 
     @validator("username")
-    def validate_username(cls, value):  # noqa
+    def validate_username(cls, value):
         assert re.match(
             USERNAME_REGEXP,
             value,
@@ -48,7 +48,7 @@ class UserBase(UserOptional):
         return value
 
     @validator("phone")
-    def validate_phone(cls, v: str):  # noqa
+    def validate_phone(cls, v: str):
         if v:
             regex = r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$"
             if v.isdigit() and not re.search(regex, v, re.I):
@@ -57,7 +57,7 @@ class UserBase(UserOptional):
 
 
 # Properties to receive via API on creation
-class UserCreate(UserBase):
+class UserCreateBase(UserBase):
     password: str
     password_confirm: str
 
@@ -99,11 +99,15 @@ class UserCreate(UserBase):
                 logger.error(e.args)
 
     @validator("password")
-    def validate_password(cls, value):  # noqa
+    def validate_password(cls, value):
         assert re.match(
             PASSWORD_REGEXP, value, flags=re.M
         ), PASSWORD_REGEXP_DESCRIPTION
         return value
+
+
+class UserCreate(UserCreateBase, UserSpec):
+    pass
 
 
 class UserCreateOpen(UserCreate, UserOptional):
@@ -118,10 +122,10 @@ class UserUpdateMe(UserOptional):
     pass
 
 
-class User(UserBase):
+class User(UserBase, UserSpec):
     id: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
     class Config:
         orm_mode = True

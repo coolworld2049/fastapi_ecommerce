@@ -89,12 +89,11 @@ class AppSettings(BaseAppSettings):
             logging_logger.handlers = [
                 InterceptHandler(level=self.LOGGING_LEVEL),
                 RotatingFileHandler(
-                    "access.log",
+                    f"access.log",
                     maxBytes=self.LOG_FILE_MAX_BYTES,
                     backupCount=1,
                 ),
             ]
-
         logger.configure(
             handlers=[
                 {"sink": sys.stdout, "level": self.LOGGING_LEVEL},

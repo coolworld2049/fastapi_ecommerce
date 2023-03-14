@@ -7,7 +7,7 @@ from jose import JWTError
 from jose import jwt
 from loguru import logger
 
-from store_service.api.api_v1.dependencies.custom_exception import (
+from store_service.api.api_v1.deps.custom_exception import (
     BadCredentialsException,
     PermissionDeniedException,
 )
@@ -15,7 +15,8 @@ from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=get_app_settings().AUTH_SERVICE_LOGIN_URL
+    tokenUrl=get_app_settings().AUTH_SERVICE_URL
+    + get_app_settings().AUTH_SERVICE_LOGIN_URL
 )
 
 

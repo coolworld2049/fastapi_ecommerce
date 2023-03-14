@@ -5,7 +5,7 @@ class DuplicateUserException(HTTPException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The user with this username already exists.",
+            detail="User with this username already exists",
         )
 
 

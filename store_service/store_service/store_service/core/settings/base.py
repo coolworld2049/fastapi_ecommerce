@@ -15,7 +15,7 @@ class AppEnvTypes(str, Enum):
 
 
 class BaseAppSettings(BaseSettings):
-    APP_ENV: AppEnvTypes = os.getenv("APP_ENV", AppEnvTypes.dev.name)
+    APP_ENV: AppEnvTypes = os.getenv("APP_ENV")
 
     class Config:
-        env_file = ".env.dev"
+        env_file = ".env"

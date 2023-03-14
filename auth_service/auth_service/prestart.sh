@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-python /app/auth_service/backend_pre_start.py
+python /app/auth_service/pre_start.py
 
 alembic upgrade head
 

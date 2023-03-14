@@ -1,17 +1,15 @@
-from collections.abc import Sequence
 from typing import Any
 from typing import Optional
 
 from loguru import logger
 from pydantic import EmailStr
 from sqlalchemy import and_, select
-from sqlalchemy.engine import Result, RowMapping, Row
+from sqlalchemy.engine import Result
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 from auth_service.crud.base import CRUDBase
-from auth_service.models import RequestParams
 from auth_service.models.user import User
 from auth_service.schemas import UserCreate
 from auth_service.schemas import UserUpdate
@@ -20,29 +18,24 @@ from auth_service.services.security import verify_password
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    # noinspection PyMethodMayBeStatic
     async def get_by_id(
         self,
         db: AsyncSession,
         *,
         id: str,
-        role: str = None,
     ) -> Optional[User]:
-        q: Select = select(User)
-        if role:
-            q = q.where(User.role == role)
-        q = q.where(User.id == id)
+        q: Select = select(self.model).where(User.id == id)
         result: Result = await db.execute(q)
         return result.scalar()
 
-    # noinspection PyMethodMayBeStatic
     async def get_by_email(
         self, db: AsyncSession, *, email: EmailStr | str
     ) -> Optional[User]:
-        q: Select = select(User).where(User.email == email)
+        q: Select = select(self.model).where(User.email == email)
         result: Result = await db.execute(q)
         return result.scalar()
 
+    # noinspection PyArgumentList
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         obj_in_data = obj_in.dict(exclude_none=True)
         obj_in_data.update(
@@ -84,17 +77,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 c_filter = and_(column.in_(tuple(roles)))
         return c_filter
 
-    async def get_multi_with_role(
-        self,
-        db: AsyncSession,
-        request_params: RequestParams,
-        roles: list[str] = None,
-    ) -> tuple[Sequence[Row | RowMapping | Any], Any]:
-        flt = await self.constr_user_role_filter(roles)
-        users, total = await super().get_multi(db, request_params, flt)
-        return users, total
-
-    # noinspection PyShadowingNames
     async def authenticate(
         self,
         *,
@@ -102,28 +84,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         password: str,
         db: AsyncSession,
     ) -> Optional[User]:
-        user = await self.get_by_email(db, email=email)
-        if not user or not verify_password(password, user.hashed_password):
+        user_obj = await self.get_by_email(db, email=email)
+        if not user or not verify_password(password, user_obj.hashed_password):
             return None
-        return user
-
-    # noinspection PyMethodMayBeStatic,PyShadowingNames
-    def is_active(self, user: User) -> bool:
-        return user.is_active
-
-    # noinspection PyMethodMayBeStatic,PyShadowingNames
-    def is_superuser(self, user: User) -> bool:
-        return user.is_superuser
-
-    async def remove(self, db: AsyncSession, *, email: str):
-        obj = await self.get_by_email(db, email=email)
-        try:
-            await db.delete(obj)
-            await db.commit()
-        except SQLAlchemyError as e:
-            logger.error(e.args)
-            raise
-        return obj
+        return user_obj
 
 
 user = CRUDUser(User)

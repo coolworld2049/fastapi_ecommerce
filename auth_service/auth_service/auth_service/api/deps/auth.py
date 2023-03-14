@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth_service import crud, schemas, models
+from auth_service import crud, models
 from auth_service.api.deps import database
 from auth_service.api.errors.custom_exception import (
     PermissionDeniedException,

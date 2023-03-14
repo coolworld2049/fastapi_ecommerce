@@ -23,7 +23,7 @@ async def truncate_tables(conn: Connection):
         pass
 
 
-async def execute_sql_file(path: pathlib.Path, async_conn: Connection):
+async def execute_sql_f(path: pathlib.Path, async_conn: Connection):
     try:
         with open(path, encoding="utf-8") as rf:
             res = await async_conn.execute(rf.read())
@@ -80,7 +80,7 @@ async def execute_sql_files(
 ):
     for sql_f in pathlib.Path(path_to_sql_dir).iterdir():
         if not sql_f.is_dir() and not sql_f.name.startswith("_"):
-            await execute_sql_file(sql_f, conn)
+            await execute_sql_f(sql_f, conn)
 
 
 async def init_db():

@@ -13,7 +13,7 @@ from sqlalchemy import asc
 from sqlalchemy import desc
 from sqlalchemy.orm import DeclarativeMeta
 
-from auth_service.models import RequestParams
+from auth_service.schemas import RequestParams
 
 
 def parse_react_admin_params(
