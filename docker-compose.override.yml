@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+
+  auth_service:
+    build:
+      context: auth_service/
+    command: ./start.sh
+    env_file:
+      - ./auth_service/.env
+    environment:
+      - APP_ENV=prod
+      - DEBUG=False
+      - DOMAIN=localhost
+      - JWT_SECRET_KEY=supersecret
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - PG_HOST=host.docker.internal
+    ports:
+      - "8001:8001"
+
+  store_service:
+    build:
+      context: store_service/
+    command: ./start.sh
+    env_file:
+      - ./store_service/.env
+    depends_on:
+      - auth_service
+    environment:
+      - APP_ENV=prod
+      - DEBUG=False
+      - DOMAIN=localhost
+      - JWT_SECRET_KEY=supersecret
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
+      - AUTH_SERVICE_URL=http://host.docker.internal:8001
+    ports:
+      - "8002:8002"

@@ -19,18 +19,7 @@ from auth_service.middlewares.http import (
 
 def get_application() -> FastAPI:
     get_app_settings().configure_logging()
-
     application = FastAPI(**get_app_settings().fastapi_kwargs)
-
-    application.include_router(
-        api_router, prefix=get_app_settings().api_prefix
-    )
-
-    application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(
-        RequestValidationError, http422_error_handler
-    )
-
     application.add_middleware(
         CORSMiddleware,
         allow_origins=get_app_settings().BACKEND_CORS_ORIGINS,
@@ -45,9 +34,17 @@ def get_application() -> FastAPI:
             "Range",
         ],
     )
-
+    application.include_router(
+        api_router, prefix=get_app_settings().api_prefix
+    )
+    application.add_exception_handler(
+        HTTPException,
+        http_error_handler,
+    )
+    application.add_exception_handler(
+        RequestValidationError, http422_error_handler
+    )
     application.middleware("http")(add_process_time_header)
-
     application.middleware("http")(catch_exceptions_middleware)
 
     return application
@@ -72,15 +69,15 @@ async def shutdown():
 @app.get("/")
 async def root(request: Request):
     response = get_app_settings().templates.TemplateResponse(
-        "/html/index.html",
+        "/base/index.html",
         context={
-            "app_name": app.title.replace("_", " "),
+            "app_name": app.title.replace("_", " "),  # noqa
             "request": request,
             "proto": "http",
             "host": get_app_settings().DOMAIN,
             "port": get_app_settings().PORT,
             "api_prefix": get_app_settings().api_prefix,
-            "openapi_path": f"{app.openapi_url}",
+            "openapi_path": f"{app.openapi_url}",  # noqa
         },
     )
     return response

@@ -41,18 +41,18 @@ class Email:
             subject=subject,
             recipients=recipients,
             body=body,
-            subtype="html",
+            subtype="base",
         )
         fast_mail = FastMail(self.conf)
         if not use_background_task:
             await fast_mail.send_message(
-                message, template_name="/email/email.html"
+                message, template_name="/email/email.base"
             )
         if use_background_task:
             background_tasks.add_task(
                 fast_mail.send_message,
                 message,
-                template_name="/email/email.html",
+                template_name="/email/email.base",
             )
 
     async def send_verification_code(
@@ -65,7 +65,7 @@ class Email:
         **kwargs,
     ):
         template = self.templates.get_template(
-            f"/verif_email/verification.html"
+            f"/verif_email/verification.base"
         )
         html = template.render(
             url=f"{verify_token_url}/{token}", full_name=full_name, **kwargs

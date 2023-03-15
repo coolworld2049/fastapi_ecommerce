@@ -23,7 +23,7 @@ async def send_email_asynchronous(
     background_tasks: BackgroundTasks,
     subject: str,
     recipients: str = Param(..., description="delimiter: `,`"),
-    body: Any = Body(..., media_type="text/html"),
+    body: Any = Body(..., media_type="text/base"),
     use_background_task: bool = Param(True),
     current_user: models.User = Depends(auth.get_current_user),
 ):

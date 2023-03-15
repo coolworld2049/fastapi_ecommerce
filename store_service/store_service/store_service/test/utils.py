@@ -2,9 +2,6 @@ import random
 import string
 from datetime import datetime
 
-import faker_commerce
-from faker import Faker
-
 
 class RandomDateTime:
     def __init__(
@@ -46,7 +43,3 @@ def rnd_password():
         f"{random.randint(0, 9)}"
         f"{random.choice('@$!%*?&')}"
     )
-
-
-fake = Faker()
-fake.add_provider(faker_commerce.Provider)

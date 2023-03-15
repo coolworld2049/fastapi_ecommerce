@@ -6,7 +6,6 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
 from loguru import logger
-from starlette import status
 
 from store_service.api.api_v1.deps.custom_exception import (
     BadCredentialsException,
