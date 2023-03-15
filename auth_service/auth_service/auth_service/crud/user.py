@@ -1,3 +1,4 @@
+import random
 from typing import Any
 from typing import Optional
 
@@ -8,12 +9,18 @@ from sqlalchemy.engine import Result
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
+from starlette import status
+from starlette.exceptions import HTTPException
 
+from auth_service.core.config import get_app_settings
 from auth_service.crud.base import CRUDBase
 from auth_service.models.user import User
 from auth_service.schemas import UserCreate
 from auth_service.schemas import UserUpdate
-from auth_service.services.security import get_password_hash
+from auth_service.services.email import Email
+from auth_service.services.security import (
+    get_password_hash,
+)
 from auth_service.services.security import verify_password
 
 
@@ -84,10 +91,54 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         password: str,
         db: AsyncSession,
     ) -> Optional[User]:
-        user_obj = await self.get_by_email(db, email=email)
-        if not user or not verify_password(password, user_obj.hashed_password):
+        db_obj = await self.get_by_email(db, email=email)
+        if not user or not verify_password(password, db_obj.hashed_password):
             return None
-        return user_obj
+        return db_obj
+
+    async def send_verif_email(
+        self,
+        db: AsyncSession,
+        *,
+        db_obj: User,
+        email: Email,
+        verify_token_url: str,
+    ):
+        try:
+            db_obj.verification_code = random.randbytes(10).hex()
+            await email.send_verification_code(
+                "Verification",
+                EmailStr(db_obj.email),
+                verify_token_url,
+                db_obj.full_name,
+                db_obj.verification_code,
+            )
+        except Exception as error:
+            await super().remove(db, id=db_obj.id)
+            logger.error(error)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="There was an error sending email",
+            )
+
+        db_obj = await super().update(
+            db, db_obj=db_obj, obj_in=UserUpdate(**db_obj.__dict__)
+        )
+        return True
+
+    async def verify_token(
+        self,
+        db: AsyncSession,
+        db_obj: User,
+        token: str,
+    ) -> Optional[User]:
+        if not db_obj.verification_code == token:
+            return None
+        db_obj.is_verified = True
+        db_obj = await super().update(
+            db, db_obj=db_obj, obj_in=UserUpdate(**db_obj.__dict__)
+        )
+        return db_obj
 
 
 user = CRUDUser(User)

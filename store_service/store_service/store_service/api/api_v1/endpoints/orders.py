@@ -14,7 +14,7 @@ from store_service.api.api_v1.deps.auth import (
     RoleChecker,
     get_current_active_user,
 )
-from store_service.api.api_v1.deps.params import RequestParams
+from store_service.schemas.request_params import RequestParams
 from store_service.schemas.user import User
 
 router = APIRouter()
@@ -29,7 +29,7 @@ async def get_current_user_order(
         where={"user_id": {"equals": current_user.id}}
     )
     order = list(
-        filter(lambda x: x.status == OrderStatus.pending, current_user_orders)
+        filter(lambda x: x.status == order_status, current_user_orders)
     )
     if not len(order) > 0:
         return None
@@ -41,7 +41,7 @@ async def get_current_user_order(
 
 
 @router.get(
-    "/all",
+    "/",
     response_model=list[Order | OrderWithoutRelations],
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
@@ -59,11 +59,11 @@ async def read_all_orders(
 
 
 @router.get(
-    "/",
+    "/me",
     response_model=Order,
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
-async def read_order(
+async def read_order_me(
     current_user: User = Depends(get_current_active_user),
 ) -> Optional[Order]:
     order = await get_current_user_order(
@@ -186,33 +186,11 @@ async def delete_product_from_order(
     return order
 
 
-@router.patch(
-    "/status",
-    response_model=OrderWithoutRelations,
-    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
-)
-async def update_order_status(
-    id: str, order_status_in: OrderStatus
-) -> Optional[Order]:
-    if order_status_in == OrderStatus.deleted:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"status {OrderStatus.deleted.name} not allowed",
-        )
-    order = await Order.prisma().update(
-        where={
-            "id": id,
-        },
-        data={"status": order_status_in},
-    )
-    return order
-
-
 @router.delete(
-    "/",
+    "/me",
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
-async def delete_order(
+async def delete_order_me(
     current_user: User = Depends(get_current_active_user),
 ) -> dict[str, Any]:
     order = await get_current_user_order(current_user)
@@ -238,3 +216,20 @@ async def delete_order(
         include={"order_products": True},
     )
     return {"status": status.HTTP_200_OK}
+
+
+@router.patch(
+    "/status",
+    response_model=OrderWithoutRelations,
+    dependencies=[Depends(RoleChecker(["admin"]))],
+)
+async def update_order_status(
+    id: str, order_status_in: OrderStatus
+) -> Optional[Order]:
+    order = await Order.prisma().update(
+        where={
+            "id": id,
+        },
+        data={"status": order_status_in},
+    )
+    return order

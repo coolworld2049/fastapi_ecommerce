@@ -4,12 +4,15 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+from starlette.responses import Response
 
-from auth_service import crud, schemas
+from auth_service import crud, schemas, models
 from auth_service.api.deps import database
 from auth_service.api.errors.custom_exception import (
     BadCredentialsException,
     InactiveUserException,
+    InvalidVerificationCodeException,
 )
 from auth_service.services import jwt
 
@@ -35,3 +38,16 @@ async def login_access_token(
         raise InactiveUserException
     token = jwt.encode_access_token(sub=user.id, user=user)
     return token.dict()
+
+
+@router.get("/verify_email/{token}")
+async def verify_me(token: str, db: AsyncSession = Depends(database.get_db)):
+    user = await crud.user.get_by_col(
+        db, col=models.User.verification_code, val=token
+    )
+    user = await crud.user.verify_token(db, db_obj=user, token=token)
+    if not user:
+        raise InvalidVerificationCodeException
+    return Response(
+        status_code=status.HTTP_200_OK, content="Account verified successfully"
+    )

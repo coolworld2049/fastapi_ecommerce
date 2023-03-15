@@ -8,6 +8,8 @@ from auth_service.api.deps import database
 from auth_service.api.errors.custom_exception import (
     PermissionDeniedException,
     BadCredentialsException,
+    AccountNotVerifiedException,
+    InactiveUserException,
 )
 from auth_service.core.config import get_app_settings
 from auth_service.services.jwt import decode_access_token
@@ -25,6 +27,10 @@ async def get_current_user(
     user = await crud.user.get_by_id(db=db, id=token_data.sub)
     if user is None:
         raise BadCredentialsException
+    if not user.is_verified:
+        raise AccountNotVerifiedException
+    if not user.is_active:
+        raise InactiveUserException
     return user
 
 

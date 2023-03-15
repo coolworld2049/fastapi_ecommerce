@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Any
 
 from loguru import logger
+from pydantic import EmailStr
 from starlette.templating import Jinja2Templates
 
 from auth_service.core.logging import InterceptHandler
@@ -31,9 +32,10 @@ class AppSettings(BaseAppSettings):
     JWT_ALGORITHM: str
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-    FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER_FULLNAME: str
+    FIRST_SUPERUSER_USERNAME: str
 
     PG_HOST: str
     PG_PORT: int
@@ -41,6 +43,12 @@ class AppSettings(BaseAppSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     PG_DRIVER: str = "asyncpg"
+
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USERNAME: str
+    EMAIL_PASSWORD: str
+    EMAIL_FROM: EmailStr
 
     LOGGING_LEVEL: int = logging.INFO
     LOGGERS: tuple = ("uvicorn.asgi", "uvicorn.access")
@@ -79,7 +87,7 @@ class AppSettings(BaseAppSettings):
         return pathlib.Path(__file__).parent.parent.parent / "templates"
 
     @property
-    def templates(self):
+    def templates(self) -> Jinja2Templates:
         return Jinja2Templates(directory=self.project_templates_path)
 
     def configure_logging(self) -> None:

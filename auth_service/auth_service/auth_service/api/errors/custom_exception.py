@@ -44,3 +44,19 @@ class UnableCredentialsException(HTTPException):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to verify credentials",
         )
+
+
+class InvalidVerificationCodeException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid verification code or account already verified",
+        )
+
+
+class AccountNotVerifiedException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account not verified",
+        )

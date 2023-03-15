@@ -5,27 +5,17 @@ from fastapi import APIRouter, Depends
 from fastapi.params import Param
 from prisma.enums import OrderStatus
 from prisma.models import Order, OrderProduct, Category
-from pydantic import BaseModel
 
 from store_service.api.api_v1.deps import params
 from store_service.api.api_v1.deps.auth import RoleChecker
-from store_service.api.api_v1.deps.params import RequestParams
+from store_service.schemas.request_params import RequestParams
+from store_service.schemas.analytic import (
+    AnalyticResponse,
+    SalesRevenue,
+    QuantitySoldCategory,
+)
 
 router = APIRouter()
-
-
-class AnalyticResponse(BaseModel):
-    request_params: RequestParams
-    report: dict | None
-    elapsed_time_sec: float | int | None
-    details: dict | None
-
-
-class SalesRevenue(BaseModel):
-    analytic_response: dict | AnalyticResponse
-    order_count: int | None
-    revenue: float | None
-    products: list[dict] | None
 
 
 async def get_orders_for_period(
@@ -128,12 +118,6 @@ async def sales_analytics(
         revenue=revenue,
     )
     return _sales_revenue
-
-
-class QuantitySoldCategory(BaseModel):
-    category_id: str | None
-    category: dict | None
-    quantity_sold_products_by_status: int | None
 
 
 @router.get(

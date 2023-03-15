@@ -5,15 +5,22 @@ from typing import Optional, Any
 
 from fastapi import HTTPException
 from fastapi import Query
-from pydantic import BaseModel
+
+from store_service.schemas.request_params import RequestParams
 
 
-class RequestParams(BaseModel):
-    take: Optional[int] = None
-    skip: Optional[int] = None
-    order: Optional[dict] = None
-    where: Optional[dict] = None
-    include: Optional[dict] = None
+def sort_query_param(param: dict):
+    sorted = {}
+    if len(param) > 0:
+        for k, v in param.items():
+            try:
+                if v is None:
+                    sorted.update({k: None})
+                else:
+                    sorted.update({k: v})
+            except:
+                raise HTTPException(400, f"Invalid param {k}: {v}")
+    return sorted
 
 
 def parse_query_params(
@@ -83,47 +90,17 @@ def parse_query_params(
                             raise HTTPException(
                                 400, f"Invalid order direction '{k}': '{v}'"
                             )
-            where_by = None
+            where = None
             if where_:
-                where_by = {}
-                wheres: dict = json.loads(where_)
-                if len(wheres) > 0:
-                    for k, v in wheres.items():
-                        try:
-                            if v is None:
-                                where_by.update({k: None})
-                            else:
-                                where_by.update({k: v})
-                        except:
-                            raise HTTPException(
-                                400, f"Invalid where param {k}: {v}"
-                            )
+                where = sort_query_param(json.loads(where_))
             include = None
             if include_:
-                include = {}
-                includes: dict = json.loads(include_)
-                if len(includes) > 0:
-                    for k, v in includes.items():
-                        try:
-                            if v is None:
-                                include.update({k: None})
-                            else:
-                                include.update({k: v})
-                        except:
-                            raise HTTPException(
-                                400, f"Invalid include param {k}: {v}"
-                            )
+                include = sort_query_param(json.loads(include_))
 
         except JSONDecodeError as jse:
             raise HTTPException(400, f"Invalid query params. {jse}")
-        _rp = {
-            "skip": skip,
-            "take": limit,
-            "order": order,
-            "where": where_by,
-            "include": include,
-        }
-
-        return RequestParams(**_rp)
+        return RequestParams(
+            skip=skip, take=limit, order=order, where=where, include=include
+        )
 
     return inner

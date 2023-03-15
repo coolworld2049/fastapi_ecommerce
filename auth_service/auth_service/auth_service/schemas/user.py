@@ -27,6 +27,8 @@ class UserSpec(BaseModel):
     role: UserRole = UserRole.guest
     is_active: bool = True
     is_superuser: bool = False
+    is_verified: bool = False
+    _verification_code: Optional[str]
 
 
 class UserBase(UserOptional):
@@ -58,8 +60,8 @@ class UserBase(UserOptional):
 
 # Properties to receive via API on creation
 class UserCreateBase(UserBase):
-    password: str
-    password_confirm: str
+    password: Optional[str]
+    password_confirm: Optional[str]
 
     @classmethod
     def check_password_strongness(cls, values):
@@ -110,7 +112,7 @@ class UserCreate(UserCreateBase, UserSpec):
     pass
 
 
-class UserCreateOpen(UserCreate, UserOptional):
+class UserCreateOpen(UserCreateBase, UserOptional):
     pass
 
 

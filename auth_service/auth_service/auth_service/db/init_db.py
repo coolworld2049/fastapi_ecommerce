@@ -62,7 +62,8 @@ async def create_first_superuser(db: AsyncSession):
             password=get_app_settings().FIRST_SUPERUSER_PASSWORD,
             password_confirm=get_app_settings().FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
-            full_name="No Name",
+            is_verified=True,
+            full_name=get_app_settings().FIRST_SUPERUSER_FULLNAME,
             username=get_app_settings().FIRST_SUPERUSER_USERNAME,
             role=UserRole.admin,
         )

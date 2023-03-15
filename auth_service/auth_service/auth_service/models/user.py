@@ -35,3 +35,5 @@ class User(Base, TimestampsMixin):
     is_superuser = Column(
         Boolean, nullable=False, server_default=text("false")
     )
+    verification_code = Column(Text)
+    is_verified = Column(Boolean, nullable=False, server_default=text("false"))
