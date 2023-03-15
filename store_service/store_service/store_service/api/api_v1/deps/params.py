@@ -5,7 +5,7 @@ from typing import Optional, Any
 
 from fastapi import HTTPException
 from fastapi import Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class RequestParams(BaseModel):
@@ -56,6 +56,7 @@ def parse_query_params(
             alias="include",
             description='Format: `{"field_name": true}`, `{"field_name": false}`',
             example=include_example,
+            include_in_schema=True if include_example else False,
         ),
     ):
         try:

@@ -6,6 +6,10 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY auth_service /app
 
+RUN chmod +x /app/prestart.sh
+
+RUN chmod +x /app/start.sh
+
 ENV PYTHONPATH=/app
 
 WORKDIR /app

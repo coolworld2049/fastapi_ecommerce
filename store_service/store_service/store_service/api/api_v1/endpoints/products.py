@@ -20,13 +20,15 @@ router = APIRouter()
 
 @router.get(
     "/",
-    response_model=list[ProductWithoutRelations],
+    response_model=list[Product],
     dependencies=[
         Depends(RoleChecker(["admin", "manager", "customer", "guest"]))
     ],
 )
 async def read_products(
-    request_params: RequestParams = Depends(params.parse_query_params()),
+    request_params: RequestParams = Depends(
+        params.parse_query_params(include_example='{"category": false}')
+    ),
 ) -> list[Product]:
     product = await Product.prisma().find_many(
         **request_params.dict(exclude_none=True)
@@ -93,7 +95,7 @@ async def update_product(
 
 
 @router.patch(
-    "/{id}/product/{category_id}",
+    "/{id}/category",
     response_model=ProductWithoutRelations,
     dependencies=[Depends(RoleChecker(["admin", "manager"]))],
 )
