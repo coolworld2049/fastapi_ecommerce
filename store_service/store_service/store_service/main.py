@@ -80,7 +80,7 @@ prisma = Prisma(auto_register=True)
 @app.get("/")
 async def root(request: Request):
     response = get_app_settings().templates.TemplateResponse(
-        "/html/verification.html",
+        "/html/index.html",
         context={
             "app_name": app.title.replace("_", " "),
             "prisma_studio_port": get_app_settings().PRISMA_STUDIO_PORT,

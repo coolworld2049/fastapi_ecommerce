@@ -22,6 +22,7 @@ from auth_service.schemas import RequestParams
 router = APIRouter()
 
 
+# noinspection PyUnusedLocal
 @router.get(
     "/",
     response_model=List[schemas.User],
@@ -42,6 +43,7 @@ async def read_users(
     return users
 
 
+# noinspection PyUnusedLocal
 @router.post(
     "/",
     response_model=schemas.User,
@@ -86,6 +88,7 @@ async def update_user_me(
     return user
 
 
+# noinspection PyUnusedLocal
 @router.get(
     "/me",
     response_model=schemas.User,
@@ -123,6 +126,7 @@ async def read_user_by_id(
     return user
 
 
+# noinspection PyUnusedLocal
 @router.put(
     "/{id}",
     response_model=schemas.User,
@@ -145,6 +149,7 @@ async def update_user(
     return user
 
 
+# noinspection PyUnusedLocal
 @router.delete(
     "/{id}",
     response_model=schemas.User,

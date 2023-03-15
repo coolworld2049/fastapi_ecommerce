@@ -12,7 +12,6 @@ from sqlalchemy.sql import Select
 from starlette import status
 from starlette.exceptions import HTTPException
 
-from auth_service.core.config import get_app_settings
 from auth_service.crud.base import CRUDBase
 from auth_service.models.user import User
 from auth_service.schemas import UserCreate
@@ -92,7 +91,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db: AsyncSession,
     ) -> Optional[User]:
         db_obj = await self.get_by_email(db, email=email)
-        if not user or not verify_password(password, db_obj.hashed_password):
+        if not user:
+            return None
+        if not verify_password(password, db_obj.hashed_password):
             return None
         return db_obj
 
@@ -105,7 +106,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         verify_token_url: str,
     ):
         try:
-            db_obj.verification_code = random.randbytes(10).hex()
+            db_obj.verification_code = random.randbytes(32).hex()
             await email.send_verification_code(
                 "Verification",
                 EmailStr(db_obj.email),
@@ -121,7 +122,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 detail="There was an error sending email",
             )
 
-        db_obj = await super().update(
+        await super().update(
             db, db_obj=db_obj, obj_in=UserUpdate(**db_obj.__dict__)
         )
         return True

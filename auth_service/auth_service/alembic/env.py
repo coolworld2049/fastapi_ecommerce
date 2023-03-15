@@ -12,7 +12,6 @@ sys.path = ["", ".."] + sys.path[1:]
 from auth_service.core.config import get_app_settings
 from auth_service.db.session import Base
 
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

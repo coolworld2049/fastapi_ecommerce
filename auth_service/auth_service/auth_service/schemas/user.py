@@ -31,6 +31,7 @@ class UserSpec(BaseModel):
     _verification_code: Optional[str]
 
 
+# noinspection PyMethodParameters
 class UserBase(UserOptional):
     email: Optional[EmailStr]
     username: Optional[str]
@@ -59,6 +60,7 @@ class UserBase(UserOptional):
 
 
 # Properties to receive via API on creation
+# noinspection PyMethodParameters
 class UserCreateBase(UserBase):
     password: Optional[str]
     password_confirm: Optional[str]

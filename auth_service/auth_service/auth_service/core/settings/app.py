@@ -70,6 +70,11 @@ class AppSettings(BaseAppSettings):
         }
 
     @property
+    def origin_url(self):
+        proto = "https" if self.APP_ENV == "prod" else "http"
+        return f"{proto}://{self.DOMAIN}:{self.PORT}{self.api_prefix}"
+
+    @property
     def raw_postgres_dsn(self):
         return (
             f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"

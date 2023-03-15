@@ -21,7 +21,6 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
 )
 async def signup_customer(
-    request: Request,
     user_in: schemas.UserCreateOpen,
     db: AsyncSession = Depends(database.get_db),
 ):
@@ -32,12 +31,11 @@ async def signup_customer(
     if user:
         raise DuplicateUserException
     user = await crud.user.create(db, obj_in=user_in)
-    verify_token_url = (
-        f"{request.base_url.scheme}://{request.base_url.netloc}"
-        f"{get_app_settings().api_prefix}/verify_email"
-    )
     email = Email(EmailStr(get_app_settings().FIRST_SUPERUSER_EMAIL))
     await crud.user.send_verif_email(
-        db, db_obj=user, email=email, verify_token_url=verify_token_url
+        db,
+        db_obj=user,
+        email=email,
+        verify_token_url=get_app_settings().origin_url + "/verify/email",
     )
     return user

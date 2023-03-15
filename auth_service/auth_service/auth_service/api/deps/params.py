@@ -63,7 +63,7 @@ def parse_react_admin_params(
                     fb = []
                     for k, v in ft.items():
                         if v is None:
-                            fb.append(model.__table__.c[k] == None)
+                            fb.append(model.__table__.c[k] == None)  # noqa
                         elif isinstance(v, str):
                             if str(k).split("_")[-1] == "date":
                                 fb.append(

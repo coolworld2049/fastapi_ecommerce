@@ -74,7 +74,6 @@ async def sales_analytics(
     orders_products = await get_orders_for_period(
         start_datetime, end_datetime, request_params
     )
-    orders_product_users = [x.order.user_id for x in orders_products]
     revenue = sum([x.product.price for x in orders_products])
     products_in_order_products = (
         [

@@ -10,17 +10,18 @@ from store_service.schemas.request_params import RequestParams
 
 
 def sort_query_param(param: dict):
-    sorted = {}
+    sorted_ = {}
     if len(param) > 0:
         for k, v in param.items():
+            # noinspection PyPep8
             try:
                 if v is None:
-                    sorted.update({k: None})
+                    sorted_.update({k: None})
                 else:
-                    sorted.update({k: v})
-            except:
+                    sorted_.update({k: v})
+            except Exception:
                 raise HTTPException(400, f"Invalid param {k}: {v}")
-    return sorted
+    return sorted_
 
 
 def parse_query_params(
@@ -86,7 +87,7 @@ def parse_query_params(
                                 order.update({k: "asc"})
                             elif v.lower() == "desc":
                                 order.update({k: "desc"})
-                        except:
+                        except Exception:
                             raise HTTPException(
                                 400, f"Invalid order direction '{k}': '{v}'"
                             )

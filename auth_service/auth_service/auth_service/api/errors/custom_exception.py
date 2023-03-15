@@ -23,6 +23,14 @@ class BadCredentialsException(HTTPException):
         )
 
 
+class AccessTokenHasExpiredException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Access token has expired",
+        )
+
+
 class PermissionDeniedException(HTTPException):
     def __init__(self):
         super().__init__(

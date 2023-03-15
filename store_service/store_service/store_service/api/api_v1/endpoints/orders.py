@@ -120,11 +120,11 @@ async def add_products_to_order(
         where={"id": order.id},
         include={"order_products": True},
     )
-    order_product = await OrderProduct.prisma().update(
+    await OrderProduct.prisma().update(
         data={"product": {"connect": {"id": product_id}}},
         where={"id": order.id},
     )
-    product = await product.prisma().update(
+    await product.prisma().update(
         data={"stock": {"decrement": 1}},
         where={"id": product.id},
     )
@@ -174,7 +174,7 @@ async def delete_product_from_order(
         where={"id": order.id},
         include={"order_products": True},
     )
-    order_product = await OrderProduct.prisma().update(
+    await OrderProduct.prisma().update(
         data={"product": {"disconnect": True}}, where={"id": order.id}
     )
     product = await Product.prisma().update_many(
@@ -210,7 +210,7 @@ async def delete_order_me(
                 }
             }
         )
-    order = await order.prisma().update(
+    await order.prisma().update(
         data=data,
         where={"id": order.id},
         include={"order_products": True},

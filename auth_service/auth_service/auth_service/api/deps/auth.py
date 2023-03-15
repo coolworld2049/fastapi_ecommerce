@@ -23,7 +23,7 @@ async def get_current_user(
     db: AsyncSession = Depends(database.get_db),
     token: str = Depends(oauth2Scheme),
 ) -> models.User:
-    token_data = decode_access_token(db, token)
+    token_data = decode_access_token(token)
     user = await crud.user.get_by_id(db=db, id=token_data.sub)
     if user is None:
         raise BadCredentialsException

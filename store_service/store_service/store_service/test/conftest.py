@@ -31,7 +31,7 @@ async def auth_service_client():
         base_url=get_app_settings().AUTH_SERVICE_URL
     ) as session:
         try:
-            resp = await session.get("/")
+            await session.get("/")
         except Exception as e:
             logger.error(e)
             raise

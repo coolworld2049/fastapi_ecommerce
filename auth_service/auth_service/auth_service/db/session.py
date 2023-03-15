@@ -7,7 +7,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, DeclarativeMeta
+from sqlalchemy.orm import sessionmaker
 
 from auth_service.core.config import get_app_settings
 
@@ -16,7 +16,7 @@ engine: AsyncEngine = create_async_engine(
 )
 
 
-Base: DeclarativeMeta = declarative_base()
+Base = declarative_base()
 Base.metadata.bind = engine
 
 SessionLocal = sessionmaker(
@@ -31,7 +31,7 @@ pg_database = Database(get_app_settings().raw_postgres_dsn)
 
 
 if get_app_settings().DEBUG:
-
+    # noinspection PyUnusedLocal
     @event.listens_for(Engine, "before_cursor_execute")
     def before_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
@@ -43,7 +43,7 @@ if get_app_settings().DEBUG:
 
 
 if get_app_settings().DEBUG:
-
+    # noinspection PyUnusedLocal
     @event.listens_for(Engine, "after_cursor_execute")
     def after_cursor_execute(
         conn, cursor, statement, parameters, context, executemany

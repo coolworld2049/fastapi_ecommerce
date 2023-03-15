@@ -99,7 +99,7 @@ async def update_orders(
             include={"order_products": True},
         )
         for p in rnd_products:
-            order_product = await OrderProduct.prisma().update(
+            await OrderProduct.prisma().update(
                 data={"product": {"connect": {"id": p.id}}},
                 where={"id": order.id},
             )
@@ -109,7 +109,7 @@ async def update_orders(
             data = {"stock": {"decrement": 1}}
         if data:
             for p in rnd_products:
-                product = await Product.prisma().update(
+                await Product.prisma().update(
                     data=data,
                     where={"id": p.id},
                 )

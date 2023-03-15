@@ -3,24 +3,31 @@ from datetime import datetime
 from datetime import timedelta
 
 from jose import jwt, JWTError
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import schemas, models
-from auth_service.api.errors.custom_exception import BadCredentialsException
+from auth_service.api.errors.custom_exception import (
+    BadCredentialsException,
+    AccessTokenHasExpiredException,
+)
 from auth_service.core.config import get_app_settings
 
 
 def encode_access_token(
     sub: str,
     user: models.User,
+    expires_at: timedelta = None,
 ) -> schemas.Token:
     expires_delta = datetime.now() + timedelta(
-        minutes=get_app_settings().ACCESS_TOKEN_EXPIRE_MINUTES,
+        minutes=get_app_settings().ACCESS_TOKEN_EXPIRE_MINUTES
+        if not expires_at
+        else expires_at,
     )
     token_payload = schemas.TokenPayload(
         sub=sub,
         user=json.dumps(schemas.User(**user.__dict__).dict(), default=str),
-        expires_delta=str(expires_delta),
+        exp=expires_delta.timestamp(),
     )
     access_token = jwt.encode(
         claims=token_payload.dict(exclude_none=True),
@@ -31,7 +38,7 @@ def encode_access_token(
     return token
 
 
-def decode_access_token(db: AsyncSession, token: str) -> schemas.TokenPayload:
+def decode_access_token(token: str) -> schemas.TokenData:
     try:
         payload = jwt.decode(
             token=token,
@@ -39,6 +46,10 @@ def decode_access_token(db: AsyncSession, token: str) -> schemas.TokenPayload:
             algorithms=get_app_settings().JWT_ALGORITHM,
             options={"verify_aud": False},
         )
-        return schemas.TokenPayload(**payload)
-    except JWTError:
+        token_data = schemas.TokenData(**payload)
+        return token_data
+    except JWTError as jwe:
+        logger.debug(jwe)
+        if "Signature has expired." in jwe.args:
+            raise AccessTokenHasExpiredException
         raise BadCredentialsException

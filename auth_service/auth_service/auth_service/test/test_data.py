@@ -68,7 +68,7 @@ async def create_users(count=100):
 
 
 @pytest.mark.asyncio
-async def test_init_db(db: AsyncSession):
+async def test_init_db():
     await drop_all_models(engine)
     await init_db()
     await create_users(30 if get_app_settings().APP_ENV == "dev" else 10)
