@@ -42,11 +42,13 @@ async def get_current_user_order(
 
 @router.get(
     "/all",
-    response_model=list[OrderWithoutRelations],
+    response_model=list[Order | OrderWithoutRelations],
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def read_all_orders(
-    request_params: RequestParams = Depends(params.parse_query_params()),
+    request_params: RequestParams = Depends(
+        params.parse_query_params(include_example='{"order_products": false}')
+    ),
 ) -> list[Order]:
     order = await Order.prisma().find_many(
         **request_params.dict(exclude_none=True)
@@ -58,7 +60,7 @@ async def read_all_orders(
 
 @router.get(
     "/",
-    response_model=OrderWithoutRelations,
+    response_model=Order,
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def read_order(

@@ -13,6 +13,7 @@ class RequestParams(BaseModel):
     skip: Optional[int] = None
     order: Optional[dict] = None
     where: Optional[dict] = None
+    include: Optional[dict] = None
 
 
 def parse_query_params(
@@ -24,6 +25,7 @@ def parse_query_params(
     where_example: Any = None,
     range_description: str = "",
     where_add_description: str = "",
+    include_example: str = None,
 ) -> Callable[[str | None, str | None], RequestParams]:
     def inner(
         range_: Optional[str] = Query(
@@ -48,6 +50,12 @@ def parse_query_params(
             + where_add_description,
             example=where_example,
             include_in_schema=use_where,
+        ),
+        include_: Optional[str] = Query(
+            None,
+            alias="include",
+            description='Format: `{"field_name": true}`, `{"field_name": false}`',
+            example=include_example,
         ),
     ):
         try:
@@ -89,9 +97,31 @@ def parse_query_params(
                             raise HTTPException(
                                 400, f"Invalid where param {k}: {v}"
                             )
+            include = None
+            if include_:
+                include = {}
+                includes: dict = json.loads(include_)
+                if len(includes) > 0:
+                    for k, v in includes.items():
+                        try:
+                            if v is None:
+                                include.update({k: None})
+                            else:
+                                include.update({k: v})
+                        except:
+                            raise HTTPException(
+                                400, f"Invalid include param {k}: {v}"
+                            )
+
         except JSONDecodeError as jse:
             raise HTTPException(400, f"Invalid query params. {jse}")
-        _rp = {"skip": skip, "take": limit, "order": order, "where": where_by}
+        _rp = {
+            "skip": skip,
+            "take": limit,
+            "order": order,
+            "where": where_by,
+            "include": include,
+        }
 
         return RequestParams(**_rp)
 

@@ -68,6 +68,10 @@ class AppSettings(BaseAppSettings):
     def templates(self):
         return Jinja2Templates(directory=self.project_templates_path)
 
+    @property
+    def auth_service_login_url(self):
+        return self.AUTH_SERVICE_URL + self.AUTH_SERVICE_LOGIN_URL
+
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]
         for logger_name in self.LOGGERS:

@@ -16,7 +16,6 @@ from auth_service.api.deps import database
 from auth_service.api.deps import params
 from auth_service.api.deps.auth import RoleChecker
 from auth_service.api.errors.custom_exception import DuplicateUserException
-from auth_service.models import UserRole
 from auth_service.models.user import User
 from auth_service.schemas import RequestParams
 

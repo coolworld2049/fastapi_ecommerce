@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
 from loguru import logger
+from starlette import status
 
 from store_service.api.api_v1.deps.custom_exception import (
     BadCredentialsException,
@@ -15,8 +16,7 @@ from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=get_app_settings().AUTH_SERVICE_URL
-    + get_app_settings().AUTH_SERVICE_LOGIN_URL
+    tokenUrl=get_app_settings().auth_service_login_url
 )
 
 
