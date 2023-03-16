@@ -1,8 +1,9 @@
 import time
 
 from loguru import logger
+from prisma.errors import PrismaError
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 
 from store_service.core.config import get_app_settings
 
@@ -10,6 +11,11 @@ from store_service.core.config import get_app_settings
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
+    except PrismaError as pe:
+        return JSONResponse(
+            status_code=420,
+            content={"details": pe.args},
+        )
     except Exception as e:
         logger.exception(e.args)
         return Response("Internal server error", status_code=500)
