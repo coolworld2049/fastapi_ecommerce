@@ -7,6 +7,7 @@ from typing import Any
 
 from loguru import logger
 from pydantic import EmailStr
+from pydantic.networks import PostgresDsn
 from starlette.templating import Jinja2Templates
 
 from auth_service.core.logging import InterceptHandler
@@ -20,7 +21,7 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
-    version: str = "0.0.0"
+    VERSION: str = "0.0.0"
 
     APP_NAME: str
     DEBUG: bool
@@ -39,10 +40,11 @@ class AppSettings(BaseAppSettings):
 
     PG_HOST: str
     PG_PORT: int
+    PG_PORT_SLAVE_1: int
+    PG_PORT_SLAVE_2: int
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
-    PG_DRIVER: str = "asyncpg"
 
     EMAIL_HOST: str
     EMAIL_PORT: int
@@ -66,7 +68,7 @@ class AppSettings(BaseAppSettings):
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
             "title": self.title,
-            "version": self.version,
+            "version": self.VERSION,
         }
 
     @property
@@ -75,17 +77,48 @@ class AppSettings(BaseAppSettings):
         return f"{proto}://{self.DOMAIN}:{self.PORT}{self.api_prefix}"
 
     @property
-    def raw_postgres_dsn(self):
-        return (
-            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
-            f"{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}"
+    def postgres_master_dsn(self) -> str:
+        dsn = PostgresDsn.build(
+            scheme="postgresql",
+            user=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=str(self.PG_HOST),
+            port=str(self.PG_PORT),
+            path=f"/{self.POSTGRES_DB}",
         )
+        return dsn
 
     @property
-    def postgres_asyncpg_dsn(self):
-        return self.raw_postgres_dsn.replace(
-            "postgresql", f"postgresql+{self.PG_DRIVER}"
+    def postgres_asyncpg_master_dsn(self) -> str:
+        dsn = PostgresDsn.build(
+            scheme="postgresql+psycopg",
+            user=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=str(self.PG_HOST),
+            port=str(self.PG_PORT),
+            path=f"/{self.POSTGRES_DB}",
         )
+        return dsn
+
+    @property
+    def postgres_slave_ports(self):
+        return self.PG_PORT_SLAVE_1, self.PG_PORT_SLAVE_2
+
+    def get_postgres_asyncpg_slave_dsn(self, num: int) -> str:
+        if (
+            not len(self.postgres_slave_ports) > 0
+            and not len(self.postgres_slave_ports) >= num
+        ):
+            raise
+        dsn = PostgresDsn.build(
+            scheme="postgresql+psycopg",
+            user=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=str(self.PG_HOST),
+            port=str(self.postgres_slave_ports[num - 1]),
+            path=f"/{self.POSTGRES_DB}",
+        )
+        return dsn
 
     @property
     def project_templates_path(self):

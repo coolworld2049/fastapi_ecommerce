@@ -10,7 +10,7 @@ from auth_service.api.errors.http_error import http_error_handler
 from auth_service.api.errors.validation_error import http422_error_handler
 from auth_service.core.config import get_app_settings
 from auth_service.db.init_db import init_db
-from auth_service.db.session import SessionLocal, engine
+from auth_service.db.session import SessionLocal, engines
 from auth_service.middlewares.http import (
     add_process_time_header,
     catch_exceptions_middleware,
@@ -63,7 +63,7 @@ async def startup():
 async def shutdown():
     logger.info("Application shutdown!")
     await SessionLocal.close_all()
-    await engine.dispose()
+    [await x.dispose() for x in engines.values()]
 
 
 @app.get("/")

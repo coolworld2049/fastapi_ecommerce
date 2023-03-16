@@ -7,10 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
-from auth_service.db.session import Base
+from auth_service.db.session import Base, pg_database
 from auth_service.db.session import SessionLocal
-from auth_service.db.session import engine
-from auth_service.db.session import pg_database
+from auth_service.db.session import engines
 from auth_service.models.user_role import UserRole
 
 
@@ -23,13 +22,17 @@ async def truncate_tables(conn: Connection):
         pass
 
 
-async def execute_sql_f(path: pathlib.Path, async_conn: Connection):
+async def execute_sql_f(
+    path: pathlib.Path,
+    conn: Connection,
+):
     try:
         with open(path, encoding="utf-8") as rf:
-            res = await async_conn.execute(rf.read())
-            logger.info(f"{path.name}: {res}")
+            sql = rf.read()
+            res = await conn.execute(sql)
+            logger.info(f"{path.name}: \n{sql}")
     except Exception as e:
-        logger.info(f"{path.name}: {e.args}")
+        logger.error(f"{path.name}: {e.args}")
 
 
 async def drop_all_models(_engine: AsyncEngine):
@@ -38,10 +41,11 @@ async def drop_all_models(_engine: AsyncEngine):
         logger.info(f"metadata.drop_all")
 
 
-async def create_all_models(_engine: AsyncEngine):
-    async with _engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
-        logger.info(f"metadata.create_all")
+async def create_all_models(_engine: dict[str, AsyncEngine]):
+    for name, eng in _engine.items():
+        async with eng.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all, checkfirst=True)
+            logger.info(f"metadata.create_all, engine: {name}")
 
 
 async def remove_first_superuser(db: AsyncSession):
@@ -85,9 +89,9 @@ async def execute_sql_files(
 
 
 async def init_db():
-    await create_all_models(engine)
-    conn = await pg_database.get_connection()
-    await execute_sql_files(conn)
+    await create_all_models(engines)
+    connection: Connection = await pg_database.get_connection()
+    await execute_sql_files(connection)
     async with SessionLocal() as db:
         await create_first_superuser(db)
-    await conn.close()
+    await connection.close()

@@ -37,10 +37,25 @@ services:
       - POSTGRESQL_TIMEZONE=${PG_TZ}
       - POSTGRESQL_LOG_TIMEZONE=${PG_TZ}
 
-  postgresql_slave:
+  postgresql_slave_1:
     image: bitnami/postgresql:latest
     ports:
-      - ${PG_PORT}
+      -  ${PG_PORT_SLAVE_1}:${PG_PORT}
+    depends_on:
+      - postgresql_master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql_master
+      - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+
+  postgresql_slave_2:
+    image: bitnami/postgresql:latest
+    ports:
+      - ${PG_PORT_SLAVE_2}:${PG_PORT}
     depends_on:
       - postgresql_master
     environment:

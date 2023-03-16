@@ -19,7 +19,7 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"{api_perfix}/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
-    version: str = "0.0.0"
+    VERSION: str = "0.0.0"
 
     APP_NAME: str
     DEBUG: bool
@@ -57,7 +57,7 @@ class AppSettings(BaseAppSettings):
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
             "title": self.title,
-            "version": self.version,
+            "version": self.VERSION,
         }
 
     @property

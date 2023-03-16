@@ -1,32 +1,48 @@
+import random
 import time
 
 from asyncpg_utils.databases import Database
 from loguru import logger
-from sqlalchemy import event
+from sqlalchemy import event, Update, Delete
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import declarative_base
 
 from auth_service.core.config import get_app_settings
 
-engine: AsyncEngine = create_async_engine(
-    get_app_settings().postgres_asyncpg_dsn
-)
+engines = {
+    "master": create_async_engine(
+        get_app_settings().postgres_asyncpg_master_dsn
+    ),
+    "slave_1": create_async_engine(
+        get_app_settings().get_postgres_asyncpg_slave_dsn(1)
+    ),
+    "slave_2": create_async_engine(
+        get_app_settings().get_postgres_asyncpg_slave_dsn(2)
+    ),
+}
+
+
+class RoutingSession(Session):
+    def get_bind(self, mapper=None, clause=None, bind=None, **kw):
+        if self._flushing or isinstance(clause, (Update, Delete)):  # noqa
+            return engines["master"].sync_engine
+        else:
+            return engines[random.choice(["slave_1", "slave_2"])].sync_engine
+
 
 Base = declarative_base()
-Base.metadata.bind = engine
 
-SessionLocal = sessionmaker(
-    engine,
-    class_=AsyncSession,
+SessionLocal = async_sessionmaker(
+    sync_session_class=RoutingSession,
     autocommit=False,
     autoflush=False,
     expire_on_commit=False,
 )
 
-pg_database = Database(get_app_settings().raw_postgres_dsn)
-
+pg_database = Database(get_app_settings().postgres_master_dsn)
 
 if get_app_settings().DEBUG:
     # noinspection PyUnusedLocal

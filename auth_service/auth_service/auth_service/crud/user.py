@@ -7,7 +7,7 @@ from pydantic import EmailStr
 from sqlalchemy import and_, select
 from sqlalchemy.engine import Result
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncResult
 from sqlalchemy.sql import Select
 from starlette import status
 from starlette.exceptions import HTTPException
