@@ -1,5 +1,4 @@
-from collections.abc import Sequence
-from typing import Any
+from typing import Any, Sequence
 from typing import Dict
 from typing import Generic
 from typing import Optional
@@ -9,16 +8,17 @@ from typing import Union
 
 from fastapi.encoders import jsonable_encoder
 from loguru import logger
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
-from auth_service.db.session import Base
-from auth_service.models import RequestParams
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.engine import Result, RowMapping, Row
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
+from starlette.responses import Response
+
+from auth_service.db.session import Base
+from auth_service.schemas import RequestParams
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -73,10 +73,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def get_multi(
         self,
+        response: Response,
         db: AsyncSession,
         request_params: RequestParams = None,
         filters: Any = None,
-    ) -> tuple[Sequence[Row | RowMapping | Any], Any]:
+    ) -> Sequence[Row | RowMapping | Any]:
         query = select(self.model)
         query, query_count = await self.constr_query_filter(
             query,
@@ -87,7 +88,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         total: Result = await db.execute(query_count)
         result: Result = await db.execute(query)
         r = result.scalars().all()
-        return r, total.fetchone().count
+        response.headers[
+            "Content-Range"
+        ] = f"{request_params.skip}-{request_params.skip + len(r)}/{total.fetchone().count}"
+        return r
 
     async def create(
         self, db: AsyncSession, *, obj_in: CreateSchemaType

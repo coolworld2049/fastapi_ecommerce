@@ -11,15 +11,18 @@ from starlette import status
 from auth_service import crud
 from auth_service import models
 from auth_service import schemas
-from auth_service.api.dependencies import auth
-from auth_service.api.dependencies import database
-from auth_service.api.dependencies import params
-from auth_service.api.dependencies.auth import RoleChecker
+from auth_service.api.deps import auth
+from auth_service.api.deps import database
+from auth_service.api.deps import params
+from auth_service.api.deps.auth import RoleChecker
+from auth_service.api.errors.custom_exception import DuplicateUserException
 from auth_service.models.user import User
+from auth_service.schemas import RequestParams
 
 router = APIRouter()
 
 
+# noinspection PyUnusedLocal
 @router.get(
     "/",
     response_model=List[schemas.User],
@@ -28,20 +31,19 @@ router = APIRouter()
 async def read_users(
     response: Response,
     db: AsyncSession = Depends(database.get_db),
-    request_params: models.RequestParams = Depends(
+    current_user: models.User = Depends(auth.get_current_user),
+    request_params: RequestParams = Depends(
         params.parse_react_admin_params(User),
     ),
 ) -> Any:
     """
     Retrieve users.
     """
-    users, total = await crud.user.get_multi(db, request_params)
-    response.headers[
-        "Content-Range"
-    ] = f"{request_params.skip}-{request_params.skip + len(users)}/{total}"
+    users = await crud.user.get_multi(response, db, request_params)
     return users
 
 
+# noinspection PyUnusedLocal
 @router.post(
     "/",
     response_model=schemas.User,
@@ -50,18 +52,15 @@ async def read_users(
 async def create_user(
     *,
     db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user),
     user_in: schemas.UserCreate,
 ) -> Any:
     """
     Create new user.
     """
-
     user = await crud.user.get_by_email(db, email=user_in.email)
     if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this username already exists in the system.",
-        )
+        raise DuplicateUserException
     user = await crud.user.create(db, obj_in=user_in)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
@@ -76,10 +75,9 @@ async def create_user(
     ],
 )
 async def update_user_me(
-    *,
-    db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserUpdateMe,
-    current_user: models.User = Depends(auth.get_current_active_user),
+    db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user),
 ) -> Any:
     """
     Update own user.
@@ -90,6 +88,7 @@ async def update_user_me(
     return user
 
 
+# noinspection PyUnusedLocal
 @router.get(
     "/me",
     response_model=schemas.User,
@@ -100,13 +99,12 @@ async def update_user_me(
 async def read_user_me(
     response: Response,
     db: AsyncSession = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(auth.get_current_user),
 ) -> Any:
     """
     Get current user.
     """
     user = await crud.user.get(db, current_user.id)
-    response.headers["Content-Range"] = f"{0}-{1}/{1}"
     return user
 
 
@@ -124,13 +122,11 @@ async def read_user_by_id(
     """
     user = await crud.user.get(db, id)
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user does not exist",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return user
 
 
+# noinspection PyUnusedLocal
 @router.put(
     "/{id}",
     response_model=schemas.User,
@@ -140,6 +136,7 @@ async def update_user(
     *,
     id: str,
     db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user),
     user_in: schemas.UserUpdate,
 ) -> Any:
     """
@@ -147,14 +144,12 @@ async def update_user(
     """
     user = await crud.user.get(db, id)
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this username does not exist",
-        )
+        raise DuplicateUserException
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
 
 
+# noinspection PyUnusedLocal
 @router.delete(
     "/{id}",
     response_model=schemas.User,
@@ -164,13 +159,13 @@ async def delete_user(
     *,
     id: str,
     db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user),
 ) -> Any:
     """
-    Delete user.
+    Delete user
     """
     user = await crud.user.get(db, id)
     if not user:
-        raise HTTPException(status_code=404, detail="Item not found")
-
+        raise HTTPException(status_code=status.HTTP_200_OK)
     user = await crud.user.remove(db=db, id=id)
     return user

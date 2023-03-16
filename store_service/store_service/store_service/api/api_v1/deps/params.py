@@ -5,14 +5,23 @@ from typing import Optional, Any
 
 from fastapi import HTTPException
 from fastapi import Query
-from pydantic import BaseModel, Field
+
+from store_service.schemas.request_params import RequestParams
 
 
-class RequestParams(BaseModel):
-    take: Optional[int] = None
-    skip: Optional[int] = None
-    order: Optional[dict] = None
-    where: Optional[dict] = None
+def sort_query_param(param: dict):
+    sorted_ = {}
+    if len(param) > 0:
+        for k, v in param.items():
+            # noinspection PyPep8
+            try:
+                if v is None:
+                    sorted_.update({k: None})
+                else:
+                    sorted_.update({k: v})
+            except Exception:
+                raise HTTPException(400, f"Invalid param {k}: {v}")
+    return sorted_
 
 
 def parse_query_params(
@@ -24,6 +33,7 @@ def parse_query_params(
     where_example: Any = None,
     range_description: str = "",
     where_add_description: str = "",
+    include_example: str = None,
 ) -> Callable[[str | None, str | None], RequestParams]:
     def inner(
         range_: Optional[str] = Query(
@@ -49,6 +59,13 @@ def parse_query_params(
             example=where_example,
             include_in_schema=use_where,
         ),
+        include_: Optional[str] = Query(
+            None,
+            alias="include",
+            description='Format: `{"field_name": true}`, `{"field_name": false}`',
+            example=include_example,
+            include_in_schema=True if include_example else False,
+        ),
     ):
         try:
             skip, limit = 0, 50
@@ -70,29 +87,21 @@ def parse_query_params(
                                 order.update({k: "asc"})
                             elif v.lower() == "desc":
                                 order.update({k: "desc"})
-                        except:
+                        except Exception:
                             raise HTTPException(
                                 400, f"Invalid order direction '{k}': '{v}'"
                             )
-            where_by = None
+            where = None
             if where_:
-                where_by = {}
-                wheres: dict = json.loads(where_)
-                if len(wheres) > 0:
-                    for k, v in wheres.items():
-                        try:
-                            if v is None:
-                                where_by.update({k: None})
-                            else:
-                                where_by.update({k: v})
-                        except:
-                            raise HTTPException(
-                                400, f"Invalid where param {k}: {v}"
-                            )
+                where = sort_query_param(json.loads(where_))
+            include = None
+            if include_:
+                include = sort_query_param(json.loads(include_))
+
         except JSONDecodeError as jse:
             raise HTTPException(400, f"Invalid query params. {jse}")
-        _rp = {"skip": skip, "take": limit, "order": order, "where": where_by}
-
-        return RequestParams(**_rp)
+        return RequestParams(
+            skip=skip, take=limit, order=order, where=where, include=include
+        )
 
     return inner

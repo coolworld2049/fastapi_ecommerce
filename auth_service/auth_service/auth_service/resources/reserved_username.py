@@ -197,7 +197,7 @@ reserved_usernames_list = [
     "hostname",
     "howto",
     "hpg",
-    "html",
+    "base",
     "http",
     "httpd",
     "https",

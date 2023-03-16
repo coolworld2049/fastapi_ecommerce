@@ -29,9 +29,7 @@ def gen_random_password():
     )
 
 
-async def get_superuser_token_headers(
-    client: AsyncClient, db: AsyncSession
-) -> Dict[str, str]:
+async def get_superuser_token_headers(client: AsyncClient) -> Dict[str, str]:
     body = {
         "username": get_app_settings().FIRST_SUPERUSER_EMAIL,
         "password": get_app_settings().FIRST_SUPERUSER_PASSWORD,

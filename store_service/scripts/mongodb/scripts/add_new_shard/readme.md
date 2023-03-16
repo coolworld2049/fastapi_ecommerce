@@ -2,7 +2,7 @@
 For [`minimize`](https://github.com/minhhungit/mongodb-cluster-docker-compose/tree/master/minimize) version, we just have 2 shards, this will show you how to add shard-3...
 
 ### step 1: Modify docker-compose 
-modify docker-compose to add new container (there is an docker-compose file example here [docker-compose-new-sample.yaml](https://github.com/minhhungit/mongodb-cluster-docker-compose/blob/master/minimize/scripts/update01/docker-compose-new-sample.yaml), you can use it to replace current compose file)
+modify docker-compose to add new container (there is a docker-compose file example here [docker-compose-new-sample.yaml](https://github.com/minhhungit/mongodb-cluster-docker-compose/blob/master/minimize/scripts/update01/docker-compose-new-sample.yaml), you can use it to replace current compose file)
 
 You can use a diff tool to check difference between 2 versions
 

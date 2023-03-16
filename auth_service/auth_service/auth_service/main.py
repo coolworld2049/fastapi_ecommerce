@@ -1,18 +1,16 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from starlette.staticfiles import StaticFiles
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.api.errors.http_error import http_error_handler
 from auth_service.api.errors.validation_error import http422_error_handler
-from auth_service.api.openapi import custom_openapi
-from auth_service.api.openapi import use_route_names_as_operation_ids
 from auth_service.core.config import get_app_settings
 from auth_service.db.init_db import init_db
-from auth_service.db.session import SessionLocal, engine
+from auth_service.db.session import SessionLocal, engines
 from auth_service.middlewares.http import (
     add_process_time_header,
     catch_exceptions_middleware,
@@ -21,20 +19,7 @@ from auth_service.middlewares.http import (
 
 def get_application() -> FastAPI:
     get_app_settings().configure_logging()
-
     application = FastAPI(**get_app_settings().fastapi_kwargs)
-
-    application.include_router(
-        api_router, prefix=get_app_settings().api_prefix
-    )
-    custom_openapi(application)
-    use_route_names_as_operation_ids(application)
-
-    application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(
-        RequestValidationError, http422_error_handler
-    )
-
     application.add_middleware(
         CORSMiddleware,
         allow_origins=get_app_settings().BACKEND_CORS_ORIGINS,
@@ -49,12 +34,18 @@ def get_application() -> FastAPI:
             "Range",
         ],
     )
-
-    if get_app_settings().APP_ENV in ["dev", "test"]:
-        application.middleware("http")(add_process_time_header)
-
-    if not application.debug and get_app_settings().APP_ENV == "prod":
-        application.middleware("http")(catch_exceptions_middleware)
+    application.include_router(
+        api_router, prefix=get_app_settings().api_prefix
+    )
+    application.add_exception_handler(
+        HTTPException,
+        http_error_handler,
+    )
+    application.add_exception_handler(
+        RequestValidationError, http422_error_handler
+    )
+    application.middleware("http")(add_process_time_header)
+    application.middleware("http")(catch_exceptions_middleware)
 
     return application
 
@@ -70,22 +61,23 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
+    logger.info("Application shutdown!")
     await SessionLocal.close_all()
-    await engine.dispose()
+    [await x.dispose() for x in engines.values()]
 
 
 @app.get("/")
 async def root(request: Request):
     response = get_app_settings().templates.TemplateResponse(
-        "/html/index.html",
+        "/base/index.html",
         context={
-            "app_name": app.title.replace("_", " "),
+            "app_name": app.title.replace("_", " "),  # noqa
             "request": request,
             "proto": "http",
             "host": get_app_settings().DOMAIN,
             "port": get_app_settings().PORT,
             "api_prefix": get_app_settings().api_prefix,
-            "openapi_path": f"{app.openapi_url}",
+            "openapi_path": f"{app.openapi_url}",  # noqa
         },
     )
     return response

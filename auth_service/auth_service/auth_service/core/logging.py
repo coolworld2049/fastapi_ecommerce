@@ -19,7 +19,7 @@ class InterceptHandler(logging.Handler):
             frame = cast(FrameType, frame.f_back)
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(
+        logger.opt(depth=depth, exception=record.exc_info, colors=True).log(
             level,
             record.getMessage(),
         )

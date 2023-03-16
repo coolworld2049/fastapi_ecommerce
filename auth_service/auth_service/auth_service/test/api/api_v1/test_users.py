@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from auth_service import crud, schemas
 from auth_service import models
 from auth_service.core.config import get_app_settings
-from auth_service.models.enums import UserRole
+from auth_service.models.user_role import UserRole
 from auth_service.test.test_data import fake
 from auth_service.test.utils.utils import (
     gen_random_password,
@@ -112,7 +112,6 @@ async def test_get_existing_user(
 async def test_create_user_existing_email(
     client: AsyncClient,
     superuser_token_headers: dict,
-    db: AsyncSession,
 ) -> None:
     user_in = schemas.UserCreate(
         email=get_app_settings().FIRST_SUPERUSER_EMAIL,
@@ -126,7 +125,6 @@ async def test_create_user_existing_email(
         json=user_in.dict(),
     )
     print(r.json())
-    created_user = r.json()
     assert r.status_code == 400
 
 
@@ -134,7 +132,6 @@ async def test_create_user_existing_email(
 async def test_retrieve_users(
     client: AsyncClient,
     superuser_token_headers: dict,
-    db: AsyncSession,
 ) -> None:
     r = await client.get(
         f"{get_app_settings().api_prefix}/users/",

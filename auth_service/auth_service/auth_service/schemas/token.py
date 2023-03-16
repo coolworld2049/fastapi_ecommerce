@@ -2,27 +2,25 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from pydantic import Field
 
-from auth_service.models import UserRole
+from auth_service import models
 
 
-class TokenBase(BaseModel):
-    access_token: str = Field(None, alias="access_token")
-    token_type: Optional[str] = "bearer"
+class Token(BaseModel):
+    access_token: Optional[str]
+    token_type: str = "bearer"
+
+
+class TokenPayload(BaseModel):
+    sub: str
+    user: str
+    exp: int
+
+
+class TokenData(TokenPayload):
+    sub: str
+    user: models.User | str
+    exp: int
 
     class Config:
-        allow_population_by_field_name = True
-
-
-class TokenPayload(TokenBase):
-    sub: Optional[str]
-    role: Optional[UserRole]
-    expires_delta: Optional[datetime]
-
-    class Config:
-        use_enum_values = True
-
-
-class Token(TokenPayload):
-    pass
+        arbitrary_types_allowed = True

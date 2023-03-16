@@ -37,9 +37,7 @@ Product.create_partial(
 )
 
 # Order
-Order.create_partial(
-    "OrderWithoutRelations",
-)
+Order.create_partial("OrderWithoutRelations", exclude=["order_products"])
 
 Order.create_partial(
     "OrderCreate",

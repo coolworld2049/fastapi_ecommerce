@@ -9,12 +9,12 @@ from prisma.types import OrderInclude
 from starlette import status
 from starlette.exceptions import HTTPException
 
-from store_service.api.api_v1.dependencies import params
-from store_service.api.api_v1.dependencies.auth import (
+from store_service.api.api_v1.deps import params
+from store_service.api.api_v1.deps.auth import (
     RoleChecker,
     get_current_active_user,
 )
-from store_service.api.api_v1.dependencies.params import RequestParams
+from store_service.schemas.request_params import RequestParams
 from store_service.schemas.user import User
 
 router = APIRouter()
@@ -29,7 +29,7 @@ async def get_current_user_order(
         where={"user_id": {"equals": current_user.id}}
     )
     order = list(
-        filter(lambda x: x.status == OrderStatus.pending, current_user_orders)
+        filter(lambda x: x.status == order_status, current_user_orders)
     )
     if not len(order) > 0:
         return None
@@ -41,12 +41,14 @@ async def get_current_user_order(
 
 
 @router.get(
-    "/all",
-    response_model=list[OrderWithoutRelations],
+    "/",
+    response_model=list[Order | OrderWithoutRelations],
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
 async def read_all_orders(
-    request_params: RequestParams = Depends(params.parse_query_params()),
+    request_params: RequestParams = Depends(
+        params.parse_query_params(include_example='{"order_products": false}')
+    ),
 ) -> list[Order]:
     order = await Order.prisma().find_many(
         **request_params.dict(exclude_none=True)
@@ -57,11 +59,11 @@ async def read_all_orders(
 
 
 @router.get(
-    "/",
+    "/me",
     response_model=Order,
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
-async def read_order(
+async def read_order_me(
     current_user: User = Depends(get_current_active_user),
 ) -> Optional[Order]:
     order = await get_current_user_order(
@@ -80,9 +82,6 @@ async def read_order(
 async def create_order(
     current_user: User = Depends(get_current_active_user),
 ) -> Optional[Order]:
-    order = await get_current_user_order(current_user)
-    if order:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT)
     order = await Order.prisma().create(
         data={
             "status": OrderStatus.pending,
@@ -121,11 +120,11 @@ async def add_products_to_order(
         where={"id": order.id},
         include={"order_products": True},
     )
-    order_product = await OrderProduct.prisma().update(
+    await OrderProduct.prisma().update(
         data={"product": {"connect": {"id": product_id}}},
         where={"id": order.id},
     )
-    product = await product.prisma().update(
+    await product.prisma().update(
         data={"stock": {"decrement": 1}},
         where={"id": product.id},
     )
@@ -175,7 +174,7 @@ async def delete_product_from_order(
         where={"id": order.id},
         include={"order_products": True},
     )
-    order_product = await OrderProduct.prisma().update(
+    await OrderProduct.prisma().update(
         data={"product": {"disconnect": True}}, where={"id": order.id}
     )
     product = await Product.prisma().update_many(
@@ -187,33 +186,11 @@ async def delete_product_from_order(
     return order
 
 
-@router.patch(
-    "/status",
-    response_model=OrderWithoutRelations,
-    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
-)
-async def update_order_status(
-    id: str, order_status_in: OrderStatus
-) -> Optional[Order]:
-    if order_status_in == OrderStatus.deleted:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"status {OrderStatus.deleted.name} not allowed",
-        )
-    order = await Order.prisma().update(
-        where={
-            "id": id,
-        },
-        data={"status": order_status_in},
-    )
-    return order
-
-
 @router.delete(
-    "/",
+    "/me",
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
 )
-async def delete_order(
+async def delete_order_me(
     current_user: User = Depends(get_current_active_user),
 ) -> dict[str, Any]:
     order = await get_current_user_order(current_user)
@@ -233,9 +210,26 @@ async def delete_order(
                 }
             }
         )
-    order = await order.prisma().update(
+    await order.prisma().update(
         data=data,
         where={"id": order.id},
         include={"order_products": True},
     )
     return {"status": status.HTTP_200_OK}
+
+
+@router.patch(
+    "/status",
+    response_model=OrderWithoutRelations,
+    dependencies=[Depends(RoleChecker(["admin"]))],
+)
+async def update_order_status(
+    id: str, order_status_in: OrderStatus
+) -> Optional[Order]:
+    order = await Order.prisma().update(
+        where={
+            "id": id,
+        },
+        data={"status": order_status_in},
+    )
+    return order

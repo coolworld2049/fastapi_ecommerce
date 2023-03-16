@@ -7,11 +7,10 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.exc import ProgrammingError
 
-sys.path = ["", ".."] + sys.path[1:]  # noqa
+sys.path = ["", ".."] + sys.path[1:]
 
-from auth_service.core.config import get_app_settings  # noqa
-from auth_service.db.session import Base  # noqa
-
+from auth_service.core.config import get_app_settings
+from auth_service.db.session import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -50,7 +49,7 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=get_app_settings().raw_postgres_dsn,
+        url=get_app_settings().postgres_master_dsn,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
@@ -68,7 +67,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_app_settings().raw_postgres_dsn
+    configuration["sqlalchemy.url"] = get_app_settings().postgres_master_dsn
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

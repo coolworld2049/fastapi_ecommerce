@@ -19,7 +19,7 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"{api_perfix}/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
-    version: str = "0.0.0"
+    VERSION: str = "0.0.0"
 
     APP_NAME: str
     DEBUG: bool
@@ -37,6 +37,8 @@ class AppSettings(BaseAppSettings):
 
     MONGODB_URL: str
     AUTH_SERVICE_URL: str
+    AUTH_SERVICE_LOGIN_URL: str
+
     PRISMA_STUDIO_PORT: int = 5555
 
     LOGGING_LEVEL: int = logging.ERROR
@@ -55,7 +57,7 @@ class AppSettings(BaseAppSettings):
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
             "title": self.title,
-            "version": self.version,
+            "version": self.VERSION,
         }
 
     @property
@@ -65,6 +67,10 @@ class AppSettings(BaseAppSettings):
     @property
     def templates(self):
         return Jinja2Templates(directory=self.project_templates_path)
+
+    @property
+    def auth_service_login_url(self):
+        return self.AUTH_SERVICE_URL + self.AUTH_SERVICE_LOGIN_URL
 
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]

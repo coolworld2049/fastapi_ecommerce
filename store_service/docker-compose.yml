@@ -1,5 +1,6 @@
 version: '3.9'
 
+
 services:
 
   store_service:
@@ -7,6 +8,7 @@ services:
     command: ./start.sh
     environment:
       - DEBUG=False
+      - APP_ENV=prod
       - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
       - AUTH_SERVICE_URL=http://host.docker.internal:8001
     env_file:

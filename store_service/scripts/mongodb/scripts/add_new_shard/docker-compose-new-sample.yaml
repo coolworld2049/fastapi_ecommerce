@@ -7,7 +7,7 @@ services:
     container_name: router-01
     command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
     ports:
-      - 27117:27017
+      - "27117:27017"
     volumes:
       - ./scripts:/scripts
 
@@ -20,15 +20,15 @@ services:
     volumes:
       - ./scripts:/scripts 
     ports:
-      - 27119:27017
+      - "27119:27017"
     links:
       - shard01-a
       - shard02-a
       - shard03-a
   
 
-## Shards
-  ## Shards 01
+  ## Shards
+  ##  01
    
   shard01-a:
     image: mongo:5.0
@@ -37,7 +37,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27122:27017
+      - "27122:27017"
     links:
       - shard01-b
       - shard01-c
@@ -48,7 +48,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27123:27017
+      - "27123:27017"
   shard01-c:
     image: mongo:5.0
     container_name: shard-01-node-c
@@ -56,7 +56,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27124:27017
+      - "27124:27017"
 
   ## Shards 02
   shard02-a:
@@ -66,7 +66,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27125:27017
+      - "27125:27017"
     links:
       - shard02-b
       - shard02-c
@@ -77,7 +77,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27126:27017
+      - "27126:27017"
   shard02-c:
     image: mongo:5.0
     container_name: shard-02-node-c
@@ -85,7 +85,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27127:27017
+      - "27127:27017"
 
   ## Shards 03
   shard03-a:
@@ -95,7 +95,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27128:27017
+      - "27128:27017"
     links:
       - shard03-b
       - shard03-c
@@ -106,7 +106,7 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27129:27017
+      - "27129:27017"
   shard03-c:
     image: mongo:5.0
     container_name: shard-03-node-c
@@ -114,4 +114,4 @@ services:
     volumes:
       - ./scripts:/scripts
     ports:
-      - 27130:27017
+      - "27130:27017"

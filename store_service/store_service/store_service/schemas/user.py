@@ -9,10 +9,10 @@ class UserBase(BaseModel):
     username: Optional[str]
     full_name: Optional[str]
     role: Optional[str]
-    is_active: bool = True
-    is_superuser: bool = False
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    is_active: Optional[bool]
+    is_superuser: Optional[bool]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
 
 class User(UserBase):

@@ -45,7 +45,6 @@ async def authentication_token_from_email(
     client: AsyncClient,
     email: EmailStr | str,
     password: str,
-    db: AsyncSession,
 ) -> Dict[str, str]:
     return await user_authentication_headers(
         client=client, email=email, password=password

@@ -24,11 +24,11 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/app</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="app@46.19.67.167 [2]" uuid="a0e76bd1-50a7-40c9-88fa-72da3a9cc8a8">
+    <data-source source="LOCAL" name="postgres@46.19.67.167" uuid="a0e76bd1-50a7-40c9-88fa-72da3a9cc8a8">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://46.19.67.167:5432/app</jdbc-url>
+      <jdbc-url>jdbc:postgresql://46.19.67.167:5432/postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

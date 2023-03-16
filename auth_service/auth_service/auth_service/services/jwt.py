@@ -2,36 +2,54 @@ import json
 from datetime import datetime
 from datetime import timedelta
 
-from jose import jwt
+from jose import jwt, JWTError
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth_service import schemas
+from auth_service import schemas, models
+from auth_service.api.errors.custom_exception import (
+    BadCredentialsException,
+    AccessTokenHasExpiredException,
+)
 from auth_service.core.config import get_app_settings
-from auth_service.models import User
 
 
-def create_access_token(
+def encode_access_token(
     sub: str,
-    user: User,
-    expires_delta: timedelta = None,
+    user: models.User,
+    expires_at: timedelta = None,
 ) -> schemas.Token:
-    if expires_delta:
-        expire = datetime.now() + expires_delta
-    else:
-        expire = datetime.now() + timedelta(
-            minutes=get_app_settings().ACCESS_TOKEN_EXPIRE_MINUTES,
-        )
-    to_encode = {
-        "expires_delta": str(expire),
-        "sub": str(sub),
-        "user": json.dumps(schemas.User(**user.__dict__).dict(), default=str),
-    }
-    encoded_jwt = jwt.encode(
-        to_encode,
-        get_app_settings().JWT_SECRET_KEY,
+    expires_delta = datetime.now() + timedelta(
+        minutes=get_app_settings().ACCESS_TOKEN_EXPIRE_MINUTES
+        if not expires_at
+        else expires_at,
+    )
+    token_payload = schemas.TokenPayload(
+        sub=sub,
+        user=json.dumps(schemas.User(**user.__dict__).dict(), default=str),
+        exp=expires_delta.timestamp(),
+    )
+    access_token = jwt.encode(
+        claims=token_payload.dict(exclude_none=True),
+        key=get_app_settings().JWT_SECRET_KEY,
         algorithm=get_app_settings().JWT_ALGORITHM,
     )
-
-    token = schemas.Token(
-        access_token=encoded_jwt, token_type="bearer", **to_encode
-    )
+    token = schemas.Token(access_token=access_token)
     return token
+
+
+def decode_access_token(token: str) -> schemas.TokenData:
+    try:
+        payload = jwt.decode(
+            token=token,
+            key=get_app_settings().JWT_SECRET_KEY,
+            algorithms=get_app_settings().JWT_ALGORITHM,
+            options={"verify_aud": False},
+        )
+        token_data = schemas.TokenData(**payload)
+        return token_data
+    except JWTError as jwe:
+        logger.debug(jwe)
+        if "Signature has expired." in jwe.args:
+            raise AccessTokenHasExpiredException
+        raise BadCredentialsException

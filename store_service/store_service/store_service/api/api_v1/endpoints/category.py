@@ -9,9 +9,9 @@ from prisma.partials import (
 )
 from starlette import status
 
-from store_service.api.api_v1.dependencies import params
-from store_service.api.api_v1.dependencies.auth import RoleChecker
-from store_service.api.api_v1.dependencies.params import RequestParams
+from store_service.api.api_v1.deps import params
+from store_service.api.api_v1.deps.auth import RoleChecker
+from store_service.schemas.request_params import RequestParams
 
 router = APIRouter()
 
