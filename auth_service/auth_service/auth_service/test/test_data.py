@@ -6,7 +6,6 @@ import pytest
 from faker import Faker
 from loguru import logger
 from pydantic import EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
@@ -14,7 +13,7 @@ from auth_service.db.init_db import (
     init_db,
     drop_all_models,
 )
-from auth_service.db.session import SessionLocal, engine
+from auth_service.db.session import SessionLocal, engines
 from auth_service.models.user import User
 from auth_service.models.user_role import UserRole
 from auth_service.test.utils.utils import (
@@ -69,6 +68,6 @@ async def create_users(count=100):
 
 @pytest.mark.asyncio
 async def test_init_db():
-    await drop_all_models(engine)
+    await drop_all_models(engines)
     await init_db()
     await create_users(30 if get_app_settings().APP_ENV == "dev" else 10)

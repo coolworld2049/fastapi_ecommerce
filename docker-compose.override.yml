@@ -37,14 +37,20 @@ services:
     ports:
       - "8002:8002"
 
-  reverseproxy:
+  proxy:
     build:
-      context: reverseproxy
+      context: proxy
     ports:
-      - "8081:8081"
-      - "8082:8082"
+      - "80:80"
+      - "443:443"
+    networks:
+      - auth_service
+      - store_service
 
-  nginx:
-    depends_on:
-      - reverseproxy
-    image: nginx:alpine
+networks:
+  auth_service:
+    external: true
+    name: auth_service_default
+  store_service:
+    external: true
+    name: store_service_default

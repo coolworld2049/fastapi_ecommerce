@@ -91,7 +91,7 @@ class AppSettings(BaseAppSettings):
     @property
     def postgres_asyncpg_master_dsn(self) -> str:
         dsn = PostgresDsn.build(
-            scheme="postgresql+psycopg",
+            scheme="postgresql+asyncpg",
             user=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=str(self.PG_HOST),
@@ -111,7 +111,7 @@ class AppSettings(BaseAppSettings):
         ):
             raise
         dsn = PostgresDsn.build(
-            scheme="postgresql+psycopg",
+            scheme="postgresql+asyncpg",
             user=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=str(self.PG_HOST),

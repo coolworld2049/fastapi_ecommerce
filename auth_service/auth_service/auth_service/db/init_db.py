@@ -35,10 +35,11 @@ async def execute_sql_f(
         logger.error(f"{path.name}: {e.args}")
 
 
-async def drop_all_models(_engine: AsyncEngine):
-    async with _engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
-        logger.info(f"metadata.drop_all")
+async def drop_all_models(_engine: dict[str, AsyncEngine]):
+    for name, eng in _engine.items():
+        async with eng.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
+            logger.info(f"metadata.drop_all: {name}")
 
 
 async def create_all_models(_engine: dict[str, AsyncEngine]):
