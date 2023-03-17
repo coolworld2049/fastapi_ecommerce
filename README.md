@@ -1,4 +1,4 @@
-#      
+#       
 
 <div>
 <img src="assets/fastapi-logo.png" alt="fastapi-logo" height="60" /> 
@@ -9,6 +9,9 @@
 
 ---
 
+https://auth-service.fastapi-ecommerce/docs
+
+https://store-service.fastapi-ecommerce/docs
 
 ## [auth_service](auth_service)
 
@@ -119,5 +122,7 @@ model OrderProduct {
 
 
 ---
+
 ### index.html
+
 <img src="assets/api-index.png" alt="api-index"/>

@@ -21,10 +21,4 @@ cd proxy
 . ./mkcert.sh
 docker-compose up -d
 
-sleep 5
-
-curl --head http://auth-service.fastapi-ecommerce/docs
-
-curl --head http://store-service.fastapi-ecommerce/docs
-
 cd ..
