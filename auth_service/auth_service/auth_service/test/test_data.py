@@ -1,4 +1,5 @@
 import json
+import pathlib
 import random
 import string
 
@@ -24,7 +25,7 @@ from auth_service.test.utils.utils import (
 fake = Faker()
 
 
-async def create_users(count=100):
+async def create_users(count=100, out_user_creds=None):
     roles = {
         UserRole.admin: count // 10,
         UserRole.manager: count // 5,
@@ -34,7 +35,6 @@ async def create_users(count=100):
     users_cred_list = []
     for r, c in roles.items():
         for i in range(c):
-            logger.info(f"UserCreate: role: {r.name}, {i + 1}/{c}")
             password = gen_random_password()
             user_in = schemas.UserCreate(
                 email=EmailStr(
@@ -49,25 +49,33 @@ async def create_users(count=100):
                 + "".join(random.choice(string.digits) for _ in range(10)),
                 role=r.name,
             )
-            users_cred_list.append(
-                {
-                    user_in.role: {
-                        "email": user_in.email,
-                        "username": user_in.username,
-                        "password": user_in.password,
-                    }
-                },
-            )
+            if out_user_creds:
+                users_cred_list.append(
+                    {
+                        user_in.role: {
+                            "email": user_in.email,
+                            "username": user_in.username,
+                            "password": user_in.password,
+                        }
+                    },
+                )
             async with SessionLocal() as db:
                 user_in_obj = await crud.user.create(db, obj_in=user_in)
                 users.append(user_in_obj)
-
-    with open(f"test_users_creds.json", "w") as wr:
-        wr.write(json.dumps(users_cred_list, indent=4))
+    if len(users_cred_list) > 0:
+        with open(out_user_creds, "w") as wr:
+            wr.write(json.dumps(users_cred_list, indent=4))
+    return users
 
 
 @pytest.mark.asyncio
 async def test_init_db():
     await drop_all_models(engines)
     await init_db()
-    await create_users(30 if get_app_settings().APP_ENV == "dev" else 10)
+    count = 30 if get_app_settings().APP_ENV == "dev" else 15
+    out_user_creds = "test_users_creds.json"
+    users = await create_users(count=count, out_user_creds=out_user_creds)
+    logger.info(
+        f"users_count - {len(users)}, "
+        f"fake user credentials stored in {pathlib.Path().absolute()}/{out_user_creds}"
+    )

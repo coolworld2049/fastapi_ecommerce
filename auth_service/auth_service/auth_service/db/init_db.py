@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
-from auth_service.db.session import Base, pg_database
+from auth_service.db.session import Base, database_master
 from auth_service.db.session import SessionLocal
 from auth_service.db.session import engines
 from auth_service.models.user_role import UserRole
@@ -22,7 +22,7 @@ async def truncate_tables(conn: Connection):
         pass
 
 
-async def execute_sql_f(
+async def execute_ddl(
     path: pathlib.Path,
     conn: Connection,
 ):
@@ -30,23 +30,30 @@ async def execute_sql_f(
         with open(path, encoding="utf-8") as rf:
             sql = rf.read()
             res = await conn.execute(sql)
-            logger.info(f"{path.name}: \n{sql}")
+            if get_app_settings().DEBUG:
+                logger.opt(colors=True).debug(
+                    f"{path.name}: \n<fg 255,109,10>{sql}</fg 255,109,10>"
+                )
+            else:
+                logger.info(f"{path.name}")
     except Exception as e:
         logger.error(f"{path.name}: {e.args}")
 
 
 async def drop_all_models(_engine: dict[str, AsyncEngine]):
     for name, eng in _engine.items():
-        async with eng.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
-            logger.info(f"metadata.drop_all: {name}")
+        if eng:
+            async with eng.begin() as conn:
+                await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
+                logger.info(f"metadata.drop_all, engine: {name}")
 
 
 async def create_all_models(_engine: dict[str, AsyncEngine]):
     for name, eng in _engine.items():
-        async with eng.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all, checkfirst=True)
-            logger.info(f"metadata.create_all, engine: {name}")
+        if eng:
+            async with eng.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+                logger.info(f"metadata.create_all, engine: {name}")
 
 
 async def remove_first_superuser(db: AsyncSession):
@@ -81,17 +88,16 @@ async def create_first_superuser(db: AsyncSession):
 
 async def execute_sql_files(
     conn: Connection,
-    path_to_sql_dir: pathlib.Path = pathlib.Path(__file__).parent.__str__()
-    + "/sql",
+    path_to_sql_dir=pathlib.Path(__file__).parent.__str__() + "/sql",
 ):
     for sql_f in pathlib.Path(path_to_sql_dir).iterdir():
         if not sql_f.is_dir() and not sql_f.name.startswith("_"):
-            await execute_sql_f(sql_f, conn)
+            await execute_ddl(sql_f, conn)
 
 
 async def init_db():
+    connection: Connection = await database_master.get_connection()
     await create_all_models(engines)
-    connection: Connection = await pg_database.get_connection()
     await execute_sql_files(connection)
     async with SessionLocal() as db:
         await create_first_superuser(db)

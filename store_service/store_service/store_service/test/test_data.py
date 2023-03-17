@@ -5,12 +5,14 @@ import faker_commerce
 import pytest
 from aiohttp import ClientSession
 from faker import Faker
+from loguru import logger
 from prisma import Prisma
 from prisma.enums import OrderStatus
 from prisma.errors import UniqueViolationError
 from prisma.models import Category, Product, Order, OrderProduct
 from prisma.types import CategoryCreateInput, ProductCreateInput
 
+from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 from store_service.test.auth_service.test_users import get_users
 from store_service.test.utils import RandomDateTime, rnd_string
@@ -26,6 +28,7 @@ async def create_category(count=20):
             CategoryCreateInput(name=rnd_string(), description=rnd_string()),
         )
         categories.append(category)
+    logger.info(len(categories))
     return categories
 
 
@@ -35,6 +38,9 @@ async def create_product(
     *,
     created_at: RandomDateTime,
 ):
+    if multiplier <= 0:
+        raise ValueError(multiplier)
+
     products: list[Product] = []
     count = len(categories) * multiplier
     for i in range(count):
@@ -54,12 +60,13 @@ async def create_product(
             products.append(product)
         except UniqueViolationError:
             pass
+    logger.info(len(products))
     return products
 
 
 async def create_orders(users: list[User], created_at: RandomDateTime):
     orders: list[Order] = []
-    for user in users:
+    for i, user in enumerate(users):
         order = await Order.prisma().create(
             data={
                 "status": OrderStatus.pending,
@@ -81,7 +88,7 @@ async def update_orders(
 ):
     _orders: list[Order] = []
     k = random.randint(1, products_choice_weight)
-    for order in orders:
+    for i, order in enumerate(orders):
         rnd_products: list[Product] = [
             x for x in random.choices(products, k=k)
         ]
@@ -124,16 +131,22 @@ async def update_orders(
 @pytest.mark.asyncio
 async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
     await prisma_client.connect()
-    users = await get_users(count=100, auth_service_client=auth_service_client)
-    categories = await create_category()
+    degree = 1 if get_app_settings().APP_ENV == "prod" else 2
+    users = await get_users(
+        count=10**degree, auth_service_client=auth_service_client
+    )
+    categories = await create_category(count=10 * degree)
     now = datetime.now()
     created_at = RandomDateTime(
         [now.year - 1, now.year],
         [1, datetime.now().month],
     )
     products = await create_product(
-        categories, multiplier=10, created_at=created_at
+        categories, multiplier=10**degree, created_at=created_at
     )
-    for _ in range(3):
+    orders_count = 0
+    for _ in range(degree):
         orders = await create_orders(users, created_at=created_at)
+        orders_count += len(orders)
         await update_orders(orders, products, created_at=created_at)
+    logger.info(f"orders_count - {orders_count}")

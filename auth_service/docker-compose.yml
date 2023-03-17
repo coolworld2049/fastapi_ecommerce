@@ -1,5 +1,6 @@
 version: '3.9'
 
+
 services:
 
   auth_service:
@@ -10,7 +11,7 @@ services:
     environment:
       - APP_ENV=prod
       - DEBUG=False
-      - PG_HOST=host.docker.internal
+      - PG_HOST=postgresql_master
     ports:
       - ${PORT}:${PORT}
 
@@ -19,10 +20,8 @@ services:
     ports:
       - "3000:3000"
 
-
   postgresql_master:
     image: bitnami/postgresql:latest
-    hostname: postgresql_master
     ports:
       - ${PG_PORT}:${PG_PORT}
     environment:
@@ -38,11 +37,10 @@ services:
       - POSTGRESQL_LOG_TIMEZONE=${PG_TZ}
 
   postgresql_slave_1:
+    hostname: postgresql_slave_1
     image: bitnami/postgresql:latest
     ports:
-      -  ${PG_PORT_SLAVE_1}:${PG_PORT}
-    depends_on:
-      - postgresql_master
+      - ${PG_PORT_SLAVE_1:-5433}:${PG_PORT}
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
@@ -53,11 +51,10 @@ services:
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
 
   postgresql_slave_2:
+    hostname: postgresql_slave_2
     image: bitnami/postgresql:latest
     ports:
-      - ${PG_PORT_SLAVE_2}:${PG_PORT}
-    depends_on:
-      - postgresql_master
+      - ${PG_PORT_SLAVE_2:-5434}:${PG_PORT}
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user

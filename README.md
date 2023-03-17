@@ -1,6 +1,3 @@
-![](https://img.shields.io/badge/code%20style-black-000000.svg)
-
----
 
 <div>
 <img src="assets/fastapi-logo.png" alt="fastapi-logo" height="60" /> 
@@ -11,6 +8,9 @@
 
 ---
 
+https://auth-service.fastapi-ecommerce/docs
+
+https://store-service.fastapi-ecommerce/docs
 
 ## [auth_service](auth_service)
 
@@ -121,5 +121,7 @@ model OrderProduct {
 
 
 ---
+
 ### index.html
+
 <img src="assets/api-index.png" alt="api-index"/>

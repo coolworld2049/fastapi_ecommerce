@@ -2,14 +2,14 @@ fastapi[all]==0.94.1
 pydantic[all,email]==1.10.6
 SQLAlchemy==2.0.6
 alembic==1.10.2
-uvicorn
+uvicorn==0.21.1
 gunicorn
 passlib[bcrypt]
 tenacity==8.2.2
 python-multipart~=0.0.5
 asyncpg~=0.27.0
 asyncpg_utils~=0.6.0
-psycopg2-binary
+psycopg-binary
 psycopg2
 python-jose~=3.3.0
 pytest~=7.2.0

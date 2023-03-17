@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+
+  proxy:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - auth_service
+      - store_service
+
+networks:
+  auth_service:
+    external: true
+    name: auth_service_default
+  store_service:
+    external: true
+    name: store_service_default

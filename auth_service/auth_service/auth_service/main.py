@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -9,16 +8,22 @@ from auth_service.api.api_v1.api import api_router
 from auth_service.api.errors.http_error import http_error_handler
 from auth_service.api.errors.validation_error import http422_error_handler
 from auth_service.core.config import get_app_settings
+from auth_service.core.logger import configure_logging
 from auth_service.db.init_db import init_db
-from auth_service.db.session import SessionLocal, engines
+from auth_service.db.session import engines
 from auth_service.middlewares.http import (
-    add_process_time_header,
+    process_time_header_middleware,
     catch_exceptions_middleware,
+    logger_middleware,
+)
+
+configure_logging(
+    get_app_settings().LOGGING_LEVEL,
+    access_log_path=get_app_settings().project_path,
 )
 
 
 def get_application() -> FastAPI:
-    get_app_settings().configure_logging()
     application = FastAPI(**get_app_settings().fastapi_kwargs)
     application.add_middleware(
         CORSMiddleware,
@@ -44,8 +49,9 @@ def get_application() -> FastAPI:
     application.add_exception_handler(
         RequestValidationError, http422_error_handler
     )
-    application.middleware("http")(add_process_time_header)
+    application.middleware("http")(process_time_header_middleware)
     application.middleware("http")(catch_exceptions_middleware)
+    application.middleware("http")(logger_middleware)
 
     return application
 
@@ -61,9 +67,7 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
-    logger.info("Application shutdown!")
-    await SessionLocal.close_all()
-    [await x.dispose() for x in engines.values()]
+    [await x.dispose() for x in engines.values() if x]
 
 
 @app.get("/")
