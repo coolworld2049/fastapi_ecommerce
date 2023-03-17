@@ -10,13 +10,13 @@ sleep 15
 
 cd ./store_service
 docker-compose up -d --scale store_service=0
-cd ./scripts/mongodb
-. ./init_cluster.sh
-cd ../../..
+chmod +x ./scripts/mongodb/init_cluster.sh
+. ./scripts/mongodb/init_cluster.sh
+cd ..
 
 
 sleep 20
 
-cd proxy
+cd ./proxy
 docker-compose up -d
 cd ..

@@ -13,6 +13,8 @@ services:
       - AUTH_SERVICE_URL=http://host.docker.internal:8001
     env_file:
       - .env
+    depends_on:
+      - router01
     ports:
       - ${PORT}:${PORT}
 
@@ -21,7 +23,7 @@ services:
       context: prisma
       dockerfile: prisma_studio/Dockerfile
     restart: unless-stopped
-    command: /init.sh
+    command: ./init.sh
     environment:
       - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
     ports:
@@ -33,7 +35,7 @@ services:
     container_name: router-01
     command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
     ports:
-      - "127.0.0.1:27117:27017"
+      - "27117:27017"
     volumes:
       - ./scripts/mongodb/scripts:/scripts
 
