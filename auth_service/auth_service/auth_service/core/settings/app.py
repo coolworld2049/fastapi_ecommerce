@@ -1,17 +1,14 @@
 import logging
 import os
 import pathlib
-import sys
-from logging.handlers import RotatingFileHandler
-from typing import Any
+from typing import Any, Optional
 
 from loguru import logger
 from pydantic import EmailStr
 from pydantic.networks import PostgresDsn
 from starlette.templating import Jinja2Templates
 
-from auth_service.core.logging import InterceptHandler
-from auth_service.core.settings.base import BaseAppSettings
+from auth_service.core.settings.base import BaseAppSettings, AppEnvTypes
 
 
 class AppSettings(BaseAppSettings):
@@ -21,10 +18,11 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
-    VERSION: str = "0.0.0"
 
     APP_NAME: str
-    DEBUG: bool
+    APP_ENV: AppEnvTypes
+    APP_VERSION: str = "0.0.0"
+    DEBUG: Optional[bool] = False
 
     DOMAIN: str
     PORT: int
@@ -39,21 +37,22 @@ class AppSettings(BaseAppSettings):
     FIRST_SUPERUSER_USERNAME: str
 
     PG_HOST: str
-    PG_PORT: int
-    PG_PORT_SLAVE_1: int
-    PG_PORT_SLAVE_2: int
+    PG_PORT: str
+    PG_HOST_SLAVE_1: Optional[str]
+    PG_HOST_SLAVE_2: Optional[str]
+    PG_PORT_SLAVE_1: Optional[str]
+    PG_PORT_SLAVE_2: Optional[str]
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
 
-    EMAIL_HOST: str
-    EMAIL_PORT: int
-    EMAIL_USERNAME: str
-    EMAIL_PASSWORD: str
-    EMAIL_FROM: EmailStr
+    EMAIL_HOST: Optional[str]
+    EMAIL_PORT: Optional[int]
+    EMAIL_USERNAME: Optional[str]
+    EMAIL_PASSWORD: Optional[str]
+    EMAIL_FROM: Optional[EmailStr]
 
     LOGGING_LEVEL: int = logging.INFO
-    LOGGERS: tuple = ("uvicorn.asgi", "uvicorn.access")
     LOG_FILE_MAX_BYTES = 314572800
 
     class Config:
@@ -68,8 +67,20 @@ class AppSettings(BaseAppSettings):
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
             "title": self.title,
-            "version": self.VERSION,
+            "version": self.APP_VERSION,
         }
+
+    @property
+    def project_path(self):
+        return pathlib.Path(__file__).parent.parent.parent.parent.parent
+
+    @property
+    def project_templates_path(self):
+        return pathlib.Path(__file__).parent.parent.parent / "templates"
+
+    @property
+    def templates(self) -> Jinja2Templates:
+        return Jinja2Templates(directory=self.project_templates_path)
 
     @property
     def origin_url(self):
@@ -82,8 +93,8 @@ class AppSettings(BaseAppSettings):
             scheme="postgresql",
             user=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=str(self.PG_HOST),
-            port=str(self.PG_PORT),
+            host=self.PG_HOST,
+            port=self.PG_PORT,
             path=f"/{self.POSTGRES_DB}",
         )
         return dsn
@@ -94,54 +105,38 @@ class AppSettings(BaseAppSettings):
             scheme="postgresql+asyncpg",
             user=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=str(self.PG_HOST),
-            port=str(self.PG_PORT),
+            host=self.PG_HOST,
+            port=self.PG_PORT,
             path=f"/{self.POSTGRES_DB}",
         )
         return dsn
 
     @property
-    def postgres_slave_ports(self):
-        return self.PG_PORT_SLAVE_1, self.PG_PORT_SLAVE_2
+    def postgres_slave_addr(self):
+        return (
+            [
+                {"host": self.PG_HOST_SLAVE_1, "port": self.PG_PORT_SLAVE_1},
+                {"host": self.PG_HOST_SLAVE_2, "port": self.PG_PORT_SLAVE_2},
+            ]
+            if self.PG_HOST_SLAVE_2 or self.PG_HOST_SLAVE_2
+            else []
+        )
 
-    def get_postgres_asyncpg_slave_dsn(self, num: int) -> str:
-        if (
-            not len(self.postgres_slave_ports) > 0
-            and not len(self.postgres_slave_ports) >= num
-        ):
-            raise
+    def get_postgres_asyncpg_slave_dsn(self, num_slave: int) -> str | None:
+        cond = (
+            not len(self.postgres_slave_addr) > 0
+            or not len(self.postgres_slave_addr) >= num_slave
+            or num_slave <= 0
+        )
+        if cond:
+            logger.warning(f"postgres_slave {num_slave} address not set")
+            return None
         dsn = PostgresDsn.build(
             scheme="postgresql+asyncpg",
             user=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=str(self.PG_HOST),
-            port=str(self.postgres_slave_ports[num - 1]),
+            host=self.postgres_slave_addr[num_slave - 1]["host"],
+            port=self.postgres_slave_addr[num_slave - 1]["port"],
             path=f"/{self.POSTGRES_DB}",
         )
         return dsn
-
-    @property
-    def project_templates_path(self):
-        return pathlib.Path(__file__).parent.parent.parent / "templates"
-
-    @property
-    def templates(self) -> Jinja2Templates:
-        return Jinja2Templates(directory=self.project_templates_path)
-
-    def configure_logging(self) -> None:
-        logging.getLogger().handlers = [InterceptHandler()]
-        for logger_name in self.LOGGERS:
-            logging_logger = logging.getLogger(logger_name)
-            logging_logger.handlers = [
-                InterceptHandler(level=self.LOGGING_LEVEL),
-                RotatingFileHandler(
-                    f"access.log",
-                    maxBytes=self.LOG_FILE_MAX_BYTES,
-                    backupCount=1,
-                ),
-            ]
-        logger.configure(
-            handlers=[
-                {"sink": sys.stdout, "level": self.LOGGING_LEVEL},
-            ]
-        )

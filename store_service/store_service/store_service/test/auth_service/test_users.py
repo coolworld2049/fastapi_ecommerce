@@ -1,5 +1,6 @@
 import pytest
 from aiohttp import ClientSession
+from loguru import logger
 
 from store_service.schemas.user import User
 from store_service.test.auth_service.utils import get_auth_service_token
@@ -19,7 +20,9 @@ async def get_users(
     ) as resp:
         data = await resp.json()
         assert resp.status == 200
-        return [User(**x) for x in data]
+        users = [User(**x) for x in data]
+        logger.info(len(users))
+        return users
 
 
 @pytest.mark.asyncio

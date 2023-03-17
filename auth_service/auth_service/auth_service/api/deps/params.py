@@ -7,7 +7,6 @@ from typing import Optional
 
 from fastapi import HTTPException
 from fastapi import Query
-from loguru import logger
 from sqlalchemy import and_
 from sqlalchemy import asc
 from sqlalchemy import desc
@@ -85,7 +84,6 @@ def parse_react_admin_params(
                     if len(fb) > 0:
                         filter_by = and_(*fb)
         except JSONDecodeError as jde:
-            logger.error(jde.args)
             raise HTTPException(
                 400, f"Invalid query params {range_, sort_, filter_}"
             )

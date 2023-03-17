@@ -7,7 +7,7 @@ from sqlalchemy import event, Update, Delete
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, DeclarativeBase
 from sqlalchemy.orm import declarative_base
 
 from auth_service.core.config import get_app_settings
@@ -18,31 +18,37 @@ engines = {
     ),
     "slave_1": create_async_engine(
         get_app_settings().get_postgres_asyncpg_slave_dsn(1)
-    ),
+    )
+    if get_app_settings().get_postgres_asyncpg_slave_dsn(1)
+    else None,
     "slave_2": create_async_engine(
         get_app_settings().get_postgres_asyncpg_slave_dsn(2)
-    ),
+    )
+    if get_app_settings().get_postgres_asyncpg_slave_dsn(2)
+    else None,
 }
 
 
 class RoutingSession(Session):
-    def get_bind(self, mapper=None, clause=None, bind=None, **kw):
+    def get_bind(self, mapper=None, clause=None):
         if self._flushing or isinstance(clause, (Update, Delete)):  # noqa
             return engines["master"].sync_engine
         else:
-            return engines[random.choice(["slave_1", "slave_2"])].sync_engine
+            eng = ["slave_1", "slave_2"]
+            if eng not in list(engines.keys()):
+                return engines["master"].sync_engine
+            return engines[random.choice(eng)].sync_engine
 
 
-Base = declarative_base()
+Base: DeclarativeBase = declarative_base()
 
 SessionLocal = async_sessionmaker(
     sync_session_class=RoutingSession,
     autocommit=False,
     autoflush=False,
-    expire_on_commit=False,
 )
 
-pg_database = Database(get_app_settings().postgres_master_dsn)
+database_master = Database(get_app_settings().postgres_master_dsn)
 
 if get_app_settings().DEBUG:
     # noinspection PyUnusedLocal

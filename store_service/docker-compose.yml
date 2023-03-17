@@ -5,7 +5,6 @@ services:
 
   store_service:
     build: .
-    command: ./start.sh
     environment:
       - DEBUG=False
       - APP_ENV=prod

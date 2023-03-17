@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="auth_service" type="Python.FastAPI">
-    <option name="additionalOptions" value="--reload --port 8001 " />
+    <option name="additionalOptions" value=" --port 8001 " />
     <option name="file" value="C:\Users\R\PycharmProjects\fastapi-postgresql-mongo-ecommerce\auth_service\auth_service\auth_service\main.py" />
     <module name="fastapi-postgresql-mongo-ecommerce" />
     <option name="INTERPRETER_OPTIONS" value="" />

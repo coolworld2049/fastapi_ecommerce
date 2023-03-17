@@ -3,16 +3,21 @@ from prisma import Prisma
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
+from store_service.core.logger import configure_logging
 from store_service.middlewares.http import (
     add_process_time_header,
     catch_exceptions_middleware,
+    logger_middleware,
 )
 from store_service.api.api_v1.api import api_router
 from store_service.core.config import get_app_settings
 
+configure_logging(
+    get_app_settings().LOGGING_LEVEL, get_app_settings().project_path
+)
+
 
 def get_application() -> FastAPI:
-    get_app_settings().configure_logging()
     application = FastAPI(**get_app_settings().fastapi_kwargs)
     application.add_middleware(
         CORSMiddleware,
@@ -34,6 +39,7 @@ def get_application() -> FastAPI:
     )
     application.middleware("http")(add_process_time_header)
     application.middleware("http")(catch_exceptions_middleware)
+    application.middleware("http")(logger_middleware)
 
     @application.on_event("startup")
     async def startup() -> None:
