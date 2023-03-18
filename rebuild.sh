@@ -6,5 +6,3 @@ set -e
 
 . ./build.prod.sh
 
-
-

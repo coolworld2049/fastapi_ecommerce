@@ -41,7 +41,7 @@ services:
     hostname: postgresql_slave_1
     image: bitnami/postgresql:latest
     ports:
-      - ${PG_PORT_SLAVE_1:-5433}:${PG_PORT}
+      - 5433:${PG_PORT}
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
@@ -55,7 +55,7 @@ services:
     hostname: postgresql_slave_2
     image: bitnami/postgresql:latest
     ports:
-      - ${PG_PORT_SLAVE_2:-5434}:${PG_PORT}
+      - 5434:${PG_PORT}
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
