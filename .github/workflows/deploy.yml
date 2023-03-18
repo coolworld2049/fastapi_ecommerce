@@ -56,7 +56,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.OPENSSH_PRIVATE_KEY }}
+          password: ${{ secrets.SERVER_PASSWORD }}
         with:
           source: "."
           target: "/root"
@@ -80,7 +80,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.OPENSSH_PRIVATE_KEY }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /root/fastapi-ecommerce
             echo "${{ secrets.ENV_FILE }}" > .env
