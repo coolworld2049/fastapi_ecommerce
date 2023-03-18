@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    name: Build Container
+    name: Build services
 
     runs-on: ubuntu-latest
 
