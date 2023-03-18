@@ -2,7 +2,7 @@
 
 set -e
 # shellcheck disable=SC2046
-export $(grep -v '^#' ../.env | xargs)
+export $(grep -v '^#' ../.env.prod | xargs)
 
 # shellcheck disable=SC2164
 rm -rf ./ssl
