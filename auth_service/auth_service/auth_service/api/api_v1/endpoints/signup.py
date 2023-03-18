@@ -31,7 +31,7 @@ async def signup_customer(
     if user:
         raise DuplicateUserException
     user = await crud.user.create(db, obj_in=user_in)
-    email = Email(EmailStr(get_app_settings().FIRST_SUPERUSER_EMAIL))
+    email = Email(EmailStr(get_app_settings().EMAIL_FROM))
     await crud.user.send_verif_email(
         db,
         db_obj=user,

@@ -6,7 +6,7 @@ cd ./auth_service
 docker-compose up -d
 cd ..
 
-sleep 15
+sleep 10
 
 cd ./store_service
 docker-compose up -d
