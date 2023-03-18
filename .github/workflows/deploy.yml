@@ -22,6 +22,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Create ssl cert
+        run: |
+          bash -x ./cpenv.sh
+          cd ./proxy
+          bash -x ./mkcert.sh
+          cd ..
+        
+
       - name: Build image and publish to registry
         run: |
           docker build -t $AUTH_SERVICE_IMAGE:latest ./auth_service
