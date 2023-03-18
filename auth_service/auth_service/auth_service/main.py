@@ -73,14 +73,13 @@ async def shutdown():
 @app.get("/")
 async def root(request: Request):
     response = get_app_settings().templates.TemplateResponse(
-        "/base/index.html",
+        "/index.html",
         context={
             "app_name": app.title.replace("_", " "),  # noqa
             "request": request,
             "proto": "http",
             "host": get_app_settings().DOMAIN,
             "port": get_app_settings().PORT,
-            "api_prefix": get_app_settings().api_prefix,
             "openapi_path": f"{app.openapi_url}",  # noqa
         },
     )

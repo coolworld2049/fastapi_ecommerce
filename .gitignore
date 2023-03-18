@@ -121,7 +121,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env.prod
+.env
 .venv
 env/
 venv/
@@ -161,3 +161,4 @@ cython_debug/
 #.idea/
 
 !/cloud/mongodb/.gitignore
+!/.env
