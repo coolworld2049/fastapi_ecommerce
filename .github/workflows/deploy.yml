@@ -49,3 +49,40 @@ jobs:
           docker build -t $PROXY_IMAGE:latest ./proxy
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
           docker push $PROXY_IMAGE:latest
+
+      - name: Copy repository contents via scp
+        uses: appleboy/scp-action@master
+        env:
+          HOST: ${{ secrets.SERVER_IP }}
+          USERNAME: ${{ secrets.SERVER_USERNAME }}
+          PORT: ${{ secrets.SSH_PORT }}
+          KEY: ${{ secrets.OPENSSH_PRIVATE_KEY }}
+        with:
+          source: "."
+          target: "/root"
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+      - name: Install mkcert
+        run: sudo apt install -y libnss3-tools mkcert
+
+      - name: Create ssl cert
+        run: |
+          bash -x ./cpenv.sh
+          cd ./proxy
+          bash -x ./mkcert.sh
+          cd ..
+
+      - name: Executing remote command - Deployment on VDS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          USERNAME: ${{ secrets.SERVER_USERNAME }}
+          PORT: ${{ secrets.SSH_PORT }}
+          KEY: ${{ secrets.OPENSSH_PRIVATE_KEY }}
+          script: |
+            cd /root/fastapi-ecommerce
+            echo "${{ secrets.ENV_FILE }}" > .env
+            bash -x ./cpenv.sh
+            bash -x ./build.prod.sh
