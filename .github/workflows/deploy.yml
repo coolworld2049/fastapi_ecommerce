@@ -55,7 +55,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "/"
+          source: "."
           target: "/root/"
 
       - name: Create .env file
