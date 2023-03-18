@@ -12,15 +12,15 @@ mkdir ./ssl
 cd ./ssl
 
 set +e
-apt install libnss3-tools
-apt install mkcert
+sudo apt install -y libnss3-tools
+sudo apt install -y mkcert
+set -e
 
 if [[ -z "${SERVER_IP}" ]]; then
   SERVER_IP=localhost
 else
   SERVER_IP="$(ip  -f inet a show eth0| grep inet| awk '{ print $2}' | cut -d/ -f1)"
 fi
-set -e
 
 # shellcheck disable=SC2035
 mkcert -key-file key.pem -cert-file cert.pem \
