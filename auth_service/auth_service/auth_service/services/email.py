@@ -16,12 +16,11 @@ class Email:
         self,
         sender: EmailStr,
     ):
-        self.sender = sender
         self.templates = get_app_settings().templates
         self.conf = ConnectionConfig(
             MAIL_USERNAME=get_app_settings().EMAIL_USERNAME,
             MAIL_PASSWORD=get_app_settings().EMAIL_PASSWORD,
-            MAIL_FROM=get_app_settings().EMAIL_USERNAME,
+            MAIL_FROM=sender,
             MAIL_PORT=get_app_settings().EMAIL_PORT,
             MAIL_SERVER=get_app_settings().EMAIL_HOST,
             MAIL_STARTTLS=True,

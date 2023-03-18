@@ -6,18 +6,18 @@ cd ./auth_service
 docker-compose up -d
 cd ..
 
-sleep 15
+sleep 10
 
 cd ./store_service
 docker-compose up -d
-cd ./scripts/mongodb
-. ./init_cluster.sh
-cd ../../..
-
+chmod +x ./scripts/mongodb/init_cluster.sh
+. ./scripts/mongodb/init_cluster.sh
+cd ..
 
 sleep 10
 
-cd proxy
+cd ./proxy
+chmod +x mkcert.sh
 . ./mkcert.sh
 docker-compose up -d
 

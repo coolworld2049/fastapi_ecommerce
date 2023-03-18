@@ -10,4 +10,4 @@ prisma generate
 
 prisma db push
 
-pytest /app/store_service/test -v  --cov /app/store_service --cov-report=html
+# pytest ./store_service/test -v  --cov ./store_service --cov-report=html

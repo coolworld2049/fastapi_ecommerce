@@ -50,7 +50,7 @@ class AppSettings(BaseAppSettings):
     EMAIL_PORT: Optional[int]
     EMAIL_USERNAME: Optional[str]
     EMAIL_PASSWORD: Optional[str]
-    EMAIL_FROM: Optional[EmailStr]
+    EMAIL_FROM: Optional[str]
 
     LOGGING_LEVEL: int = logging.INFO
     LOG_FILE_MAX_BYTES = 314572800
