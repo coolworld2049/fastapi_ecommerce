@@ -24,7 +24,7 @@ jobs:
 
       - name: Build image and publish to registry
         run: |
-          docker build -t AUTH_SERVICE_IMAGE:latest ./auth_service
+          docker build -t $AUTH_SERVICE_IMAGE:latest ./auth_service
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
           docker push $AUTH_SERVICE_IMAGE:latest
           
