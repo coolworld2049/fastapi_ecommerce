@@ -13,7 +13,7 @@ services:
     command: ./start.sh
     env_file:
       - .env
-      - ../.env.prod
+      - ../.env
     ports:
       - ${PORT}:${PORT}
     networks:
