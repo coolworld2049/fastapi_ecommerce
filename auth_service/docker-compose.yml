@@ -1,5 +1,10 @@
 version: '3.9'
 
+networks:
+  default:
+    driver: bridge
+  external_net:
+    driver: bridge
 
 services:
 
@@ -8,17 +13,13 @@ services:
     command: ./start.sh
     env_file:
       - .env
-    environment:
-      - APP_ENV=prod
-      - DEBUG=False
-      - PG_HOST=postgresql_master
+      - ../.env.prod
     ports:
       - ${PORT}:${PORT}
+    networks:
+      - default
+      - external_net
 
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
 
   postgresql_master:
     image: bitnami/postgresql:latest

@@ -27,8 +27,6 @@ class AppSettings(BaseAppSettings):
     BACKEND_CORS_ORIGINS: list[str]
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
-    FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
 

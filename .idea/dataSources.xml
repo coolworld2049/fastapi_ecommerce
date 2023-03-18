@@ -6,7 +6,7 @@
       <synchronize>true</synchronize>
       <configured-by-url>true</configured-by-url>
       <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
-      <jdbc-url>mongodb://127.0.0.1:27117,127.0.0.1:27118/app</jdbc-url>
+      <jdbc-url>mongodb://127.0.0.1:27017/app</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="app@46.19.67.167" uuid="e855775b-95dc-4e36-b865-1970a16517eb">

@@ -1,22 +1,24 @@
 version: '3.9'
 
+networks:
+  default:
+    driver: bridge
+  auth_service_external_net:
+    external: true
 
 services:
 
   store_service:
     build: .
     command: ./start.sh
-    environment:
-      - DEBUG=False
-      - APP_ENV=prod
-      - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
-      - AUTH_SERVICE_URL=http://host.docker.internal:8001
     env_file:
       - .env
-    depends_on:
-      - router01
+      - ../.env.prod
     ports:
       - ${PORT}:${PORT}
+    networks:
+      - default
+      - auth_service_external_net
 
   prisma_studio:
     build:
@@ -24,20 +26,32 @@ services:
       dockerfile: prisma_studio/Dockerfile
     restart: unless-stopped
     command: ./init.sh
-    environment:
-      - MONGODB_URL=mongodb://host.docker.internal:27117,host.docker.internal:27118/app
+    env_file:
+       - ../.env.prod
     ports:
       - "5555:5555"
-  
+    networks:
+      - default
+      - auth_service_external_net
+
+
   ## Router
   router01:
     image: mongo:6.0.1
     container_name: router-01
     command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
     ports:
-      - "27117:27017"
+      - "27017:27017"
     volumes:
       - ./scripts/mongodb/scripts:/scripts
+    depends_on:
+      - configsvr01
+      - shard01-a
+      - shard01-b
+      - shard01-c
+      - shard02-a
+      - shard02-b
+      - shard02-c
 
 
   ## Config Servers
@@ -49,9 +63,6 @@ services:
       - ./scripts/mongodb/scripts:/scripts
     ports:
       - "27119:27017"
-    depends_on:
-      - shard01-a
-      - shard02-a
 
 
   ## Shards 01
@@ -64,9 +75,6 @@ services:
       - ./scripts/mongodb/scripts:/scripts
     ports:
       - "27122:27017"
-    depends_on:
-      - shard01-b
-      - shard01-c
 
   shard01-b:
     image: mongo:6.0.1
@@ -96,9 +104,6 @@ services:
       - ./scripts/mongodb/scripts:/scripts
     ports:
       - "27125:27017"
-    depends_on:
-      - shard02-b
-      - shard02-c
 
   shard02-b:
     image: mongo:6.0.1
