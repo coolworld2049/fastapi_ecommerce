@@ -67,8 +67,10 @@ jobs:
       - name: Create ssl cert
         run: |
           cd /root/fastapi_ecommerce/
+          chmod +x cpenv.sh
           bash -x cpenv.sh
           cd ./proxy
+          chmod +x mkcert.sh
           bash -x mkcert.sh
 
       - name: Executing remote command - Deployment on VDS
@@ -82,4 +84,5 @@ jobs:
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
             bash -x cpenv.sh
+            chmod +x rebuild.sh
             bash -x rebuild.sh
