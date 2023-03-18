@@ -13,13 +13,6 @@ jobs:
         with:
           envkey_APP_ENV: prod
           envkey_DEBUG: false
-          envkey_NGINX_DOMAIN: ${{ secrets.SERVER_DOMAIN }}
-          envkey_JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          envkey_FIRST_SUPERUSER_EMAIL: ${{ secrets.FIRST_SUPERUSER_EMAIL }}
-          envkey_FIRST_SUPERUSER_PASSWORD: ${{ secrets.FIRST_SUPERUSER_PASSWORD }}
-          envkey_ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
-          envkey_EMAIL_USERNAME: ${{ secrets.SMTP_USERNAME }}
-          envkey_EMAIL_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
 
           directory: /
           file_name: .env.example
@@ -28,5 +21,4 @@ jobs:
       - name: Build services
         run: |
           chmod +x ./build.prod.sh
-          ./build.prod.sh
-        shell: bash
+          bash -x ./build.prod.sh
