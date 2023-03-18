@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-COPY . /prisma
+COPY prisma_studio/init.sh /
 
-COPY ./prisma_studio/init.sh /
+COPY prisma /prisma/
 
 RUN apt-get update && apt-get upgrade -y
 

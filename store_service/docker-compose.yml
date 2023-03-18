@@ -22,9 +22,8 @@ services:
 
   prisma_studio:
     build:
-      context: prisma
+      context: ../store_service/
       dockerfile: prisma_studio/Dockerfile
-    restart: unless-stopped
     command: ./init.sh
     env_file:
        - ../.env.prod
