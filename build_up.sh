@@ -18,7 +18,6 @@ cd ./proxy
 chmod +x mkcert.sh
 . ./mkcert.sh
 docker-compose up -d
-
 cd ..
 
 docker volume prune --filter "label!=keep" -f
