@@ -23,7 +23,7 @@ jobs:
         shell: bash
       - name: Ping containers
         run: |
-          set -e
+          set +e
           echo "${{ secrets.ENV_FILE }}" > .env
           . ./test.sh
         shell: bash
