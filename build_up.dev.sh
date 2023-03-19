@@ -23,3 +23,5 @@ sleep 10
 cd ./proxy
 docker-compose up -d
 cd ..
+
+. ./test.sh
