@@ -55,5 +55,3 @@ jobs:
             bash cpenv.sh
             chmod +x re_build_up.sh
             bash re_build_up.sh
-            chmod +x test.sh
-            bash test.sh

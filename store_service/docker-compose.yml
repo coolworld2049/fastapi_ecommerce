@@ -28,6 +28,8 @@ services:
     command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
     ports:
       - "27017:27017"
+      - "27117:27017"
+      - "27118:27017"
     volumes:
       - ./scripts/mongodb/scripts:/scripts
       - mongodb_cluster_router01_db:/data/db
@@ -129,8 +131,6 @@ services:
 volumes:
 
   mongodb_cluster_router01_db:
-    labels:
-      - keep
   mongodb_cluster_router01_config:
 
   mongodb_cluster_configsvr01_db:

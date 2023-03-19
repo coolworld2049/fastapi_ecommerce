@@ -15,9 +15,6 @@ cd ..
 sleep 10
 
 cd ./proxy
-# shellcheck disable=SC2046
-export $(grep -v '^#' .env | xargs)
-sed 's@fastapi-ecommerce.ru@'"${NGINX_DOMAIN:-fastapi-ecommerce.ru}"'@' nginx.conf
 chmod +x mkcert.sh
 . ./mkcert.sh
 docker-compose up -d
