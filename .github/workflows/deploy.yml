@@ -20,6 +20,7 @@ jobs:
           bash -x cpenv.sh
           bash -x build_push.sh
           bash -x build_up.sh
+          bash -x test.sh
 
   build:
     name: Build
@@ -58,3 +59,5 @@ jobs:
             bash -x build_push.sh
             chmod +x build_up.sh
             bash -x build_up.sh
+            chmod +x test.sh
+            bash -x test.sh
