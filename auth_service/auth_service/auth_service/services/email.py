@@ -16,6 +16,9 @@ class Email:
         self,
         sender: EmailStr,
     ):
+        if not sender:
+            raise ValueError(sender)
+
         self.templates = get_app_settings().templates
         self.conf = ConnectionConfig(
             MAIL_USERNAME=get_app_settings().EMAIL_USERNAME,
