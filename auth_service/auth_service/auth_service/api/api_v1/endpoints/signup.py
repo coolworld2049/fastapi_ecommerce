@@ -37,6 +37,7 @@ async def signup_customer(
         db,
         db_obj=user,
         email=email,
-        verify_token_url=get_app_settings().origin_url + "/verify/email",
+        verify_token_url=get_app_settings().origin_url
+        + f"{get_app_settings().api_prefix}/verify/email",
     )
     return user
