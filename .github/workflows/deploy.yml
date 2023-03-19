@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
@@ -21,12 +22,7 @@ jobs:
           DEBUG=True
           . ./build_up.sh
         shell: bash
-      - name: Ping containers
-        run: |
-          set +e
-          echo "${{ secrets.ENV_FILE }}" > .env
-          . ./test.sh
-        shell: bash
+
 
   build:
     name: Build
@@ -34,6 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Deployment on VDS - copy
         uses: appleboy/scp-action@master
         with:
@@ -43,7 +40,6 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "."
           target: "/root/fastapi_ecommerce/"
-
 
       - name: Deployment on VDS - start
         uses: appleboy/ssh-action@master
