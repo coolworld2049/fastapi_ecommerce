@@ -3,10 +3,13 @@ version: '3.9'
 services:
 
   proxy:
+    image: coolworldocker/proxy:latest
     build: .
     restart: always
     env_file:
       - ../.env
+    volumes:
+      - ./ssl:/etc/ssl/certs/nginx/
     ports:
       - "80:80"
       - "443:443"

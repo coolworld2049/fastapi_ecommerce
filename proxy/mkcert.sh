@@ -29,3 +29,4 @@ mkcert -key-file key.pem -cert-file cert.pem \
   *."${NGINX_DOMAIN}" \
   "${SERVER_IP}" \
   127.0.0.1 ::1
+cd ..

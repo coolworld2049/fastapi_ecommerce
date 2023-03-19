@@ -7,48 +7,31 @@ on:
       - master
 
 jobs:
-  build:
-    name: Build services
-
+  test:
+    name: Test
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-
-      - name: Create .env file
+      - name: Build services and test
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
-      - name: Install mkcert
-        run: sudo apt install -y libnss3-tools mkcert
+          export APP_ENV=test
+          export DEBUG=True
+          bash -x cpenv.sh
+          bash -x build_push.sh
+          bash -x build_up.sh
 
-      - name: Create ssl cert for proxy container `nginx`
+  build:
+    name: Build
+    needs: [ test ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build images and publish to registry
         run: |
-          bash -x ./cpenv.sh
-          cd ./proxy
-          bash -x ./mkcert.sh
-          cd ..
+          bash -x build_push.sh
 
-      - name: Build image and publish to registry
-        env:
-          AUTH_SERVICE_IMAGE: coolworldocker/auth_service
-          STORE_SERVICE_IMAGE: coolworldocker/store_service
-          PROXY_IMAGE: coolworldocker/proxy
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          docker build -t $AUTH_SERVICE_IMAGE:latest ./auth_service
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
-          docker push $AUTH_SERVICE_IMAGE:latest
-          
-          docker build -t $STORE_SERVICE_IMAGE:latest ./store_service
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
-          docker push $STORE_SERVICE_IMAGE:latest
-            
-          docker build -t $PROXY_IMAGE:latest ./proxy
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
-          docker push $PROXY_IMAGE:latest
-
-      - name: Copy repository via scp
+      - name: Deployment on VDS - copy
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -59,7 +42,7 @@ jobs:
           target: "/root/fastapi_ecommerce/"
 
 
-      - name: Executing remote command - Deployment on VDS
+      - name: Deployment on VDS - start
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -71,5 +54,5 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > .env
             chmod +x cpenv.sh
             bash -x cpenv.sh
-            chmod +x rebuild.sh
-            bash -x rebuild.sh
+            chmod +x re_build_up.sh
+            bash -x re_build_up.sh

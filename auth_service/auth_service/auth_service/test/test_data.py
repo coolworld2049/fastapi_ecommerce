@@ -72,10 +72,11 @@ async def create_users(count=100, out_user_creds=None):
 async def test_init_db():
     await drop_all_models(engines)
     await init_db()
-    count = 30 if get_app_settings().APP_ENV == "dev" else 15
-    out_user_creds = "test_users_creds.json"
-    users = await create_users(count=count, out_user_creds=out_user_creds)
-    logger.info(
-        f"users_count - {len(users)}, "
-        f"fake user credentials stored in {pathlib.Path().absolute()}/{out_user_creds}"
-    )
+    if get_app_settings().APP_ENV == "test":
+        count = 30 if get_app_settings().APP_ENV == "dev" else 15
+        out_user_creds = "test_users_creds.json"
+        users = await create_users(count=count, out_user_creds=out_user_creds)
+        logger.info(
+            f"users_count - {len(users)}, "
+            f"fake user credentials stored in {pathlib.Path().absolute()}/{out_user_creds}"
+        )
