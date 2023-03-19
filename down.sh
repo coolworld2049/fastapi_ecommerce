@@ -14,4 +14,6 @@ cd ./auth_service
 docker-compose down --rmi local --remove-orphans
 cd ..
 
+set +e
+
 . ./test.sh

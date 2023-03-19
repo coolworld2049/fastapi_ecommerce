@@ -2,7 +2,6 @@
 
 set -e
 
-
 cd ./auth_service
 docker-compose up -d
 cd ..
@@ -26,5 +25,7 @@ docker-compose up -d
 cd ..
 
 docker volume prune --filter "label!=keep" -f
+
+set +e
 
 . ./test.sh

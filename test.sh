@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# shellcheck disable=SC2046
-export $(grep -v '^#' .env | xargs)
+set +e
+
+source .env
 
 AUTH_SB="http://localhost:8001"
 wget -q --spider "${AUTH_SB}"/docs

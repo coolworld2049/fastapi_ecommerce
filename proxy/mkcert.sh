@@ -1,8 +1,8 @@
 #! /bin/bash -x
 
 set -e
-# shellcheck disable=SC2046
-export $(grep -v '^#' ../.env | xargs)
+
+source ../.env
 
 # shellcheck disable=SC2164
 rm -rf ./ssl

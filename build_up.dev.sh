@@ -24,4 +24,6 @@ cd ./proxy
 docker-compose up -d
 cd ..
 
+set +e
+
 . ./test.sh

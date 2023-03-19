@@ -17,9 +17,9 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > .env
           export APP_ENV=test
           export DEBUG=True
-          bash -x cpenv.sh
+          bash cpenv.sh
           bash build_push.sh
-          bash -x build_up.sh
+          bash build_up.sh
           bash test.sh
 
   build:
@@ -51,8 +51,8 @@ jobs:
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
             chmod +x cpenv.sh
-            bash -x cpenv.sh
+            bash cpenv.sh
             chmod +x build_up.sh
-            bash -x build_up.sh
+            bash build_up.sh
             chmod +x test.sh
             bash test.sh
