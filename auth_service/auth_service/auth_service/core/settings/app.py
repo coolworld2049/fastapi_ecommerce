@@ -4,7 +4,6 @@ import pathlib
 from typing import Any, Optional
 
 from loguru import logger
-from pydantic import EmailStr
 from pydantic.networks import PostgresDsn
 from starlette.templating import Jinja2Templates
 
@@ -18,6 +17,7 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"/openapi.json"
     redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
+    proto = "https" if os.getenv("APP_ENV") == "prod" else "http"
 
     APP_NAME: str
     APP_ENV: AppEnvTypes
@@ -26,6 +26,10 @@ class AppSettings(BaseAppSettings):
 
     DOMAIN: str
     PORT: int
+
+    NGINX_DOMAIN: str
+    NGINX_AUTH_SB: str
+    NGINX_STORE_SB: str
 
     BACKEND_CORS_ORIGINS: list[str]
     JWT_ALGORITHM: str
@@ -84,8 +88,7 @@ class AppSettings(BaseAppSettings):
 
     @property
     def origin_url(self):
-        proto = "https" if self.APP_ENV == "prod" else "http"
-        return f"{proto}://{self.DOMAIN}:{self.PORT}{self.api_prefix}"
+        return f"{self.proto}://{self.NGINX_AUTH_SB}.{self.NGINX_DOMAIN}"
 
     @property
     def postgres_master_dsn(self) -> str:

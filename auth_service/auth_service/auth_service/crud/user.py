@@ -116,7 +116,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             )
         except Exception as error:
             await super().remove(db, id=db_obj.id)
-            logger.error(error)
+            logger.exception(error)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="There was an error sending email",

@@ -3,6 +3,7 @@ from fastapi import Depends
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+from starlette.requests import Request
 
 from auth_service import crud, schemas
 from auth_service.api.deps import database
@@ -20,6 +21,7 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
 )
 async def signup_customer(
+    request: Request,
     user_in: schemas.UserCreateOpen,
     db: AsyncSession = Depends(database.get_db),
 ):

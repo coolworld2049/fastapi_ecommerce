@@ -1,4 +1,5 @@
 import os
+import pathlib
 from enum import Enum
 
 from dotenv import load_dotenv
@@ -6,6 +7,9 @@ from pydantic import BaseSettings
 
 
 load_dotenv()
+load_dotenv(
+    pathlib.Path(__file__).parent.parent.parent.parent.parent.parent / ".env"
+)
 
 
 class AppEnvTypes(str, Enum):
