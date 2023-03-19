@@ -11,8 +11,3 @@ cd ..
 cd ./store_service
 cp .env.example .env
 cd ..
-
-
-cd ./proxy
-cp .env.example .env
-cd ..
