@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build services and test
+      - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
           export APP_ENV=test
           export DEBUG=True
           bash -x cpenv.sh
-          bash -x build_push.sh
+          bash build_push.sh
           bash -x build_up.sh
-          bash -x test.sh
+          bash test.sh
 
   build:
     name: Build
@@ -28,9 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build images and publish to registry
-        run: |
-          bash -x build_push.sh
 
       - name: Deployment on VDS - copy
         uses: appleboy/scp-action@master
@@ -58,4 +55,4 @@ jobs:
             chmod +x build_up.sh
             bash -x build_up.sh
             chmod +x test.sh
-            bash -x test.sh
+            bash test.sh
