@@ -3,7 +3,8 @@
 set -e
 
 # shellcheck disable=SC2046
-source .env;
+export $(grep -v '^#' ./.env | xargs)
+
 
 docker build -t "${AUTH_SERVICE_IMAGE}" ./auth_service
 # shellcheck disable=SC2086
