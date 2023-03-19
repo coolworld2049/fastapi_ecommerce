@@ -58,20 +58,6 @@ jobs:
           source: "."
           target: "/root/fastapi_ecommerce/"
 
-      - name: Create .env file for `Create ssl cert`
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-      - name: Install mkcert
-        run: sudo apt install -y libnss3-tools mkcert
-
-      - name: Create ssl cert
-        run: |
-          cd /root/fastapi_ecommerce/
-          chmod +x cpenv.sh
-          bash -x cpenv.sh
-          cd ./proxy
-          chmod +x mkcert.sh
-          bash -x mkcert.sh
 
       - name: Executing remote command - Deployment on VDS
         uses: appleboy/ssh-action@master
@@ -83,6 +69,7 @@ jobs:
           script: |
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
+            chmod +x cpenv.sh
             bash -x cpenv.sh
             chmod +x rebuild.sh
             bash -x rebuild.sh
