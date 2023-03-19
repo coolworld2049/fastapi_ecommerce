@@ -2,6 +2,9 @@
 
 set +e
 
+# shellcheck disable=SC2046
+export $(grep -v '^#' .env | xargs)
+
 source .env
 
 AUTH_SB="http://localhost:8001"
