@@ -54,5 +54,7 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > .env
             chmod +x cpenv.sh
             bash -x cpenv.sh
-            chmod +x re_build_up.sh
-            bash -x re_build_up.sh
+            chmod +x build_push.sh
+            bash -x build_push.sh
+            chmod +x build_up.sh
+            bash -x build_up.sh
