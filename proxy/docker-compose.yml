@@ -9,6 +9,7 @@ services:
     env_file:
       - ../.env
     volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/ssl/certs/nginx/
     ports:
       - "80:80"

@@ -35,4 +35,7 @@ mkcert -key-file key.pem -cert-file cert.pem \
 
 cd ..
 
+echo "$NGINX_DOMAIN"
+
+sed "s@${NGINX_DOMAIN:-fastapi-ecommerce.ru}@""fastapi-ecommerce.ru"'@' nginx.conf.example > nginx.conf
 sed 's@fastapi-ecommerce.ru@'"${NGINX_DOMAIN:-fastapi-ecommerce.ru}"'@' nginx.conf.example > nginx.conf
