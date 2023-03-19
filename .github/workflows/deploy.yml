@@ -16,11 +16,15 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
           . ./cpenv.sh
-          find .env
           . ./build_push.sh
           APP_ENV=test
           DEBUG=True
           . ./build_up.sh
+        shell: bash
+      - name: Ping containers
+        run: |
+          set -e
+          echo "${{ secrets.ENV_FILE }}" > .env
           . ./test.sh
         shell: bash
 
