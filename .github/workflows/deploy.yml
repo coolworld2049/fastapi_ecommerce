@@ -1,11 +1,9 @@
 #file: noinspection YAMLSchemaValidation
 name: Deploy
-
 on:
   push:
     branches:
       - master
-
 jobs:
   test:
     name: Test
@@ -22,8 +20,7 @@ jobs:
           DEBUG=True
           . ./build_up.sh
         shell: bash
-
-
+        
   build:
     name: Build
     needs: [ test ]
