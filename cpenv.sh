@@ -2,7 +2,7 @@
 
 set +e
 
-echo $PWD
+echo "$PWD"
 
 cd ./auth_service
 cp .env.example .env
