@@ -19,6 +19,10 @@ docker build -t ${STORE_SERVICE_IMAGE} ./store_service
 echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
 docker push "${STORE_SERVICE_IMAGE}"
 
+cd ./proxy
+chmod +x mkcert.sh
+. ./mkcert.sh
+cd ..
 # shellcheck disable=SC2086
 docker build -t ${PROXY_IMAGE} ./proxy
 # shellcheck disable=SC2086
