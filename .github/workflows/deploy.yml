@@ -1,0 +1,54 @@
+#file: noinspection YAMLSchemaValidation
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build images and publish to registry
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+          . ./cpenv.sh
+          . ./build_push.sh
+          APP_ENV=test
+          DEBUG=True
+          . ./build_up.sh
+        shell: bash
+        
+  build:
+    name: Build
+    needs: [ test ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deployment on VDS - copy
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "."
+          target: "/root/fastapi_ecommerce/"
+
+      - name: Deployment on VDS - start
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /root/fastapi_ecommerce/
+            echo "${{ secrets.ENV_FILE }}" > .env
+            chmod +x cpenv.sh
+            bash cpenv.sh
+            chmod +x re_build_up.sh
+            bash re_build_up.sh
