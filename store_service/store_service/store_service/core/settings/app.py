@@ -24,6 +24,10 @@ class AppSettings(BaseAppSettings):
     DOMAIN: str
     PORT: int
 
+    NGINX_DOMAIN: str
+    NGINX_AUTH_SB: str
+    NGINX_STORE_SB: str
+
     BACKEND_CORS_ORIGINS: list[str]
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str

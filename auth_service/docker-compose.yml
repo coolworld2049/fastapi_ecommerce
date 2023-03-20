@@ -9,6 +9,7 @@ networks:
 services:
 
   auth_service:
+    image: coolworldocker/auth_service:latest
     build: .
     command: ./start.sh
     env_file:
@@ -36,6 +37,8 @@ services:
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
       - POSTGRESQL_TIMEZONE=${PG_TZ}
       - POSTGRESQL_LOG_TIMEZONE=${PG_TZ}
+    volumes:
+      - postgresql_master_data:/bitnami/postgresql
 
   postgresql_slave_1:
     hostname: postgresql_slave_1
@@ -50,6 +53,8 @@ services:
       - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
       - POSTGRESQL_USERNAME=${POSTGRES_USER}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql_slave_1_data:/bitnami/postgresql
 
   postgresql_slave_2:
     hostname: postgresql_slave_2
@@ -64,7 +69,8 @@ services:
       - POSTGRESQL_MASTER_PORT_NUMBER=${PG_PORT}
       - POSTGRESQL_USERNAME=${POSTGRES_USER}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-
+    volumes:
+      - postgresql_slave_2_data:/bitnami/postgresql
 
   pgbouncer_master:
     image: bitnami/pgbouncer:latest
@@ -78,3 +84,10 @@ services:
       - POSTGRESQL_DATABASE=${POSTGRES_DB}
       - PGBOUNCER_POOL_MODE=transaction
       - PGBOUNCER_PORT=6432
+
+volumes:
+
+  postgresql_master_data:
+
+  postgresql_slave_1_data:
+  postgresql_slave_2_data:

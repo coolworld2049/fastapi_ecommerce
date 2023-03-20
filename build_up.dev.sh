@@ -1,6 +1,9 @@
-#! /bin/bash -x
+#! /bin/bash
 
 set -e
+
+# shellcheck disable=SC2046
+docker volume rm -f $(docker volume ls)
 
 cd ./auth_service
 docker-compose up -d --scale auth_service=0 --scale grafana=0

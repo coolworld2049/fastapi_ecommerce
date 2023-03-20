@@ -1,3 +1,4 @@
+[![Deploy](https://github.com/coolworld2049/fastapi-ecommerce/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/coolworld2049/fastapi-ecommerce/actions/workflows/deploy.yml)
 
 <div>
 <img src="assets/fastapi-logo.png" alt="fastapi-logo" height="60" /> 
