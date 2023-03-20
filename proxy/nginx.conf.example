@@ -25,8 +25,8 @@ http {
         index index.html index.htm index.nginx-debian.html;
 
         include /etc/nginx/includes/ssl.conf;
-        ssl_certificate /etc/ssl/certs/nginx/cert.pem;
-        ssl_certificate_key /etc/ssl/certs/nginx/key.pem;
+        ssl_certificate /etc/ssl/certs/nginx/fastapi-ecommerce.ru.cert;
+        ssl_certificate_key /etc/ssl/certs/nginx/fastapi-ecommerce.ru.key;
 
         location / {
             try_files $uri $uri/ =404;
@@ -41,8 +41,8 @@ http {
         listen [::]:443 ssl http2;
 
         include /etc/nginx/includes/ssl.conf;
-        ssl_certificate /etc/ssl/certs/nginx/cert.pem;
-        ssl_certificate_key /etc/ssl/certs/nginx/key.pem;
+        ssl_certificate /etc/ssl/certs/nginx/fastapi-ecommerce.ru.cert;
+        ssl_certificate_key /etc/ssl/certs/nginx/fastapi-ecommerce.ru.key;
 
         location / {
             include /etc/nginx/includes/proxy.conf;
@@ -65,8 +65,8 @@ http {
         listen [::]:443 ssl http2;
 
         include /etc/nginx/includes/ssl.conf;
-        ssl_certificate /etc/ssl/certs/nginx/cert.pem;
-        ssl_certificate_key /etc/ssl/certs/nginx/key.pem;
+        ssl_certificate /etc/ssl/certs/nginx/fastapi-ecommerce.ru.cert;
+        ssl_certificate_key /etc/ssl/certs/nginx/fastapi-ecommerce.ru.key;
 
         location / {
             include /etc/nginx/includes/proxy.conf;
