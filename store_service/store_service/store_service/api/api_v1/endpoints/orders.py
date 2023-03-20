@@ -43,7 +43,7 @@ async def get_current_user_order(
 @router.get(
     "/",
     response_model=list[Order | OrderWithoutRelations],
-    dependencies=[Depends(RoleChecker(["admin", "customer"]))],
+    dependencies=[Depends(RoleChecker(["admin"]))],
 )
 async def read_all_orders(
     request_params: RequestParams = Depends(
