@@ -28,11 +28,13 @@ def get_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=[
+            "*"
             "Content-Range",
             "X-Requested-With",
             "X-Request-ID",
         ],
         expose_headers=[
+            "*"
             "Content-Range",
             "Authorization",
             "X-Request-ID",

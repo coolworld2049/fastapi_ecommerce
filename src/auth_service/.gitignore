@@ -1,3 +1,11 @@
+__pycache__
+app.egg-info
+.mypy_cache
+.coverage
+htmlcov
+!/app/access.log
+!/app/app/.pytest_cache/
+!/app/app/access.log
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -41,7 +49,6 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .nox/
-.coverage
 .coverage.*
 .cache
 nosetests.xml
@@ -121,7 +128,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+.env.dev
 .venv
 env/
 venv/
@@ -160,7 +167,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-!/cloud/mongodb/.gitignore
-!/.env
-/src/auth_service/auth_service/auth_service/.logs/
-/src/store_service/store_service/store_service/.logs/
+/store_service/store_service/test/.benchmarks/
+!/mongodb/.env

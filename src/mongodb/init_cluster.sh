@@ -19,7 +19,7 @@ docker exec shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
 docker exec shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
 
 docker-compose exec router01 mongosh --port 27017 --eval '
-use admin,
+use app,
 db.stats(),
 db.User.getShardDistribution()
 '

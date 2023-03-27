@@ -16,9 +16,11 @@ cd ../scripts
 . envs/store_service.sh
 cd ../store_service
 docker-compose up -d --no-build --scale store_service=0
-cd scripts/mongodb
+cd ../mongodb
+docker-compose up -d
+sleep 5
 . init_cluster.sh
-cd ../../../scripts
+cd ../scripts
 
 cd envs
 

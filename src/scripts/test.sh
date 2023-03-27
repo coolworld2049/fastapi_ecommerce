@@ -12,27 +12,26 @@ fi
 
 # shellcheck disable=SC2046
 export $(grep -v '^#' ../.env | xargs)
-for port in 8001 8002 80 443; do
-  url="localhost"
-  NMAP=$(nmap $url -p $port)
-  if [[ $NMAP == *"open"* ]]; then
-    echo "✅   $url:$port"
+
+#for port in 8001 8002 80 443; do
+#  set +e
+#  url="localhost"
+#  NMAP=$(nmap $url -p $port)
+#  if [[ $NMAP == *"open"* ]]; then
+#    echo "✅   $url:$port"
+#  else
+#    echo "❌   $url:$port"
+#  fi
+#  printf "\n"
+#done
+
+set +e
+for domain in "${NGINX_AUTH_SB}" "${NGINX_STORE_SB}"; do
+  url="${domain}"'.'"${NGINX_DOMAIN}"
+  if ping "$url"; then
+    echo "✅   $url"
   else
-    echo "❌   $url:$port"
+    echo "❌   $url"
   fi
   printf "\n"
 done
-
-#for url in "${NGINX_AUTH_SB}" "${NGINX_STORE_SB}"; do
-#  for proto in "http" "https"; do
-#    URL="${proto}://${url}"'.'"${NGINX_DOMAIN}/"
-#    # shellcheck disable=SC2086
-#    nmap $URL
-#    # shellcheck disable=SC2181
-#    if [ $? -eq 0 ]; then
-#      echo "$URL" "✅ "
-#    else
-#      echo "$URL" "❌ "
-#    fi
-#  done
-#done

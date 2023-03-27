@@ -2,7 +2,7 @@
 
 set +e
 
-for dir in proxy store_service postgresql auth_service ; do
+for dir in proxy mongodb store_service postgresql auth_service ; do
   set +e
   # shellcheck disable=SC1090
   . envs/$dir.sh

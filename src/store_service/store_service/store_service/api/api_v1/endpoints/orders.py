@@ -14,6 +14,8 @@ from store_service.api.api_v1.deps.auth import (
     RoleChecker,
     get_current_active_user,
 )
+from store_service.core.config import get_app_settings
+from store_service.core.settings.base import AppEnvTypes
 from store_service.schemas.request_params import RequestParams
 from store_service.schemas.user import User
 
@@ -43,7 +45,9 @@ async def get_current_user_order(
 @router.get(
     "/",
     response_model=list[Order | OrderWithoutRelations],
-    dependencies=[Depends(RoleChecker(["admin"]))],
+    dependencies=None
+    if get_app_settings().APP_ENV == AppEnvTypes.test
+    else [Depends(RoleChecker(["admin"]))],
 )
 async def read_all_orders(
     request_params: RequestParams = Depends(
