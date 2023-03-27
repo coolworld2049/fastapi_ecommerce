@@ -162,3 +162,4 @@ cython_debug/
 
 !/cloud/mongodb/.gitignore
 !/.env
+/src/auth_service/auth_service/auth_service/.logs/

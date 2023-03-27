@@ -16,7 +16,6 @@ https://store-service.fastapi-ecommerce/docs
 ## [auth_service](auth_service)
 
 - http://127.0.0.1:8001 `api`
-- http://127.0.0.1:3000 `grafana`
 
 ![auth-service.png](assets%2Fauth-service.png)
 
