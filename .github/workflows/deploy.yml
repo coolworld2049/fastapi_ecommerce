@@ -16,9 +16,10 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
           ls
-          bash src/scripts/cpenv.sh
+          cd src/scripts
+          bash cpenv.sh
           export APP_ENV=test
-          bash src/scripts/restart.sh
+          bash restart.sh
 
   build:
     name: Build
@@ -47,7 +48,8 @@ jobs:
           script: |
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
-            chmod +x src/scripts/cpenv.sh
-            bash src/scripts/cpenv.sh
-            chmod +x src/scripts/restart.sh
-            bash src/scripts/restart.sh
+            cd src/scripts
+            chmod +x cpenv.sh
+            bash cpenv.sh
+            chmod +x restart.sh
+            bash restart.sh
