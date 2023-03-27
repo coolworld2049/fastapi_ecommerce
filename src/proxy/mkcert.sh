@@ -25,8 +25,8 @@ if [[ -z "${SERVER_IP}" ]]; then
 else
   SERVER_IP="$(ip -f inet a show eth0 | grep inet | awk '{ print $2}' | cut -d/ -f1)"
 fi
-export APP_ENV=test
-if [[ $APP_ENV == "test" ]]; then
+
+if [[ $APP_ENV == "dev" ]]; then
   echo "${SERVER_IP}  ${NGINX_DOMAIN}\
   ${NGINX_AUTH_SB}.${NGINX_DOMAIN}\
   ${NGINX_STORE_SB}.${NGINX_DOMAIN}" >>/etc/hosts
@@ -35,6 +35,7 @@ fi
 
 # shellcheck disable=SC2035
 mkcert -install
+# shellcheck disable=SC2035
 mkcert -key-file "${NGINX_DOMAIN}".key -cert-file "${NGINX_DOMAIN}".cert \
   www."${NGINX_DOMAIN}" \
   "${NGINX_DOMAIN}" \

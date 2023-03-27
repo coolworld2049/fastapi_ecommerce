@@ -83,7 +83,7 @@ def parse_react_admin_params(
                             raise HTTPException(400, f"Invalid filters {ft}")
                     if len(fb) > 0:
                         filter_by = and_(*fb)
-        except JSONDecodeError as jde:
+        except JSONDecodeError:
             raise HTTPException(
                 400, f"Invalid query params {range_, sort_, filter_}"
             )

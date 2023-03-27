@@ -8,7 +8,7 @@ from auth_service.core.config import get_app_settings
 from auth_service.core.settings.base import AppEnvTypes
 
 if get_app_settings().APP_ENV == AppEnvTypes.dev:
-
+    # noinspection PyUnusedLocal
     @event.listens_for(AsyncEngine, "before_cursor_execute")
     def before_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
@@ -18,6 +18,8 @@ if get_app_settings().APP_ENV == AppEnvTypes.dev:
             f"Start Query: {statement}",
         )
 
+
+    # noinspection PyUnusedLocal
     @event.listens_for(AsyncEngine, "after_cursor_execute")
     def after_cursor_execute(
         conn, cursor, statement, parameters, context, executemany

@@ -10,6 +10,7 @@ class ReplicaType(str, Enum):
     slave = "slave"
 
 
+# noinspection PyUnusedLocal
 class MasterSlaves:
     def __init__(self, master_url: str, slaves_url: str, *args, **kwargs):
         self.engine: dict[ReplicaType, AsyncEngine | list[AsyncEngine]] = {}
@@ -32,13 +33,13 @@ class MasterSlaves:
         ]
 
     async def check_engines(self):
-        for type, _eng in self.engine.items():
+        for _type, _eng in self.engine.items():
             for i, eng in enumerate(_eng):
                 try:
                     async with eng.begin() as conn:
                         await conn.execute(text("select 1"))
-                    logger.info(f"engine_type: {type.name}, url: {eng.url}")
+                    logger.info(f"engine_type: {_type.name}, url: {eng.url}")
                 except ConnectionRefusedError as ex:
                     logger.error(
-                        f"engine_type: {type.name}, url: {eng.url}, {ex}"
+                        f"engine_type: {_type.name}, url: {eng.url}, {ex}"
                     )

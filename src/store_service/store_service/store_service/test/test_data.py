@@ -131,7 +131,7 @@ async def update_orders(
 @pytest.mark.asyncio
 async def test_auth_service_client(auth_service_client: ClientSession):
     try:
-        users = await get_users(count=5, auth_service_client=auth_service_client)
+        await get_users(count=5, auth_service_client=auth_service_client)
     except ClientConnectorError as e:
         logger.error(e)
         raise

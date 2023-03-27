@@ -54,7 +54,7 @@ async def get_db():
     s: AsyncSession = SessionLocal()
     try:
         yield s
-    except Exception:
+    except Exception: # noqa
         await s.rollback()
     finally:
         await s.commit()

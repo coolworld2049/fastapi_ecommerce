@@ -4,10 +4,8 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.exceptions import HTTPException
-from starlette.requests import Request
 
 from auth_service import crud, schemas
-
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
 from auth_service.db import session
@@ -23,7 +21,6 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
 )
 async def signup_client(
-    request: Request,
     user_in: schemas.UserCreateOpen,
     db: AsyncSession = Depends(session.get_db),
 ):
