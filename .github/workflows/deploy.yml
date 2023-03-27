@@ -15,6 +15,7 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
+          ls
           cd ./src/scripts
           . cpenv.sh
           APP_ENV=test
