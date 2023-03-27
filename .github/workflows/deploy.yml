@@ -11,25 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Build images and publish to registry
         run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
+          echo "${{ secrets.ENV_FILE }}" > src/.env
           ls
-          cd ./src/scripts
-          . ./cpenv.sh
-          APP_ENV=test
-          . ./restart.sh
-        shell: bash
-
+          cd src/scripts
+          bash cpenv.sh
+          export APP_ENV=test
+          bash restart.sh
   build:
-    name: Build
+    name: Production Deployment
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Deployment on VDS - copy
+      - name: scp-action
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -39,7 +35,7 @@ jobs:
           source: "."
           target: "/root/fastapi_ecommerce/"
 
-      - name: Deployment on VDS - start
+      - name: start.sh
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -48,10 +44,9 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /root/fastapi_ecommerce/
-            echo "${{ secrets.ENV_FILE }}" > .env
-            cd ./src/scripts
+            echo "${{ secrets.ENV_FILE }}" > src/.env
+            cd src/scripts
             chmod +x cpenv.sh
-            . ./cpenv.sh
+            bash cpenv.sh
             chmod +x restart.sh
-            . ./restart.sh
-          shell: bash
+            bash restart.sh

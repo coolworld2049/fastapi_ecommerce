@@ -3,8 +3,6 @@ import os
 import pathlib
 from typing import Any
 
-from starlette.templating import Jinja2Templates
-
 from store_service.core.settings.base import BaseAppSettings, AppEnvTypes
 
 
@@ -56,10 +54,6 @@ class AppSettings(BaseAppSettings):
     @property
     def logs_path(self):
         return self.project_path / ".logs"
-
-    @property
-    def jinja_templates(self) -> Jinja2Templates:
-        return Jinja2Templates(directory=self.project_path / "templates")
 
     @property
     def auth_service_login_url(self):

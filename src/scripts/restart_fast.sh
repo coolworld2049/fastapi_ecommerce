@@ -4,11 +4,7 @@ set -e
 
 start=$SECONDS
 
-export RMI=true
-
 . down.sh
-
-. build_push.sh
 
 . start.sh
 

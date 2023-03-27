@@ -22,18 +22,18 @@ async def execute_sql_file(
     try:
         with open(path, encoding="utf-8") as rf:
             sql_file = rf.read()
-            res = await conn.execute(sql_file, timeout=timeout)
+            await conn.execute(sql_file, timeout=timeout)
             logger.info(f"path: {path.name}, result: executed")
-    except TimeoutError as e:
+    except TimeoutError:
         logger.error(f"path: {path.name}, result: TimeoutError")
 
 
 async def base_metadata(
     ms: MasterSlaves, create: bool = False, drop: bool = False
 ):
-    for type, _eng in ms.engine.items():
+    for _type, _eng in ms.engine.items():
         for eng in _eng:
-            msg = f"engine_type: {type.name}, url: {eng.url}"
+            msg = f"engine_type: {_type.name}, url: {eng.url}"
             try:
                 async with eng.begin() as conn:
                     if drop:
@@ -51,7 +51,7 @@ async def base_metadata(
                 )
             except ConnectionRefusedError as ex:
                 logger.opt(colors=True).error(
-                    f"<fg 255,70,230>{action}</fg 255,70,230> - {msg}, {ex}"
+                    f"<fg 255,70,230>{action}</fg 255,70,230> - {msg}, {ex.__class__.__name__} {ex}"
                 )
 
 
@@ -92,4 +92,4 @@ async def init_db():
         async with SessionLocal() as db:
             await create_first_superuser(db)
     except Exception as e:
-        logger.error(e)
+        logger.error(f"{e.__class__.__name__} {e}")

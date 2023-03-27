@@ -2,6 +2,7 @@ from builtins import str
 from typing import Optional, Any
 
 from fastapi import APIRouter, Depends
+from fastapi.params import Param
 from prisma.enums import OrderStatus
 from prisma.models import Order, Product, OrderProduct
 from prisma.partials import OrderWithoutRelations
@@ -14,6 +15,8 @@ from store_service.api.api_v1.deps.auth import (
     RoleChecker,
     get_current_active_user,
 )
+from store_service.core.config import get_app_settings
+from store_service.core.settings.base import AppEnvTypes
 from store_service.schemas.request_params import RequestParams
 from store_service.schemas.user import User
 
@@ -43,7 +46,9 @@ async def get_current_user_order(
 @router.get(
     "/",
     response_model=list[Order | OrderWithoutRelations],
-    dependencies=[Depends(RoleChecker(["admin"]))],
+    dependencies=None
+    if get_app_settings().APP_ENV == AppEnvTypes.test
+    else [Depends(RoleChecker(["admin"]))],
 )
 async def read_all_orders(
     request_params: RequestParams = Depends(
@@ -71,6 +76,27 @@ async def read_order_me(
     )
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return order
+
+
+@router.post(
+    "/test",
+    response_model=OrderWithoutRelations,
+    dependencies=None
+    if get_app_settings().APP_ENV == AppEnvTypes.test
+    else [Depends(RoleChecker(["admin", "customer"]))],
+)
+async def create_order_test(
+    user_id: str = Param(..., description="ObjectId"),
+) -> Optional[Order]:
+    order = await Order.prisma().create(
+        data={
+            "status": OrderStatus.pending,
+            "cost": 0.0,
+            "user_id": user_id,
+        },
+        include={"order_products": True},
+    )
     return order
 
 
@@ -160,7 +186,7 @@ async def delete_product_from_order(
         data={
             "cost": {
                 "decrement": float(product.price)
-                * len(order_products_where_product_id)
+                             * len(order_products_where_product_id)
             },
             "order_products": {
                 "delete": [

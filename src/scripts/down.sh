@@ -2,7 +2,9 @@
 
 set +e
 
-for dir in proxy store_service postgresql auth_service ; do
+export RMI=false
+
+for dir in proxy mongodb store_service postgresql auth_service; do
   set +e
   # shellcheck disable=SC1090
   . envs/$dir.sh
@@ -12,10 +14,10 @@ for dir in proxy store_service postgresql auth_service ; do
   IMAGE=""${DOCKER_USER}/${APP_NAME}:${APP_VERSION:-latest}""
   echo "$IMAGE"
   set +e
-  docker rmi --force "${IMAGE}"
+  if $RMI; then
+    docker rmi --force "${IMAGE}"
+  fi
 done
-
-docker builder prune -f
 
 set -e
 

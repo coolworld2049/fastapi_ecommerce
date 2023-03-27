@@ -134,7 +134,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj = await self.get(db, id)
         try:
             await db.delete(obj)
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             return None
         except Exception as ex:
             raise ex

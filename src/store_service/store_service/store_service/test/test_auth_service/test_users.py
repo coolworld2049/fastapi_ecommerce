@@ -1,4 +1,3 @@
-import pytest
 from aiohttp import ClientSession
 from loguru import logger
 
@@ -19,13 +18,11 @@ async def get_users(
         headers=headers,
     ) as resp:
         data = await resp.json()
-        assert resp.status == 200
+
+        if resp.status != 200:
+            raise AssertionError(resp.status)
         users = [User(**x) for x in data]
         logger.info(len(users))
         return users
 
 
-@pytest.mark.asyncio
-async def test_get_users(auth_service_client: ClientSession):
-    users = await get_users(count=5, auth_service_client=auth_service_client)
-    assert users

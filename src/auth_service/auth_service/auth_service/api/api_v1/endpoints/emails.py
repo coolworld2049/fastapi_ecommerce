@@ -23,7 +23,7 @@ async def send_email_asynchronous(
     subject: str,
     recipients: str = Param(..., description="delimiter: `,`"),
     body: Any = Body(..., media_type="text/base"),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(auth.get_active_current_user),
 ):
     email = Email(EmailStr(current_user.email))
     recipients = [

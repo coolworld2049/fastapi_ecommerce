@@ -5,13 +5,14 @@ from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.requests import Request
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.core.config import get_app_settings
 from auth_service.core.logger import configure_logging
-from auth_service.db.init_db import init_db
-from auth_service.db.session import engines
 from auth_service.core.logging import LoguruLoggingMiddleware
+from auth_service.db.init_db import init_db
+from auth_service.db.session import engines, SessionLocal
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
@@ -28,14 +29,18 @@ def get_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=[
+            "*"
             "Content-Range",
             "X-Requested-With",
             "X-Request-ID",
+            "X-Response-Time"
         ],
         expose_headers=[
+            "*"
             "Content-Range",
             "Authorization",
             "X-Request-ID",
+            "X-Response-Time"
         ],
     )
     application.add_middleware(
@@ -62,6 +67,14 @@ app = get_application()
 @app.on_event("startup")
 async def startup():
     await init_db()
+
+
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    request.state.db = SessionLocal()
+    response = await call_next(request)
+    await request.state.db.close()
+    return response
 
 
 @app.on_event("shutdown")

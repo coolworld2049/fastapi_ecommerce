@@ -8,17 +8,17 @@ from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from auth_service.core.config import get_app_settings
-from auth_service.core.settings.base import AppEnvTypes
-from auth_service.db import session
+import auth_service.api.deps.db
 from auth_service import crud
 from auth_service import models
 from auth_service import schemas
 from auth_service.api.deps import auth
-
 from auth_service.api.deps import params
 from auth_service.api.deps.auth import RoleChecker
 from auth_service.api.exceptions import DuplicateUserException
+from auth_service.core.config import get_app_settings
+from auth_service.core.settings.base import AppEnvTypes
+from auth_service.db import session
 from auth_service.models.user import User
 from auth_service.schemas import RequestParams
 
@@ -34,7 +34,7 @@ router = APIRouter()
 )
 async def read_users(
     response: Response,
-    db: AsyncSession = Depends(session.get_db),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
     request_params: RequestParams = Depends(
         params.parse_react_admin_params(User),
     ),
@@ -53,7 +53,7 @@ async def read_users(
 )
 async def create_user(
     *,
-    db: AsyncSession = Depends(session.get_db),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
     user_in: schemas.UserCreate,
 ) -> Any:
     """
@@ -77,8 +77,8 @@ async def create_user(
 )
 async def update_user_me(
     user_in: schemas.UserUpdateMe,
-    db: AsyncSession = Depends(session.get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
     Update own user.
@@ -97,9 +97,8 @@ async def update_user_me(
     ],
 )
 async def read_user_me(
-    response: Response,
-    db: AsyncSession = Depends(session.get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
     Get current user.
@@ -115,7 +114,7 @@ async def read_user_me(
 )
 async def read_user_by_id(
     id: int,
-    db: AsyncSession = Depends(session.get_db),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
 ) -> Any:
     """
     Get a specific user.
@@ -134,7 +133,7 @@ async def read_user_by_id(
 async def update_user(
     *,
     id: int,
-    db: AsyncSession = Depends(session.get_db),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
     user_in: schemas.UserUpdate,
 ) -> Any:
     """
@@ -155,7 +154,7 @@ async def update_user(
 async def delete_user(
     *,
     id: int,
-    db: AsyncSession = Depends(session.get_db),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
 ) -> Any:
     """
     Delete user

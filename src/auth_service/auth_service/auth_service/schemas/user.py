@@ -27,14 +27,6 @@ class UserBase(UserOptional):
     email: Optional[EmailStr]
     username: Optional[str]
 
-    @validator("username", always=True)
-    def validate_username(cls, value):
-        assert re.match(
-            "^[A-Za-z][A-Za-z0-9_]{7,29}$",
-            value,
-        ), "Invalid username"
-        return value
-
 
 class UserCreateBase(UserBase):
     password: Optional[str]

@@ -1,4 +1,5 @@
 import json
+import time
 from typing import Callable
 
 from loguru import logger
@@ -11,11 +12,14 @@ from starlette.routing import Match
 class LoguruLoggingMiddleware:
     async def __call__(self, request: Request, call_next: Callable):
         try:
+            st = time.time()
             response = await call_next(request)
+            elapsed = f"{time.time() - st:0.10f} sec"
+            response.headers.append("X-Response-Time", elapsed)
         except Exception as e:
             response = JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content={"detail": str(e)},
+                content={"detail": f"{e.__class__.__name__} - {e}"},
                 media_type="application/json",
             )
         return await self.http(request, response)

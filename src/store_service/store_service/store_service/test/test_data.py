@@ -3,7 +3,7 @@ from datetime import datetime
 
 import faker_commerce
 import pytest
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientConnectorError
 from faker import Faker
 from loguru import logger
 from prisma import Prisma
@@ -129,11 +129,20 @@ async def update_orders(
 
 
 @pytest.mark.asyncio
+async def test_auth_service_client(auth_service_client: ClientSession):
+    try:
+        await get_users(count=5, auth_service_client=auth_service_client)
+    except ClientConnectorError as e:
+        logger.error(e)
+        raise
+
+
+@pytest.mark.asyncio
 async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
     await prisma_client.connect()
     degree = 2 if get_app_settings().APP_ENV == "dev" else 1
     users = await get_users(
-        count=10**degree, auth_service_client=auth_service_client
+        count=10 ** degree, auth_service_client=auth_service_client
     )
     if get_app_settings().APP_ENV == "test":
         categories = await create_category(count=10 * degree)
@@ -143,7 +152,7 @@ async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
             [1, datetime.now().month],
         )
         products = await create_product(
-            categories, multiplier=10**degree, created_at=created_at
+            categories, multiplier=10 ** degree, created_at=created_at
         )
         orders_count = 0
         for _ in range(degree):
