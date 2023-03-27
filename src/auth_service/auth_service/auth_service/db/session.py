@@ -1,8 +1,9 @@
 import random
 from typing import Any
 
-from sqlalchemy import Update, Delete, Insert, NullPool
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy import Update, Delete, Insert, text
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
 from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
 
@@ -14,9 +15,20 @@ Base: DeclarativeBase = declarative_base()
 engines = MasterSlaves(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_slaves,
-    poolclass=NullPool,
-    isolation_level="AUTOCOMMIT",
+    pool_size=20,
+    max_overflow=0,
+    pool_pre_ping=True
 )
+
+
+def ping_connection(engine):
+    c = engine.connect()
+    try:
+        c.execute(text("select 1"))
+        c.close()
+    except DBAPIError as e:
+        if e.connection_invalidated:
+            pass
 
 
 class RoutingSession(Session):
@@ -36,10 +48,12 @@ class RoutingSession(Session):
             ).sync_engine
         else:
             try:
-                return random.choice(
+                slave: AsyncEngine = random.choice(
                     engines.engine[ReplicaType.slave]
                 ).sync_engine
-            except IndexError:
+                with slave.sync_engine.engine.begin() as c:
+                    c.execute(text("select 1"))
+            except Exception:
                 return random.choice(
                     engines.engine[ReplicaType.master]
                 ).sync_engine
@@ -48,14 +62,3 @@ class RoutingSession(Session):
 SessionLocal = async_sessionmaker(
     sync_session_class=RoutingSession, autoflush=False, expire_on_commit=False
 )
-
-
-async def get_db():
-    s: AsyncSession = SessionLocal()
-    try:
-        yield s
-    except Exception: # noqa
-        await s.rollback()
-    finally:
-        await s.commit()
-        await s.close()

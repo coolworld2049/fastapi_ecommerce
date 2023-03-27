@@ -5,7 +5,7 @@ networks:
     driver: bridge
   external_net:
     driver: bridge
-
+  
 services:
 
   auth_service:

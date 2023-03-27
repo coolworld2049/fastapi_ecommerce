@@ -8,8 +8,7 @@ docker-compose up -d --no-build \
   --scale auth_service=0
 cd ../postgresql
 docker-compose up -d \
-  --scale slave="${POSTGRESQL_NUM_SLAVES}" \
-  --scale pgbouncer_slave="${PGBOUNCER_NUM_SLAVES}"
+  --scale slave="${POSTGRESQL_NUM_SLAVES}"
 echo "sleep 10"
 sleep 10
 cd ../auth_service

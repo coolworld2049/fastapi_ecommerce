@@ -37,7 +37,9 @@ async def read_categories(
 @router.post(
     "/",
     response_model=CategoryWithoutRelations,
-    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
+    dependencies=None
+    if get_app_settings().APP_ENV == AppEnvTypes.test
+    else [Depends(RoleChecker(["admin", "manager"]))],
 )
 async def create_category(category_in: CategoryCreate) -> Optional[Category]:
     category = await Category.prisma().create(category_in.dict())

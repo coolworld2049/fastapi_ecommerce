@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import auth_service.api.deps.db
 from auth_service import crud, models
 from auth_service.api.exceptions import (
     PermissionDeniedException,
@@ -10,7 +11,6 @@ from auth_service.api.exceptions import (
     AccountNotVerifiedException,
 )
 from auth_service.core.config import get_app_settings
-from auth_service.db import session
 from auth_service.services.jwt import decode_access_token
 
 oauth2Scheme = OAuth2PasswordBearer(
@@ -18,8 +18,8 @@ oauth2Scheme = OAuth2PasswordBearer(
 )
 
 
-async def _get_current_user(
-    db: AsyncSession = Depends(session.get_db),
+async def get_current_user(
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
     token: str = Depends(oauth2Scheme),
 ) -> models.User:
     token_data = decode_access_token(token)
@@ -29,8 +29,8 @@ async def _get_current_user(
     return user
 
 
-async def get_current_user(
-    user: models.User = Depends(_get_current_user),
+async def get_active_current_user(
+    user: models.User = Depends(get_current_user),
 ) -> models.User:
     if get_app_settings().TEST_USE_USER_CHECKS:
         if not user.is_verified:
@@ -48,7 +48,7 @@ class RoleChecker:
         self.roles = roles
 
     async def __call__(
-        self, current_user: models.User = Depends(get_current_user)
+        self, current_user: models.User = Depends(get_active_current_user)
     ):
         if current_user:
             try:

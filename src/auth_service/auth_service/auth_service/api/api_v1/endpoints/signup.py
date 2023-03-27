@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.exceptions import HTTPException
 
+import auth_service.api.deps.db
 from auth_service import crud, schemas
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
@@ -22,7 +23,7 @@ router = APIRouter()
 )
 async def signup_client(
     user_in: schemas.UserCreateOpen,
-    db: AsyncSession = Depends(session.get_db),
+    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
 ):
     user = await crud.user.get_by_email(db, email=user_in.email)
     if user:

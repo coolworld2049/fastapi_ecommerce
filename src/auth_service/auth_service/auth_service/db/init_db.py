@@ -51,7 +51,7 @@ async def base_metadata(
                 )
             except ConnectionRefusedError as ex:
                 logger.opt(colors=True).error(
-                    f"<fg 255,70,230>{action}</fg 255,70,230> - {msg}, {ex}"
+                    f"<fg 255,70,230>{action}</fg 255,70,230> - {msg}, {ex.__class__.__name__} {ex}"
                 )
 
 
@@ -92,4 +92,4 @@ async def init_db():
         async with SessionLocal() as db:
             await create_first_superuser(db)
     except Exception as e:
-        logger.error(e)
+        logger.error(f"{e.__class__.__name__} {e}")

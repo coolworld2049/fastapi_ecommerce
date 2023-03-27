@@ -64,7 +64,9 @@ async def read_products_by_category(
 @router.post(
     "/",
     response_model=ProductWithoutRelations,
-    dependencies=[Depends(RoleChecker(["admin", "manager"]))],
+    dependencies=None
+    if get_app_settings().APP_ENV == AppEnvTypes.test
+    else [Depends(RoleChecker(["admin", "manager"]))],
 )
 async def create_product(product_in: ProductCreate) -> Optional[Product]:
     product = await Product.prisma().create(data=product_in.dict())

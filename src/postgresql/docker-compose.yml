@@ -19,9 +19,9 @@ services:
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-0}
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-1}
     volumes:
-      - master_data:/bitnami/postgresql
+      - ../.volumes/postgresql_master_data:/bitnami/postgresql
     networks:
       - default
       - auth_service_external_net
@@ -47,14 +47,14 @@ services:
   pgbouncer_master:
     image: bitnami/pgbouncer:latest
     ports:
-      - "6433"
+      - "6433:6432"
     env_file:
       - ../.env
     environment:
       - POSTGRESQL_HOST=master
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6433
+      - PGBOUNCER_PORT=6432
     networks:
       - default
       - auth_service_external_net
@@ -63,17 +63,14 @@ services:
   pgbouncer_slave:
     image: bitnami/pgbouncer:latest
     ports:
-      - "6434"
+      - "6434:6432"
     env_file:
       - ../.env
     environment:
       - POSTGRESQL_HOST=slave
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6434
+      - PGBOUNCER_PORT=6432
     networks:
       - default
       - auth_service_external_net
-
-volumes:
-  master_data:
