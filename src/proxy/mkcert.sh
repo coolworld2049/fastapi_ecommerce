@@ -26,12 +26,6 @@ else
   SERVER_IP="$(ip -f inet a show eth0 | grep inet | awk '{ print $2}' | cut -d/ -f1)"
 fi
 
-if [[ $APP_ENV == "dev" ]]; then
-  echo "${SERVER_IP}  ${NGINX_DOMAIN}\
-  ${NGINX_AUTH_SB}.${NGINX_DOMAIN}\
-  ${NGINX_STORE_SB}.${NGINX_DOMAIN}" >>/etc/hosts
-  echo "/etc/hosts changed"
-fi
 
 # shellcheck disable=SC2035
 mkcert -install

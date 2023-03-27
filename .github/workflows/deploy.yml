@@ -7,6 +7,7 @@ on:
       - master
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,12 +21,12 @@ jobs:
           bash restart.sh
           bash test.sh
   build:
-    name: Build
+    name: Production Deployment
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Deployment on VDS - copy code
+      - name: scp-action
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -35,7 +36,7 @@ jobs:
           source: "."
           target: "/root/fastapi_ecommerce/"
 
-      - name: Deployment on VDS - restart services
+      - name: restart.sh
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
