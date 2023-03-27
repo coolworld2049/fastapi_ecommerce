@@ -15,7 +15,7 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
-          bash ls
+          ls
           bash src/scripts/cpenv.sh
           export APP_ENV=test
           bash src/scripts/restart.sh
