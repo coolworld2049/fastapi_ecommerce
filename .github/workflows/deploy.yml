@@ -14,15 +14,10 @@ jobs:
 
       - name: Build images and publish to registry
         run: |
-          #! /bin/bash
-          set -e
           echo "${{ secrets.ENV_FILE }}" > .env
-          ls src
-          cd ./src/scripts
-          . ./cpenv.sh
-          APP_ENV=test
-          . ./restart.sh
-        shell: bash
+          bash src/scripts/cpenv.sh
+          export APP_ENV=test
+          bash src/scripts/restart.sh
 
   build:
     name: Build
@@ -49,13 +44,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            #! /bin/bash
-            set -e
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
-            cd ./src/scripts
-            chmod +x ./cpenv.sh
-            . ./cpenv.sh
-            chmod +x ./restart.sh
-            . ./restart.sh
-          shell: bash
+            chmod +x src/scripts/cpenv.sh
+            bash src/scripts/cpenv.sh
+            chmod +x src/scripts/restart.sh
+            bash src/scripts/restart.sh
