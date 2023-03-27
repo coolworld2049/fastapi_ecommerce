@@ -16,7 +16,7 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > .env
           . ./cpenv.sh
           . ./build_push.sh
-          APP_ENV=test
+          APP_ENV=prod
           DEBUG=True
           . ./build_up.sh
         shell: bash

@@ -1,0 +1,154 @@
+version: '3.9'
+
+networks:
+  default:
+    driver: bridge
+  auth_service_external_net:
+    external: true
+
+services:
+
+  store_service:
+    image: ${DOCKER_USER}/${APP_NAME}:${APP_VERSION}
+    build: .
+    env_file:
+      - .env
+      - ../.env
+    ports:
+      - ${APP_PORT}:80
+    networks:
+      - default
+      - auth_service_external_net
+
+  ## Router
+  router01:
+    image: mongo:6.0.1
+    container_name: router-01
+    command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
+    ports:
+      - "27017:27017"
+      - "27117:27017"
+      - "27118:27017"
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_router01_db:/data/db
+      - mongodb_cluster_router01_config:/data/configdb
+    depends_on:
+      - configsvr01
+      - shard01-a
+      - shard01-b
+      - shard01-c
+      - shard02-a
+      - shard02-b
+      - shard02-c
+
+
+  ## Config Servers
+  configsvr01:
+    image: mongo:6.0.1
+    container_name: mongo-config-01
+    command: mongod --port 27017 --configsvr --replSet rs-config-server
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_configsvr01_db:/data/db
+      - mongodb_cluster_configsvr01_config:/data/configdb
+    ports:
+      - "27119:27017"
+
+
+  ## Shards 01
+
+  shard01-a:
+    image: mongo:6.0.1
+    container_name: shard-01-node-a
+    command: mongod --port 27017 --shardsvr --replSet rs-shard-01
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_shard01_a_db:/data/db
+      - mongodb_cluster_shard01_a_config:/data/configdb
+    ports:
+      - "27122:27017"
+
+  shard01-b:
+    image: mongo:6.0.1
+    container_name: shard-01-node-b
+    command: mongod --port 27017 --shardsvr --replSet rs-shard-01
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_shard01_b_db:/data/db
+      - mongodb_cluster_shard01_b_config:/data/configdb
+    ports:
+      - "27123:27017"
+
+  shard01-c:
+    image: mongo:6.0.1
+    container_name: shard-01-node-c
+    command: mongod --port 27017 --shardsvr --replSet rs-shard-01
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_shard01_c_db:/data/db
+      - mongodb_cluster_shard01_c_config:/data/configdb
+    ports:
+      - "27124:27017"
+
+
+  ## Shards 02
+  shard02-a:
+    image: mongo:6.0.1
+    container_name: shard-02-node-a
+    command: mongod --port 27017 --shardsvr --replSet rs-shard-02
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_shard02_a_db:/data/db
+      - mongodb_cluster_shard02_a_config:/data/configdb
+    ports:
+      - "27125:27017"
+
+  shard02-b:
+    image: mongo:6.0.1
+    container_name: shard-02-node-b
+    command: mongod --port 27017 --shardsvr --replSet rs-shard-02
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_shard02_b_db:/data/db
+      - mongodb_cluster_shard02_b_config:/data/configdb
+    ports:
+      - "27126:27017"
+
+  shard02-c:
+    image: mongo:6.0.1
+    container_name: shard-02-node-c
+    command: mongod --port 27017 --shardsvr --replSet rs-shard-02
+    volumes:
+      - ./scripts/mongodb/scripts:/scripts
+      - mongodb_cluster_shard02_c_db:/data/db
+      - mongodb_cluster_shard02_c_config:/data/configdb
+    ports:
+      - "27127:27017"
+
+
+volumes:
+
+  mongodb_cluster_router01_db:
+  mongodb_cluster_router01_config:
+
+  mongodb_cluster_configsvr01_db:
+  mongodb_cluster_configsvr01_config:
+
+  mongodb_cluster_shard01_a_db:
+  mongodb_cluster_shard01_a_config:
+
+  mongodb_cluster_shard01_b_db:
+  mongodb_cluster_shard01_b_config:
+
+  mongodb_cluster_shard01_c_db:
+  mongodb_cluster_shard01_c_config:
+
+  mongodb_cluster_shard02_a_db:
+  mongodb_cluster_shard02_a_config:
+
+  mongodb_cluster_shard02_b_db:
+  mongodb_cluster_shard02_b_config:
+
+  mongodb_cluster_shard02_c_db:
+  mongodb_cluster_shard02_c_config:

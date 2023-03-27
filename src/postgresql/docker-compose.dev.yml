@@ -1,0 +1,42 @@
+version: '3.9'
+
+networks:
+  default:
+    driver: bridge
+  auth_service_external_net:
+    external: true
+
+services:
+
+  master:
+    image: bitnami/postgresql:latest
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../.env
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-0}
+    networks:
+      - default
+      - auth_service_external_net
+
+
+  slave:
+    image: bitnami/postgresql:latest
+    env_file:
+      - ../.env
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=master
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+    networks:
+      - default
+      - auth_service_external_net
