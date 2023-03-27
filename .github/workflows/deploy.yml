@@ -15,10 +15,11 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
+          ls
           cd ./src/scripts
-          . cpenv.sh
+          . ./cpenv.sh
           APP_ENV=test
-          . restart.sh
+          . ./restart.sh
         shell: bash
 
   build:
@@ -50,7 +51,7 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > .env
             cd ./src/scripts
             chmod +x cpenv.sh
-            . cpenv.sh
+            . ./cpenv.sh
             chmod +x restart.sh
-            . restart.sh
+            . ./restart.sh
           shell: bash
