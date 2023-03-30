@@ -48,5 +48,5 @@ jobs:
             chmod +x scripts/*
             cd scripts
             bash cpenv.sh
-            export APP_ENV=prod
+            sed -i~ '/^APP_ENV=/s/=.*/=prod/' ../src/.env
             bash restart.sh
