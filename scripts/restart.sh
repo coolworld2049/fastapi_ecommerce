@@ -10,6 +10,4 @@ if [ "$APP_ENV" != dev ]; then
   . build_push.sh
 fi
 
-export INIT_MONGODB_CLUSTER="${INIT_MONGODB_CLUSTER:-false}"
-
 . start.sh

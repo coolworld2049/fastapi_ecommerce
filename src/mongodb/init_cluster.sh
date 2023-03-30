@@ -15,15 +15,15 @@ db.adminCommand( { shardCollection: "app.OrderProduct", key: { _id: 1 } } )
 '
 
 docker-compose exec router01 mongosh --port 27017 --eval 'sh.status()'
-docker exec -T shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
-docker exec -T shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+#docker exec shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+#docker exec shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
 
 docker-compose exec router01 mongosh --port 27017 --eval '
 use app,
 db.stats(),
 db.User.getShardDistribution()
 '
-docker exec mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017"
+#docker exec mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017"
 #docker exec shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
 #docker exec shard-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017"
 #docker exec shard-01-node-a bash -c "echo 'rs.printSecondaryReplicationInfo()' | mongosh --port 27017"

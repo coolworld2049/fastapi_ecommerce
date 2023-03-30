@@ -5,7 +5,6 @@ set -e
 start=$SECONDS
 
 export \
-  INIT_MONGODB_CLUSTER="${INIT_MONGODB_CLUSTER:-true}" \
   DOCKER_OPTIONS="${DOCKER_OPTIONS:---build}" \
   ROOT_PATH=../src \
   CURDIR=../../scripts \
@@ -40,8 +39,8 @@ cd $CURDIR
 if [ "$APP_ENV" != dev ]; then
   cd $ROOT_PATH/postgresql
   docker-compose up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
-  echo "sleep 15"
-  sleep 15
+  echo "sleep 20"
+  sleep 20
   cd $CURDIR
 else
   cd $ROOT_PATH/postgresql
@@ -66,11 +65,9 @@ cd $ROOT_PATH/mongodb
 docker-compose up -d
 echo "sleep 5"
 sleep 5
-if [ "$INIT_MONGODB_CLUSTER" == true ]; then
-  . init_cluster.sh
-  echo "sleep 10"
-  sleep 10
-fi
+. init_cluster.sh
+echo "sleep 10"
+sleep 10
 cd $CURDIR
 
 if [ "$APP_ENV" != dev ]; then
@@ -93,7 +90,13 @@ printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️
 
 docker volume prune -f
 
+printf '\n'
+
 docker network prune -f
+
+printf '\n'
+
+docker ps
 
 printf '\n'
 
