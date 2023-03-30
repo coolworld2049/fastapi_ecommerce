@@ -4,6 +4,8 @@ set -e
 
 for dir in ../src/*; do
   cd "$dir"
-  cp .env.example .env
+  if [ -f "$dir"/.env.example ]; then
+    cp .env.example .env
+  fi
   cd ..
 done
