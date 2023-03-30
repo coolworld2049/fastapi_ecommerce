@@ -14,23 +14,28 @@ from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=get_app_settings().auth_service_login_url
+    tokenUrl=get_app_settings().api_perfix + "/auth_service/login"
 )
+
+
+def jwt_decode(token: str):
+    payload = jwt.decode(
+        token=token,
+        key=get_app_settings().JWT_SECRET_KEY,
+        algorithms=get_app_settings().JWT_ALGORITHM,
+        options={"verify_aud": False},
+    )
+    sub = payload.get("sub")
+    if not sub:
+        raise BadCredentialsException
+    return payload
 
 
 async def get_current_user(
     token: str = Depends(oauth2Scheme),
 ) -> User:
     try:
-        payload = jwt.decode(
-            token=token,
-            key=get_app_settings().JWT_SECRET_KEY,
-            algorithms=get_app_settings().JWT_ALGORITHM,
-            options={"verify_aud": False},
-        )
-        sub = payload.get("sub")
-        if not sub:
-            raise BadCredentialsException
+        payload = jwt_decode(token)
     except JWTError:
         raise BadCredentialsException
 

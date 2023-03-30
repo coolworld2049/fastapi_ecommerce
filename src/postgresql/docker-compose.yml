@@ -11,7 +11,7 @@ services:
   master:
     image: bitnami/postgresql:latest
     ports:
-      - "5432"
+      - "5432:5432"
     env_file:
       - ../.env
     environment:
@@ -47,14 +47,14 @@ services:
   pgbouncer_master:
     image: bitnami/pgbouncer:latest
     ports:
-      - "6433:6432"
+      - "6433:6433"
     env_file:
       - ../.env
     environment:
       - POSTGRESQL_HOST=master
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6432
+      - PGBOUNCER_PORT=6433
     networks:
       - default
       - auth_service_external_net
@@ -63,14 +63,14 @@ services:
   pgbouncer_slave:
     image: bitnami/pgbouncer:latest
     ports:
-      - "6434:6432"
+      - "6434:6434"
     env_file:
       - ../.env
     environment:
       - POSTGRESQL_HOST=slave
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6432
+      - PGBOUNCER_PORT=6434
     networks:
       - default
       - auth_service_external_net

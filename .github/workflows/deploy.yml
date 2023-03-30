@@ -14,8 +14,7 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > src/.env
-          ls
-          cd src/scripts
+          cd scripts
           bash cpenv.sh
           export APP_ENV=test
           bash restart.sh
@@ -45,7 +44,7 @@ jobs:
           script: |
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > src/.env
-            cd src/scripts
+            cd scripts
             chmod +x cpenv.sh
             bash cpenv.sh
             chmod +x restart.sh

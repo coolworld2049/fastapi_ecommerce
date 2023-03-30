@@ -14,4 +14,6 @@ export RMI=true
 
 printf "\n"
 
-echo "✅ " restarted in $((SECONDS - start)) sec
+echo "✔️✔️✔️ restarted in $((SECONDS - start)) sec ✔️✔️✔️"
+
+printf "\n"
