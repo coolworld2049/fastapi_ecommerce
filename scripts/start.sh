@@ -2,6 +2,8 @@
 
 set -e
 
+. acl.sh
+
 start=$SECONDS
 
 ROOT_PATH=../src
