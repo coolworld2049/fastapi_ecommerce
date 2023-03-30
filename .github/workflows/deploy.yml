@@ -15,7 +15,7 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > src/.env
           cd scripts
           bash cpenv.sh
-          export APP_ENV=test
+          sed 's@test@'"$APP_ENV"'@'
           bash restart.sh
   build:
     name: Production Deployment
