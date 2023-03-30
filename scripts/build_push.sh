@@ -4,7 +4,7 @@ set -e
 
 start=$SECONDS
 
-. export_envs.sh
+source ../src/.env
 
 echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
 
@@ -12,12 +12,9 @@ PUSHED_IMAGES=()
 
 for dir in ../src/*; do
   if [[ -f "../src/$dir/Dockerfile" ]]; then
-
-    # shellcheck disable=SC1090
-    export SERVICE_PATH=$dir
-    . export_envs.sh
+    source "$dir"/.env
     IMAGE=""${DOCKER_USER}/${APP_NAME}:${APP_VERSION:-latest}""
-    docker build -t "${IMAGE}" ../src/"$dir"/
+    docker build -t "${IMAGE}" ../src/"$dir"
     docker push "${IMAGE}"
     declare msg
     # shellcheck disable=SC2181
@@ -33,8 +30,4 @@ done
 
 printf '%s\n' "$(printf '%s\n' "${PUSHED_IMAGES[@]}")"
 
-printf "\n"
-
-echo "✔️✔️✔️ built and pushed in $((SECONDS - start)) sec ✔️✔️✔️"
-
-printf "\n"
+printf "\n%s\n\n" "✔️✔️✔️ built and pushed in $((SECONDS - start)) sec ✔️✔️✔️"

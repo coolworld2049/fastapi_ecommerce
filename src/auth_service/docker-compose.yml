@@ -19,3 +19,4 @@ services:
     networks:
       - default
       - external_net
+
