@@ -2,7 +2,16 @@
 
 set -e
 
-. acl.sh
+VOL_PATH=../src/.volumes
+
+if [ ! -e "$VOL_PATH" ]; then
+  mkdir ../src/.volumes
+  chown -R 1001:1001 $VOL_PATH
+  printf '\n%s\n' "✅ $VOL_PATH  "
+else
+  chown -R 1001:1001 $VOL_PATH
+  printf '\n%s\n' "✅ $VOL_PATH already exist  "
+fi
 
 start=$SECONDS
 
