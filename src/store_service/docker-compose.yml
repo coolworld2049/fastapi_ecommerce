@@ -23,4 +23,6 @@ services:
       - default
       - external_net
       - auth_service_external_net
+    restart: always
+
 

@@ -2,7 +2,10 @@
 
 set +e
 
-printf '\n'
+# shellcheck disable=SC2086
+source ../src/.env
+
+printf '\n%s\n\n' "❗ APP_ENV=$APP_ENV"
 
 REQUIRED_PKG="netcat"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG | grep "install ok installed")
@@ -14,7 +17,7 @@ fi
 printf '\n'
 
 set -e
-for port in 27122-27127 27017 27119 8001 8002 6433 6434 443 80; do
+for port in 27122-27127 27017 27119 8001-8002 6433 6434 443 80; do
   set +e
   url="127.0.0.1"
   CMD="$(nc -vz $url $port)"

@@ -5,7 +5,6 @@ set -e
 for dir in ../src/*; do
   set +e
   file="$dir"/.env.example
-
   if [ ! -e "$file" ]; then
     printf '\n%s' "❌ $dir/.env  "
   else

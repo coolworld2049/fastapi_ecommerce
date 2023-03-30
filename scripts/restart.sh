@@ -2,17 +2,16 @@
 
 set -e
 
-RMI=true
-RMV=false
-RUN_BUILD_PUSH=true
-
-
 . down.sh
 . down.sh
 
-if [ $RUN_BUILD_PUSH == true ]; then
+export IS_BUILD_PUSH="${IS_BUILD_PUSH:-true}"
+
+if [ "$APP_ENV" == true ]; then
   echo "exec build_push.sh ..."
   . build_push.sh
 fi
+
+export INIT_MONGODB_CLUSTER="${INIT_MONGODB_CLUSTER:-false}"
 
 . start.sh

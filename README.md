@@ -119,6 +119,10 @@ model OrderProduct {
 ![prisma-studio.png](assets%2Fprisma-studio.png)
 
 ## dev mode
+../src/.env
+```text
+APP_ENV=dev
+```
 add the following lines to /etc/hosts
 ```text
 127.0.0.1 auth-service.fastapi-ecommerce.ru
