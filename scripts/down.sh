@@ -10,7 +10,9 @@ printf '\n%s\n\n' "❗ APP_ENV=$APP_ENV"
 
 export RMI="${RMI:-true}" RMV="${RMV:-false}"
 
-if [ "$APP_ENV" != prod ]; then
+if [ "$APP_ENV" != dev ]; then
+  export RMI=true RMV=false
+else
   export RMI=true RMV=true
 fi
 

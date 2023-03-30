@@ -15,7 +15,7 @@ source $ROOT_PATH/.env
 
 printf '\n%s\n\n' "❗ APP_ENV=$APP_ENV"
 
-if [ "$APP_ENV" == prod ]; then
+if [ "$APP_ENV" != dev ]; then
   export DOCKER_OPTIONS=--no-build
 fi
 
@@ -37,7 +37,7 @@ cd $SERVICE_PATH
 docker-compose up -d "$DOCKER_OPTIONS" --scale auth_service=0
 cd $CURDIR
 
-if [ "$APP_ENV" == prod ]; then
+if [ "$APP_ENV" != dev ]; then
   cd $ROOT_PATH/postgresql
   docker-compose up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
   echo "sleep 15"
@@ -49,7 +49,7 @@ else
   cd $CURDIR
 fi
 
-if [ "$APP_ENV" == prod ]; then
+if [ "$APP_ENV" != dev ]; then
   cd $ROOT_PATH/auth_service
   docker-compose up -d "$DOCKER_OPTIONS"
   cd $CURDIR
@@ -73,7 +73,7 @@ if [ "$INIT_MONGODB_CLUSTER" == true ]; then
 fi
 cd $CURDIR
 
-if [ "$APP_ENV" == prod ]; then
+if [ "$APP_ENV" != dev ]; then
   cd $SERVICE_PATH
   docker-compose up -d "$DOCKER_OPTIONS"
   cd $CURDIR
@@ -82,7 +82,7 @@ fi
 #proxy------------------------------------------------------------------------------------------------------------------
 export SERVICE_PATH=../src/proxy
 
-if [ "$APP_ENV" == prod ]; then
+if [ "$APP_ENV" != dev ]; then
   cd $SERVICE_PATH
   . ./mkcert.sh
   docker-compose up -d "$DOCKER_OPTIONS"
