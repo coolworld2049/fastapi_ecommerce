@@ -15,7 +15,7 @@ source $ROOT_PATH/.env
 
 printf '\n%s\n\n' "❗ APP_ENV=$APP_ENV"
 
-if [ "$APP_ENV" != dev ]; then
+if [ "$APP_ENV" == prod ]; then
   export DOCKER_OPTIONS=--no-build
 fi
 
