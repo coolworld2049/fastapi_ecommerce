@@ -28,7 +28,7 @@ class AppSettings(BaseAppSettings):
 
     MONGODB_URL: str
     AUTH_SERVICE_URL: str
-    AUTH_SERVICE_LOGIN_URL: str
+    AUTH_SERVICE_LOGIN_PATH: str
 
     LOGGING_LEVEL: int = logging.INFO
 
@@ -57,4 +57,4 @@ class AppSettings(BaseAppSettings):
 
     @property
     def auth_service_login_url(self):
-        return self.AUTH_SERVICE_URL + self.AUTH_SERVICE_LOGIN_URL
+        return self.AUTH_SERVICE_URL + self.AUTH_SERVICE_LOGIN_PATH

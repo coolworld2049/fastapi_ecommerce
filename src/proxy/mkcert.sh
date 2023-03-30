@@ -32,7 +32,6 @@ mkcert -install
 # shellcheck disable=SC2035
 mkcert -key-file "${NGINX_DOMAIN}".key -cert-file "${NGINX_DOMAIN}".cert \
   www."${NGINX_DOMAIN}" \
-  "${NGINX_DOMAIN}" \
   *."${NGINX_DOMAIN}" \
   "${SERVER_IP}" \
   127.0.0.1 \

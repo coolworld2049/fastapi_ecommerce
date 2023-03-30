@@ -13,13 +13,13 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ../.env
+      - ../auth_service/.env
     environment:
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-0}
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-1}
     networks:
       - default
       - auth_service_external_net
@@ -28,7 +28,7 @@ services:
   slave:
     image: bitnami/postgresql:latest
     env_file:
-      - ../.env
+      - ../auth_service/.env
     ports:
       - "5433:5432"
     environment:
