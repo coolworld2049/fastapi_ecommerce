@@ -17,9 +17,16 @@ fi
 printf '\n'
 
 set -e
-for port in 27122-27127 27017 27119 8001-8002 6433 6434 443 80; do
+
+if [ "$APP_ENV" == prod ]; then
+  PORTS=(27122-27127 27017 27119 8001-8002 6433 6434 443 80)
+else
+  PORTS=(27122-27127 27017 27119 8001-8002 6433 6434)
+fi
+
+for port in "${PORTS[@]}"; do
   set +e
   url="127.0.0.1"
-  CMD="$(nc -vz $url $port)"
+  CMD="$(nc -vz $url "$port")"
   printf '%s' "$CMD"
 done
