@@ -13,10 +13,10 @@ if [ "" = "$PKG_OK" ]; then
 fi
 printf '\n'
 
-source ../src/.env
-for port in 27122-27127 27017 27119 8001-8002 6433-6434 443 80; do
+set -e
+for port in 27122-27127 27017 27119 8001 8002 6433 6434 443 80; do
   set +e
   url="127.0.0.1"
   CMD="$(nc -vz $url $port)"
-  printf '%s\n' "$CMD"
+  printf '%s' "$CMD"
 done

@@ -8,6 +8,7 @@ RUN_BUILD_PUSH=true
 
 
 . down.sh
+. down.sh
 
 if [ $RUN_BUILD_PUSH == true ]; then
   echo "exec build_push.sh ..."
