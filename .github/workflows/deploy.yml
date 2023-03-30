@@ -16,7 +16,7 @@ jobs:
           chmod +x scripts/*
           cd scripts
           bash cpenv.sh
-          export APP_ENV=test
+          sed -i~ '/^APP_ENV=/s/=.*/=test/' ../src/.env
           bash start.sh
           cd ..
   build:
