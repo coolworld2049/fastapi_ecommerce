@@ -15,7 +15,7 @@ https://store-service.fastapi-ecommerce/docs
 
 ## [auth_service](auth_service)
 
-- http://127.0.0.1:8001 `api`
+- http://127.0.0.1:8001
 
 ![auth-service.png](assets%2Fauth-service.png)
 
@@ -45,8 +45,7 @@ create table "user"
 
 ## [store_service](store_service)
 
-- http://127.0.0.1:8002 `api`
-- http://127.0.0.1:5555 `prisma studio`
+- http://127.0.0.1:8002
 
 ![store_service.png](assets%2Fstore_service.png)
 
@@ -118,10 +117,3 @@ model OrderProduct {
 ```
 
 ![prisma-studio.png](assets%2Fprisma-studio.png)
-
-
----
-
-### index.html
-
-<img src="assets/api-index.png" alt="api-index"/>
