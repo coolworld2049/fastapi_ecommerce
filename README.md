@@ -117,3 +117,10 @@ model OrderProduct {
 ```
 
 ![prisma-studio.png](assets%2Fprisma-studio.png)
+
+## dev mode
+add the following lines to /etc/hosts
+```text
+127.0.0.1 auth-service.fastapi-ecommerce.ru
+127.0.0.1 store-service.fastapi-ecommerce.ru
+```
