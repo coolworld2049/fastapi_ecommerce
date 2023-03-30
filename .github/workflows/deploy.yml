@@ -16,7 +16,9 @@ jobs:
           cd scripts
           bash cpenv.sh
           sed 's@test@'"$APP_ENV"'@'
+          cd dev
           bash start.sh
+          cd ..
   build:
     name: Production Deployment
     needs: [ test ]
