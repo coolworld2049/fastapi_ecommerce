@@ -13,7 +13,7 @@ echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
 PUSHED_IMAGES=()
 
 for dir in ../src/*; do
-  if [[ -f "../src/$dir/Dockerfile" ]]; then
+  if [[ -f "$dir/Dockerfile" ]]; then
     source "$dir"/.env
     IMAGE=""${DOCKER_USER}/${APP_NAME}:${APP_VERSION:-latest}""
     docker build -t "${IMAGE}" ../src/"$dir"

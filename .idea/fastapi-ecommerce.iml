@@ -7,7 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/store_service/store_service" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 (fastapi-template)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (fastapi-ecommerce)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
