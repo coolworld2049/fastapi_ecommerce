@@ -13,10 +13,11 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > src/.env
+          export $(grep -v '^#' src/.env | xargs -d '\n')
           cd scripts
           bash cpenv.sh
           sed 's@test@'"$APP_ENV"'@'
-          bash restart.sh
+          bash start.sh
   build:
     name: Production Deployment
     needs: [ test ]
