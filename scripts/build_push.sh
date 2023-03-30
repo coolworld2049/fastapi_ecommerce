@@ -6,6 +6,8 @@ start=$SECONDS
 
 source ../src/.env
 
+printf '\n%s\n\n' "❗ APP_ENV=$APP_ENV"
+
 echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
 
 PUSHED_IMAGES=()

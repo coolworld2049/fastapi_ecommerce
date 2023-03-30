@@ -15,8 +15,8 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > src/.env
           cd scripts
           bash cpenv.sh
-          sed 's@test@'"$APP_ENV"'@'
           cd dev
+          export APP_ENV=test
           bash start.sh
           cd ..
   build:
@@ -45,8 +45,8 @@ jobs:
           script: |
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > src/.env
+            chmod +x scripts/*
             cd scripts
-            chmod +x cpenv.sh
             bash cpenv.sh
-            chmod +x restart.sh
+            export APP_ENV=prod
             bash restart.sh
