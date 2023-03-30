@@ -2,18 +2,16 @@
 
 set -e
 
-start=$SECONDS
+RMI=true
+RMV=false
+RUN_BUILD_PUSH=true
 
-export RMI=true
 
 . down.sh
 
-. build_push.sh
+if [ $RUN_BUILD_PUSH == true ]; then
+  echo "exec build_push.sh ..."
+  . build_push.sh
+fi
 
 . start.sh
-
-printf "\n"
-
-echo "✔️✔️✔️ restarted in $((SECONDS - start)) sec ✔️✔️✔️"
-
-printf "\n"

@@ -2,39 +2,37 @@
 
 set -e
 
+start=$SECONDS
+
 ROOT_PATH=../src
-SCRIPTS_PATH=../../scripts
+CURDIR=../../scripts
 DOCKER_OPTIONS=--no-build
 
+source $ROOT_PATH/.env
 
-# auth_service
+#auth_service-----------------------------------------------------------------------------------------------------------
 export SERVICE_PATH=$ROOT_PATH/auth_service
-. export_envs.sh
+
 cd $SERVICE_PATH
-docker-compose up -d "$DOCKER_OPTIONS" \
-  --scale auth_service=0
-cd $SCRIPTS_PATH
+docker-compose up -d "$DOCKER_OPTIONS" --scale auth_service=0
+cd $CURDIR
 
 cd $ROOT_PATH/postgresql
-docker-compose up -d \
-  --scale slave="${POSTGRESQL_NUM_SLAVES}"
-echo "sleep 10"
+docker-compose up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
+echo "sleep 15"
 sleep 15
-cd $SCRIPTS_PATH
+cd $CURDIR
 
 cd $ROOT_PATH/auth_service
 docker-compose up -d "$DOCKER_OPTIONS"
-cd $SCRIPTS_PATH
+cd $CURDIR
 
-
-
-# store_service
+#store_service----------------------------------------------------------------------------------------------------------
 export SERVICE_PATH=$ROOT_PATH/store_service
-. export_envs.sh
 
 cd $SERVICE_PATH
 docker-compose up -d "$DOCKER_OPTIONS" --scale store_service=0
-cd $SCRIPTS_PATH
+cd $CURDIR
 
 cd $ROOT_PATH/mongodb
 docker-compose up -d
@@ -43,23 +41,28 @@ sleep 5
 . init_cluster.sh
 echo "sleep 10"
 sleep 10
-cd $SCRIPTS_PATH
+cd $CURDIR
 
 cd $SERVICE_PATH
 docker-compose up -d "$DOCKER_OPTIONS"
-cd $SCRIPTS_PATH
+cd $CURDIR
 
-
-
-# proxy
+#proxy------------------------------------------------------------------------------------------------------------------
 export SERVICE_PATH=../src/proxy
-. export_envs.sh
 
 cd $SERVICE_PATH
 . ./mkcert.sh
 docker-compose up -d "$DOCKER_OPTIONS"
-cd $SCRIPTS_PATH
+cd $CURDIR
 
-docker volume prune -f --filter "label!=keep"
+printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️✔️✔️"
+
+docker volume prune -f
+
+docker network prune -f
+
+printf '\n'
+
+docker stats --no-stream
 
 . test.sh

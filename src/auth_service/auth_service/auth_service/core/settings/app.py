@@ -26,7 +26,7 @@ class AppSettings(BaseAppSettings):
     APP_ENV: AppEnvTypes
     APP_VERSION: str = "latest"
 
-    BACKEND_CORS_ORIGINS: list[str]
+    APP_BACKEND_CORS_ORIGINS: list[str]
     JWT_ALGORITHM: str
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int

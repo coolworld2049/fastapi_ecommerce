@@ -13,7 +13,6 @@ services:
   proxy:
     image: ${DOCKER_USER}/${APP_NAME}:${APP_VERSION}
     build: .
-    restart: always
     env_file:
       - ../.env
       - .env
@@ -26,3 +25,4 @@ services:
     networks:
       - auth_service
       - store_service
+    restart: always
