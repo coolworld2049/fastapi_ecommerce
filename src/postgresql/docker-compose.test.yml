@@ -12,28 +12,22 @@ services:
     extends:
       file: docker-compose.yml
       service: master
-    ports:
-      - "5432:5432"
+    environment:
+      - POSTGRESQL_PGHBA_REMOVE_FILTERS=scram-sha-256
     volumes:
-      - ./pg_hba.conf:/bitnami/postgresql/conf
+      - ./pg_hba.test.conf:/bitnami/postgresql/conf
 
   slave:
     extends:
       file: docker-compose.yml
       service: slave
-    ports:
-      - "5433:5432"
 
   pgbouncer_master:
     extends:
       file: docker-compose.yml
       service: pgbouncer_master
-    ports:
-      - "6433:6432"
 
   pgbouncer_slave:
     extends:
       file: docker-compose.yml
       service: pgbouncer_slave
-    ports:
-      - "6434:6432"

@@ -18,9 +18,19 @@ if [ "" = "$PKG_OK" ]; then
 fi
 printf '\n'
 
-pgbench -U postgres -h 127.0.0.1 -p 6433
-declare counter=1
-for tx in 2 8 16 34 64 128; do
-  pgbench -U postgres -h 127.0.0.1 -p 6433 -j $counter -c $((tx * 10)) -t $(((tx ** 2) * 10)) app
-  counter+=1
+export SCALE=${SCALE:-50}
+
+pgbench -i -s "$SCALE" -U postgres -h "$POSTGRESQL_HOST" -p "$POSTGRESQL_PORT" "$POSTGRESQL_DATABASE"
+
+printf '\n'
+
+counter=1
+for tx in 100 200 300 400 500; do
+  set +e
+  clients=$((tx / 10))
+  transactions=$tx
+  printf '%s\n'"test [$counter] options: clients=$clients transactions=$transactions "
+  printf '\n'
+  pgbench -j 2 -c $clients -t $transactions -U postgres -h "$POSTGRESQL_HOST" -p "$POSTGRESQL_PORT" "$POSTGRESQL_DATABASE"
+  : $((counter++))
 done

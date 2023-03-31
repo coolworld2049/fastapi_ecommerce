@@ -1,0 +1,13 @@
+version: '3.9'
+
+networks:
+  postgresql_default:
+    external: true
+
+services:
+  vm:
+    build: .
+    volumes:
+      - ./postgresql:/postgresql
+    networks:
+      - postgresql_default
