@@ -1,25 +1,26 @@
-#! /bin/bash
+#! /bin/bash -x
 
 set -e
 
-psql -U postgres -c "create table if not exists benchmark (scale int not null, table_size_mb int not null, index_size_mb int not null, db_size_mb int not null);"
+# pgbench
+#-I initialize the db. Creates a bunch of default tables
+#-s  scaling option. i.e take the default rows and x 50 or whatever scaling number you require
+#-c number of clients
+#-j 2 number of threads
+#-t amount of transactions
 
-for x in $(seq 50 50 450); do
-  pgbench -i --unlogged-tables -s "$x" -n &>/tmp/pgbench.log
-  SQL=$(
-    cat <<-EOF
+REQUIRED_PKG="postgresql-contrib"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG | grep "install ok installed")
+echo Checking for $REQUIRED_PKG: "$PKG_OK"
+if [ "" = "$PKG_OK" ]; then
+  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+  sudo apt-get --yes install $REQUIRED_PKG
+fi
+printf '\n'
 
-  insert into benchmark select
-
-  ${x},
-
-  (select round(pg_table_size('pgbench_accounts') / 1024^2)),
-
-  (select round(pg_relation_size('pgbench_accounts_pkey') / 1024^2)),
-
-  (select round(pg_database_size(current_database()) / 1024^2))
-
-EOF
-  )
-  echo "$SQL" | psql
+pgbench -U postgres -h 127.0.0.1 -p 6433
+declare counter=1
+for tx in 2 8 16 34 64 128; do
+  pgbench -U postgres -h 127.0.0.1 -p 6433 -j $counter -c $((tx * 10)) -t $(((tx ** 2) * 10)) app
+  counter+=1
 done

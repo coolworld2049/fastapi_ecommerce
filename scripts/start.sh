@@ -90,8 +90,6 @@ printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️
 
 docker volume prune -f
 
-printf '\n'
-
 docker network prune -f
 
 printf '\n'
