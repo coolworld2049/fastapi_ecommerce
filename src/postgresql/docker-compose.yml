@@ -24,8 +24,8 @@ services:
       - default
       - auth_service_external_net
     volumes:
-      - ../.volumes/postgresql_master:/bitnami/postgresql
       - ./pg_hba.conf:/bitnami/postgresql/conf
+      - ../.volumes/postgresql_master:/bitnami/postgresql
     restart: always
 
 
