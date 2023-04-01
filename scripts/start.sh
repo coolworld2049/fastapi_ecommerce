@@ -80,12 +80,10 @@ fi
 #proxy------------------------------------------------------------------------------------------------------------------
 export SERVICE_PATH=../src/proxy
 
-if [ "$APP_ENV" != dev ]; then
-  cd $SERVICE_PATH
-  . ./mkcert.sh
-  docker-compose up -d "$DOCKER_OPTIONS"
-  cd $CURDIR
-fi
+cd $SERVICE_PATH
+. ./mkcert.sh
+docker-compose up -d "$DOCKER_OPTIONS"
+cd $CURDIR
 
 docker volume prune -f
 
