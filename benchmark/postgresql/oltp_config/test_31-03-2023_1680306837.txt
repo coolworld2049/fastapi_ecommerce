@@ -1,0 +1,98 @@
+
+1, WRITE master, options clients=50 transactions=500 threads=6 
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 50
+query mode: simple
+number of clients: 50
+number of threads: 6
+number of transactions per client: 500
+number of transactions actually processed: 25000/25000
+latency average = 34.883 ms
+tps = 1433.369836 (including connections establishing)
+tps = 1433.442461 (excluding connections establishing)
+
+1, READ master [1], options clients=150 transactions=1500 threads=6 
+transaction type: <builtin: select only>
+scaling factor: 50
+query mode: simple
+number of clients: 150
+number of threads: 6
+number of transactions per client: 1500
+number of transactions actually processed: 225000/225000
+latency average = 6.831 ms
+tps = 21958.684141 (including connections establishing)
+tps = 21960.465023 (excluding connections establishing)
+
+2, WRITE master, options clients=100 transactions=1000 threads=6 
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 50
+query mode: simple
+number of clients: 100
+number of threads: 6
+number of transactions per client: 1000
+number of transactions actually processed: 100000/100000
+latency average = 69.845 ms
+tps = 1431.738458 (including connections establishing)
+tps = 1431.769775 (excluding connections establishing)
+
+2, READ master [2], options clients=300 transactions=3000 threads=6 
+Try again
+Try again
+transaction type: <builtin: select only>
+scaling factor: 50
+query mode: simple
+number of clients: 300
+number of threads: 6
+number of transactions per client: 3000
+number of transactions actually processed: 900000/900000
+latency average = 10.783 ms
+tps = 27820.827740 (including connections establishing)
+tps = 27823.716756 (excluding connections establishing)
+
+3, WRITE master, options clients=150 transactions=1500 threads=6 
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 50
+query mode: simple
+number of clients: 150
+number of threads: 6
+number of transactions per client: 1500
+number of transactions actually processed: 225000/225000
+latency average = 130.942 ms
+tps = 1145.541136 (including connections establishing)
+tps = 1145.546953 (excluding connections establishing)
+
+3, READ master [3], options clients=450 transactions=4500 threads=6 
+transaction type: <builtin: select only>
+scaling factor: 50
+query mode: simple
+number of clients: 450
+number of threads: 6
+number of transactions per client: 4500
+number of transactions actually processed: 2025000/2025000
+latency average = 15.403 ms
+tps = 29214.733579 (including connections establishing)
+tps = 29215.492362 (excluding connections establishing)
+
+# 4, WRITE master, options clients=200 transactions=2000 threads=6
+# transaction type: <builtin: TPC-B (sort of)>
+# scaling factor: 50
+# query mode: simple
+# number of clients: 200
+# number of threads: 6
+# number of transactions per client: 2000
+# number of transactions actually processed: 224000/400000
+# latency average = 211.149 ms
+# tps = 947.196415 (including connections establishing)
+# tps = 947.206549 (excluding connections establishing)
+# Try again
+# transaction type: <builtin: TPC-B (sort of)>
+# scaling factor: 50
+# query mode: simple
+# number of clients: 200
+# number of threads: 6
+# number of transactions per client: 2000
+# number of transactions actually processed: 112000/400000
+# latency average = 301.760 ms
+# tps = 662.779252 (including connections establishing)
+# tps = 662.785856 (excluding connections establishing)
+# Try again

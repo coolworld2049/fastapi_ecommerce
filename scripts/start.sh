@@ -21,7 +21,7 @@ fi
 if [ ! -e "$VOL_PATH" ]; then
   set +e
   mkdir ../src/.volumes
-  chmod -R 777 $VOL_PATH/*
+  chmod -R 777$VOL_PATH/*
   printf '\n%s\n' "✅ $VOL_PATH  "
 else
   set +e
@@ -36,17 +36,18 @@ cd $SERVICE_PATH
 docker-compose up -d "$DOCKER_OPTIONS" --scale auth_service=0
 cd $CURDIR
 
-if [ "$APP_ENV" != dev ]; then
+if [ "$APP_ENV" == prod ]; then
   cd $ROOT_PATH/postgresql
   docker-compose up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
-  echo "sleep 20"
-  sleep 20
   cd $CURDIR
 else
   cd $ROOT_PATH/postgresql
-  docker-compose -f docker-compose.dev.yml up -d
+  printf '\n%s\n' "❗ docker-compose.$APP_ENV.yml"
+  docker-compose -f docker-compose."$APP_ENV".yml up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
   cd $CURDIR
 fi
+echo "sleep 20"
+sleep 20
 
 if [ "$APP_ENV" != dev ]; then
   cd $ROOT_PATH/auth_service
@@ -86,11 +87,7 @@ if [ "$APP_ENV" != dev ]; then
   cd $CURDIR
 fi
 
-printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️✔️✔️"
-
 docker volume prune -f
-
-printf '\n'
 
 docker network prune -f
 
@@ -103,3 +100,5 @@ printf '\n'
 docker stats --no-stream
 
 . test.sh
+
+printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️✔️✔️"
