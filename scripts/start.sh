@@ -87,8 +87,6 @@ if [ "$APP_ENV" != dev ]; then
   cd $CURDIR
 fi
 
-printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️✔️✔️"
-
 docker volume prune -f
 
 docker network prune -f
@@ -102,3 +100,5 @@ printf '\n'
 docker stats --no-stream
 
 . test.sh
+
+printf "\n%s\n\n" "✔️✔️✔️ started in $((SECONDS - start)) sec ✔️✔️✔️"

@@ -9,5 +9,6 @@ services:
     build: .
     volumes:
       - ./postgresql:/postgresql
+      - ../src/.volumes/postgresql_master:/postgresql_master
     networks:
       - postgresql_default
