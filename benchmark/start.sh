@@ -4,16 +4,11 @@ set -e
 
 source ../src/.env
 
-cd ../src/postgresql
-
 if [ "$APP_ENV" != prod ]; then
-
+  cd ../src/postgresql
   docker-compose -f docker-compose."$APP_ENV".yml up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
-else
-  docker-compose -f docker-compose.yml up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
+  cd ../../benchmark
 fi
-
-cd ../../benchmark
 
 echo "run vm"
 docker-compose run -d \

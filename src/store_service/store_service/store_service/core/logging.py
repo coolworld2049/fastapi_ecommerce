@@ -1,4 +1,3 @@
-import json
 import time
 from typing import Callable
 
@@ -31,7 +30,7 @@ class LoguruLoggingMiddleware:
             f"{request.method} {request.url} {response.status_code}"
         )
         if 500 <= response.status_code <= 599:
-            msg += f" - response: {json.loads(response.body)}"
+            msg += f" - response: {response.__dict__}"
         if request.app.debug:
             headers = []
             for route in request.app.router.routes:
