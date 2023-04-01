@@ -9,43 +9,13 @@
 
 ---
 
-https://auth-service.fastapi-ecommerce/docs
-
-https://store-service.fastapi-ecommerce/docs
-
-## [auth_service](auth_service)
-
-- http://127.0.0.1:8001
+# [auth_service](auth_service)
 
 ![auth-service.png](assets%2Fauth-service.png)
 
-```postgresql
-create type user_role as enum ('admin', 'manager', 'customer', 'guest');
-
-create table "user"
-(
-    id              varchar(24)           not null
-        primary key,
-    email           text                  not null
-        unique,
-    hashed_password text,
-    phone           text,
-    role            user_role             not null,
-    full_name       text,
-    username        text                  not null
-        unique,
-    is_active       boolean default true  not null,
-    is_superuser    boolean default false not null,
-    created_at      timestamp with time zone,
-    updated_at      timestamp with time zone
-);
-```
-
 ![auth-service-user-table.png](assets%2Fauth-service-user-table.png)
 
-## [store_service](store_service)
-
-- http://127.0.0.1:8002
+# [store_service](store_service)
 
 ![store_service.png](assets%2Fstore_service.png)
 
