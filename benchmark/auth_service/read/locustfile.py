@@ -7,7 +7,10 @@ from locust.runners import logger  # noqa
 
 
 def rnd_str(n=24):
-    return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(n))
+    return "".join(
+        random.SystemRandom().choice(string.ascii_letters + string.digits)
+        for _ in range(n)
+    )
 
 
 class RWUser(FastHttpUser):
@@ -19,7 +22,7 @@ class RWUser(FastHttpUser):
         high = random.randint(2, 100)
         pair = [low, high]
         if pair[0] == pair[1]:
-            pair = abs(pair[0] - 1), pair[1]
+            pair = [abs(pair[0] - 1), pair[1]]
         pair.sort()
         with self.rest(
             "GET",

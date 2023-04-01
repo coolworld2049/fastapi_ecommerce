@@ -28,12 +28,8 @@ services:
     extends:
       file: docker-compose.yml
       service: pgbouncer_master
-    ports:
-      - "6433:6432"
 
   pgbouncer_slave:
     extends:
       file: docker-compose.yml
       service: pgbouncer_slave
-    ports:
-      - "6434:6432"

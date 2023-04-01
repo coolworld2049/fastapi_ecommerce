@@ -16,9 +16,9 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"/openapi.json"
     redoc_url: str = "/redoc"
 
-    TEST_USE_RBAC = True
-    TEST_USE_USER_CHECKS = True
-    TEST_USE_EMAILS = True
+    TEST_USE_RBAC: Optional[bool] = True
+    TEST_USE_USER_CHECKS: Optional[bool] = True
+    TEST_USE_EMAILS: Optional[bool] = True
 
     APP_NAME: str
     APP_HOST: str

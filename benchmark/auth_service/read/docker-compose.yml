@@ -1,8 +1,7 @@
 version: '3.9'
 
 networks:
-  benchmark_default:
-    external: true
+  default:
 
 services:
 
@@ -16,7 +15,7 @@ services:
     depends_on:
       - worker
     networks:
-      - benchmark_default
+      - default
 
   worker:
     image: locustio/locust
@@ -24,4 +23,4 @@ services:
       - ./:/mnt/locust
     command: -f /mnt/locust/locustfile.py --worker --master-host master
     networks:
-      - benchmark_default
+      - default

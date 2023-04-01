@@ -1,27 +1,19 @@
 version: '3.9'
 
 networks:
-  benchmark_default:
-    external: true
+  default:
 
 services:
 
   master:
-    image: locustio/locust
+    extends:
+      file: ../read/docker-compose.yml
+      service: master
     volumes:
       - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --master --web-host 0.0.0.0 --web-port 8089
-    ports:
-      - "8091:8089"
-    depends_on:
-      - worker
-    networks:
-      - benchmark_default
-
   worker:
-    image: locustio/locust
+    extends:
+      file: ../read/docker-compose.yml
+      service: worker
     volumes:
       - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --worker --master-host master
-    networks:
-      - benchmark_default
