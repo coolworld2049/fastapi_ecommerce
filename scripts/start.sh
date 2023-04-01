@@ -21,7 +21,7 @@ fi
 if [ ! -e "$VOL_PATH" ]; then
   set +e
   mkdir ../src/.volumes
-  chmod -R 777$VOL_PATH/*
+  chmod -R 777 $VOL_PATH/*
   printf '\n%s\n' "✅ $VOL_PATH  "
 else
   set +e
