@@ -2,6 +2,9 @@ version: '3.9'
 
 networks:
   default:
+    driver: bridge
+  auth_service_default:
+    external: true
 
 services:
 
@@ -16,6 +19,7 @@ services:
       - worker
     networks:
       - default
+      - auth_service_default
 
   worker:
     image: locustio/locust
@@ -24,3 +28,4 @@ services:
     command: -f /mnt/locust/locustfile.py --worker --master-host master
     networks:
       - default
+      - auth_service_default

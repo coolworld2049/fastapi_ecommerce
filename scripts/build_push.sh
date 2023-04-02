@@ -2,7 +2,7 @@
 
 set -e
 
-start=$SECONDS
+build_start=$SECONDS
 
 source ../src/.env
 
@@ -32,4 +32,4 @@ done
 
 printf '%s\n' "$(printf '%s\n' "${PUSHED_IMAGES[@]}")"
 
-printf "\n%s\n\n" "✔️✔️✔️ built and pushed in $((SECONDS - start)) sec ✔️✔️✔️"
+printf "\n%s\n\n" "✔️✔️✔️ built and pushed in $((SECONDS - build_start)) sec ✔️✔️✔️"

@@ -1,12 +1,12 @@
 version: '3.9'
 
 networks:
-  auth_service:
+  default:
+    driver: bridge
+  auth_service_default:
     external: true
-    name: auth_service_external_net
-  store_service:
+  store_service_default:
     external: true
-    name: store_service_external_net
 
 services:
 
@@ -23,6 +23,7 @@ services:
       - "80:80"
       - "443:443"
     networks:
-      - auth_service
-      - store_service
+      - default
+      - auth_service_default
+      - store_service_default
     restart: always

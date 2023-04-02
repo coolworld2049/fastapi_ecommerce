@@ -3,7 +3,7 @@ version: '3.9'
 networks:
   default:
     driver: bridge
-  auth_service_external_net:
+  auth_service_default:
     external: true
 
 services:

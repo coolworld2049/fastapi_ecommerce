@@ -13,6 +13,7 @@ from prisma.models import Category, Product, Order, OrderProduct
 from prisma.types import CategoryCreateInput, ProductCreateInput
 
 from store_service.core.config import get_app_settings
+from store_service.core.settings.base import AppEnvTypes
 from store_service.schemas.user import User
 from store_service.test.test_auth_service.test_users import get_users
 from store_service.test.utils import RandomDateTime, rnd_string
@@ -142,9 +143,9 @@ async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
     await prisma_client.connect()
     degree = 2 if get_app_settings().APP_ENV == "dev" else 1
     users = await get_users(
-        count=10 ** degree, auth_service_client=auth_service_client
+        count=10**degree, auth_service_client=auth_service_client
     )
-    if get_app_settings().APP_ENV == "test":
+    if get_app_settings().APP_ENV != AppEnvTypes.prod:
         categories = await create_category(count=10 * degree)
         now = datetime.now()
         created_at = RandomDateTime(
@@ -152,7 +153,7 @@ async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
             [1, datetime.now().month],
         )
         products = await create_product(
-            categories, multiplier=10 ** degree, created_at=created_at
+            categories, multiplier=10**degree, created_at=created_at
         )
         orders_count = 0
         for _ in range(degree):

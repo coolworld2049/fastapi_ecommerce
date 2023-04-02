@@ -74,7 +74,7 @@ async def test_fake_data():
     await base_metadata(engines, drop=True)
     await init_db()
     if get_app_settings().APP_ENV != AppEnvTypes.prod:
-        count = 30 if get_app_settings().APP_ENV == AppEnvTypes.dev else 15
+        count = 30
         out_user_creds = "test_users_creds.json"
         async with SessionLocal() as db:
             users = await create_users(

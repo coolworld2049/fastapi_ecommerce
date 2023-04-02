@@ -3,7 +3,7 @@ version: '3.9'
 networks:
   default:
     driver: bridge
-  auth_service_external_net:
+  auth_service_default:
     external: true
 
 services:
@@ -21,10 +21,10 @@ services:
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
     networks:
       - default
-      - auth_service_external_net
+      - auth_service_default
     volumes:
       - ./conf/pg_hba.conf:/bitnami/postgresql/conf
-      - ../.volumes/postgresql_master:/bitnami/postgresql
+      - ../.volumes/postgresql/master/:/bitnami/postgresql
     restart: always
 
 
@@ -42,8 +42,14 @@ services:
       - POSTGRESQL_MASTER_PORT_NUMBER=5432
     networks:
       - default
-      - auth_service_external_net
+      - auth_service_default
     restart: always
+    deploy:
+      replicas: ${POSTGRESQL_NUM_SLAVES:-2}
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
 
 
   pgbouncer_master:
@@ -59,7 +65,7 @@ services:
       - PGBOUNCER_PORT=6433
     networks:
       - default
-      - auth_service_external_net
+      - auth_service_default
     restart: always
 
 
@@ -76,5 +82,5 @@ services:
       - PGBOUNCER_PORT=6434
     networks:
       - default
-      - auth_service_external_net
+      - auth_service_default
     restart: always

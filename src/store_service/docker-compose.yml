@@ -3,9 +3,7 @@ version: '3.9'
 networks:
   default:
     driver: bridge
-  external_net:
-    driver: bridge
-  auth_service_external_net:
+  auth_service_default:
     external: true
 
 
@@ -18,11 +16,16 @@ services:
       - .env
       - ../.env
     ports:
-      - ${APP_PORT}:80
+      - "80"
     networks:
       - default
-      - external_net
-      - auth_service_external_net
+      - auth_service_default
     restart: always
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
 
 

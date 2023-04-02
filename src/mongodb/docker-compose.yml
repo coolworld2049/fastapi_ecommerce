@@ -3,7 +3,7 @@ version: '3.9'
 networks:
   default:
     driver: bridge
-  store_service_external_net:
+  store_service_default:
     external: true
 
 services:
@@ -29,7 +29,7 @@ services:
       - shard02-c
     networks:
       - default
-      - store_service_external_net
+      - store_service_default
     restart: always
 
   ## Config Servers
