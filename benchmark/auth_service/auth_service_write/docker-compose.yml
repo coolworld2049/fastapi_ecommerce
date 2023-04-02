@@ -1,19 +1,23 @@
 version: '3.9'
 
+
 networks:
   default:
+    driver: bridge
+  auth_service_default:
+    external: true
 
 services:
 
   master:
     extends:
-      file: ../read/docker-compose.yml
+      file: ../auth_service_read/docker-compose.yml
       service: master
     volumes:
       - ./:/mnt/locust
   worker:
     extends:
-      file: ../read/docker-compose.yml
+      file: ../auth_service_read/docker-compose.yml
       service: worker
     volumes:
       - ./:/mnt/locust
