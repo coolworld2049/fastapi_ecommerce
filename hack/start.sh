@@ -2,11 +2,20 @@
 
 set -euo pipefail
 
-docker-compose -f ../deploy/docker-compose.yml up -d --no-build
+log() { printf '\n%s\n' "$1" >&2; }
 
-bash ../src/mongodb/configure_shards.sh
+docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d --no-build \
+  --scale auth_service=0 --scale store_service=0 --scale proxy_service=0
+
+bash ../src/store_service/mongodb/configure_shards.sh
 
 . ../src/proxy_service/mkcert.sh
+
+log "sleep 5"
+
+sleep 5
+
+docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d --no-build
 
 docker volume prune -f --filter "label!=keep"
 

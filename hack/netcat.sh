@@ -25,5 +25,10 @@ for port in "${PORTS[@]}"; do
   set +e
   url="127.0.0.1"
   CMD="$(nc -vz $url "$port")"
-  printf '%s' "$CMD"
+  if [ $? -eq 1 ]; then
+    printf '%s' "$CMD"
+    exit 1
+  else
+    printf '%s' "$CMD"
+  fi
 done

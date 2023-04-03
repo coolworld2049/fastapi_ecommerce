@@ -1,9 +1,15 @@
 import random
+from asyncio import current_task
+from contextlib import asynccontextmanager
 from typing import Any
 
 from sqlalchemy import Update, Delete, Insert, text
-from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    AsyncEngine,
+    async_scoped_session,
+    AsyncSession,
+)
 from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
 
@@ -15,20 +21,7 @@ Base: DeclarativeBase = declarative_base()
 engines = MasterSlaves(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_slaves,
-    pool_size=20,
-    max_overflow=0,
-    pool_pre_ping=True
 )
-
-
-def ping_connection(engine):
-    c = engine.connect()
-    try:
-        c.execute(text("select 1"))
-        c.close()
-    except DBAPIError as e:
-        if e.connection_invalidated:
-            pass
 
 
 class RoutingSession(Session):
@@ -59,6 +52,21 @@ class RoutingSession(Session):
                 ).sync_engine
 
 
-SessionLocal = async_sessionmaker(
-    sync_session_class=RoutingSession, autoflush=False, expire_on_commit=False
+async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
+    sync_session_class=RoutingSession,
+    autoflush=False,
+    expire_on_commit=False,
 )
+
+
+@asynccontextmanager
+async def scoped_session():
+    scoped_factory = async_scoped_session(
+        session_factory=async_session,
+        scopefunc=current_task,
+    )
+    try:
+        async with scoped_factory() as s:
+            yield s
+    finally:
+        await scoped_factory.remove()

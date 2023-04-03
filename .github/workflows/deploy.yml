@@ -13,10 +13,12 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
+          echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/.env.auth_service
+          echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/.env.store_service
+          sed -i~ '/^APP_ENV=/s/=.*/=test/' .env
           chmod +x hack/*
           cd hack
           bash cpenv.sh
-          sed -i~ '/^APP_ENV=/s/=.*/=test/' ../.env
           bash make_docker_images.sh
           bash start.sh
           cd ..
@@ -46,6 +48,8 @@ jobs:
           script: |
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
+            echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/.env.auth_service
+            echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/.env.store_service
             chmod +x hack/*
             cd hack
             bash cpenv.sh

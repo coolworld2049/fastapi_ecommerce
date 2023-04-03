@@ -1,11 +1,11 @@
 MongoDB cluster minimize
 =========================================
 
-* Config Server: `configsvr01`
+* Config Server: `store_service_configsvr01`
 * 2 Shards (each a 2 member `PSS` replica set):
-	* `shard01-a`,`shard01-b`, `shard01-c`
-	* `shard02-a`,`shard02-b`, `shard02-c`
-* 1 Routers (mongos): `router01`
+	* `store_service_shard01_a`,`store_service_shard01_b`, `store_service_shard01_c`
+	* `store_service_shard02_a`,`store_service_shard02_b`, `store_service_shard02_c`
+* 1 Routers (mongos): `store_service_router01`
 
 ### 👉 Step 1
 ```bash
@@ -15,22 +15,22 @@ docker-compose up -d
 ### 👉 Step 2
 
 ```bash
-docker-compose exec configsvr01 sh -c "mongosh < /scripts/init-configserver.js"
+docker-compose exec store_service_configsvr01 sh -c "mongosh < /scripts/init-configserver.js"
 
-docker-compose exec shard01-a sh -c "mongosh < /scripts/init-shard01.js"
-docker-compose exec shard02-a sh -c "mongosh < /scripts/init-shard02.js"
+docker-compose exec store_service_shard01_a sh -c "mongosh < /scripts/init-shard01.js"
+docker-compose exec store_service_shard02_a sh -c "mongosh < /scripts/init-shard02.js"
 ```
 
 ### 👉 Step 3
 >Note: Wait a bit for the config server and shards to elect their primaries before initializing the router
 
 ```bash
-docker-compose exec router01 sh -c "mongosh < /scripts/init-router.js"
+docker-compose exec store_service_router01 sh -c "mongosh < /scripts/init-router.js"
 ```
 
 ### 👉 Step 4
 ```bash
-docker-compose exec router01 mongosh --port 27017
+docker-compose exec store_service_router01 mongosh --port 27017
 
 // Enable sharding for database `app`
 sh.enableSharding("app")
@@ -58,7 +58,7 @@ db.adminCommand( { shardCollection: "app.User", key: { oemNumber: "hashed", zipC
 ### ✅ Verify the status of the sharded cluster [🔝](#-table-of-contents)
 
 ```bash
-docker-compose exec router01 mongosh --port 27017
+docker-compose exec store_service_router01 mongosh --port 27017
 sh.status()
 ```
 
@@ -66,13 +66,13 @@ sh.status()
 > You should see 1 PRIMARY, 2 SECONDARY
 
 ```bash
-docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017" 
-docker exec -it shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017" 
+docker exec -it store_service_shard01_a bash -c "echo 'rs.status()' | mongosh --port 27017" 
+docker exec -it store_service_shard02_a bash -c "echo 'rs.status()' | mongosh --port 27017" 
 ```
 
 ### ✅ Check database status
 ```bash
-docker-compose exec router01 mongosh --port 27017
+docker-compose exec store_service_router01 mongosh --port 27017
 use admin
 db.stats()
 db.User.getShardDistribution()
@@ -81,11 +81,11 @@ db.User.getShardDistribution()
 ### 🔎 More commands 
 
 ```bash
-docker exec -it mongo-config-01 bash -c "echo 'rs.status()' | mongosh --port 27017"
+docker exec -it store_service_configsvr01 bash -c "echo 'rs.status()' | mongosh --port 27017"
 
 
-docker exec -it shard-01-node-a bash -c "echo 'rs.help()' | mongosh --port 27017"
-docker exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017" 
-docker exec -it shard-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017" 
-docker exec -it shard-01-node-a bash -c "echo 'rs.printSlaveReplicationInfo()' | mongosh --port 27017"
+docker exec -it store_service_shard01_a bash -c "echo 'rs.help()' | mongosh --port 27017"
+docker exec -it store_service_shard01_a bash -c "echo 'rs.status()' | mongosh --port 27017" 
+docker exec -it store_service_shard01_a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017" 
+docker exec -it store_service_shard01_a bash -c "echo 'rs.printSlaveReplicationInfo()' | mongosh --port 27017"
 ```

@@ -2,10 +2,10 @@ version: '3'
 services:
 
 ## Router
-  router01:
+  store_service_router01:
     image: mongo:5.0
-    container_name: router-01
-    command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017 --bind_ip_all
+    container_name: store_service_router01
+    command: mongos --port 27017 --configdb rs-config-server/store_service_configsvr01:27017 --bind_ip_all
     ports:
       - "27117:27017"
     volumes:
@@ -13,35 +13,35 @@ services:
 
 
 ## Config Servers
-  configsvr01:
+  store_service_configsvr01:
     image: mongo:5.0
-    container_name: mongo-config-01 
+    container_name: store_service_configsvr01 
     command: mongod --port 27017 --configsvr --replSet rs-config-server
     volumes:
       - ./scripts:/scripts 
     ports:
       - "27119:27017"
     links:
-      - shard01-a
-      - shard02-a
+      - store_service_shard01_a
+      - store_service_shard02_a
       - shard03-a
   
 
   ## Shards
   ##  01
    
-  shard01-a:
+  store_service_shard01_a:
     image: mongo:5.0
-    container_name: shard-01-node-a
+    container_name: store_service_shard01_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts:/scripts
     ports:
       - "27122:27017"
     links:
-      - shard01-b
-      - shard01-c
-  shard01-b:
+      - store_service_shard01_b
+      - store_service_shard01_c
+  store_service_shard01_b:
     image: mongo:5.0
     container_name: shard-01-node-b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
@@ -49,9 +49,9 @@ services:
       - ./scripts:/scripts
     ports:
       - "27123:27017"
-  shard01-c:
+  store_service_shard01_c:
     image: mongo:5.0
-    container_name: shard-01-node-c
+    container_name: store_service_shard01_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts:/scripts
@@ -59,28 +59,28 @@ services:
       - "27124:27017"
 
   ## Shards 02
-  shard02-a:
+  store_service_shard02_a:
     image: mongo:5.0
-    container_name: shard-02-node-a
+    container_name: store_service_shard02_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
       - ./scripts:/scripts
     ports:
       - "27125:27017"
     links:
-      - shard02-b
-      - shard02-c
-  shard02-b:
+      - store_service_shard02_b
+      - store_service_shard02_c
+  store_service_shard02_b:
     image: mongo:5.0
-    container_name: shard-02-node-b
+    container_name: store_service_shard02_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
       - ./scripts:/scripts
     ports:
       - "27126:27017"
-  shard02-c:
+  store_service_shard02_c:
     image: mongo:5.0
-    container_name: shard-02-node-c
+    container_name: store_service_shard02_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
       - ./scripts:/scripts

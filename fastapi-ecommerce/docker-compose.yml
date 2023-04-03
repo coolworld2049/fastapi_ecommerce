@@ -1,0 +1,164 @@
+version: '3.9'
+
+networks:
+  net:
+    driver: bridge
+
+services:
+
+  # AUTH_SERVICE
+  auth_service:
+    image: coolworldocker/auth_service:latest
+    extends:
+      service: auth_service
+      file: ../src/auth_service/docker-compose.yml
+    networks:
+      - net
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+
+  ## POSTGRESQL
+  postgresql_master:
+    extends:
+      service: postgresql_master
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - net
+
+  postgresql_slave:
+    extends:
+      service: postgresql_slave
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - net
+    deploy:
+      replicas: 3
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
+
+  pgbouncer_master:
+    extends:
+      service: pgbouncer_master
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - net
+
+  pgbouncer_slave:
+    extends:
+      service: pgbouncer_slave
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - net
+
+  #---------------------------------------------------------------------------------------------------------------------
+
+  # STORE_SERVICE
+  store_service:
+    image: coolworldocker/store_service:latest
+    extends:
+      service: store_service
+      file: ../src/store_service/docker-compose.yml
+    networks:
+      - net
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  ## MONGODB
+  store_service_router01:
+    extends:
+      service: store_service_router01
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+
+  store_service_configsvr01:
+    extends:
+      service: store_service_configsvr01
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+
+  store_service_shard01_a:
+    extends:
+      service: store_service_shard01_a
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+  store_service_shard01_b:
+    extends:
+      service: store_service_shard01_b
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+  store_service_shard01_c:
+    extends:
+      service: store_service_shard01_c
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+
+  store_service_shard02_a:
+    extends:
+      service: store_service_shard02_a
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+  store_service_shard02_b:
+    extends:
+      service: store_service_shard02_b
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+  store_service_shard02_c:
+    extends:
+      service: store_service_shard02_c
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - net
+
+  #---------------------------------------------------------------------------------------------------------------------
+
+  # PROXY_SERVICE
+  proxy_service:
+    image: coolworldocker/proxy_service:latest
+    extends:
+      service: proxy_service
+      file: ../src/proxy_service/docker-compose.yml
+    networks:
+      - net
+
+  #---------------------------------------------------------------------------------------------------------------------
+
+  # MONITORING
+
+  monitoring_portainer:
+    extends:
+      service: portainer
+      file: ../src/monitoring/docker-compose.yml
+    networks:
+      - net

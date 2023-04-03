@@ -13,16 +13,16 @@ class ReplicaType(str, Enum):
 
 # noinspection PyUnusedLocal
 class MasterSlaves:
-    __slots__ = "engine",
+    __slots__ = ("engine",)
 
     def __init__(self, master_url: str, slaves_url: str, *args, **kwargs):
         self.engine: dict[ReplicaType, AsyncEngine | tuple[AsyncEngine]] = {}
         self.engine.update(
-            {ReplicaType.master: (create_async_engine(master_url, **kwargs), )}
+            {ReplicaType.master: (create_async_engine(master_url, **kwargs),)}
         )
         self.engine.update(
             {
-                ReplicaType.slave: (create_async_engine(slaves_url, **kwargs), )
+                ReplicaType.slave: (create_async_engine(slaves_url, **kwargs),)
                 if slaves_url
                 else []
             }

@@ -40,5 +40,6 @@ async def get_superuser_token_headers(client: AsyncClient) -> Dict[str, str]:
         data=body,
     )
     a_token = r.json().get("access_token")
+    assert a_token, r.json()
     headers = {"Authorization": f"Bearer {a_token}"}
     return headers

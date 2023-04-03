@@ -6,7 +6,7 @@ services:
   postgresql_master:
     image: bitnami/postgresql:latest
     env_file:
-      - ../../.env
+      - ../../.env.auth_service
     ports:
       - "5432:5432"
     environment:
@@ -18,13 +18,14 @@ services:
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
+      - ../../.volumes/postgresql_master/:/bitnami/postgresql
     restart: always
 
 
   postgresql_slave:
     image: bitnami/postgresql:latest
     env_file:
-      - ../../.env
+      - ../../.env.auth_service
     ports:
       - "5432"
     environment:
@@ -44,7 +45,7 @@ services:
     ports:
       - "6433:6433"
     env_file:
-      - ../../.env
+      - ../../.env.auth_service
     environment:
       - POSTGRESQL_HOST=postgresql_master
       - POSTGRESQL_PORT=5432
@@ -58,7 +59,7 @@ services:
     ports:
       - "6434:6434"
     env_file:
-      - ../../.env
+      - ../../.env.auth_service
     environment:
       - POSTGRESQL_HOST=postgresql_slave
       - POSTGRESQL_PORT=5432

@@ -19,7 +19,7 @@ docker-compose exec shard03-a sh -c "mongo < /scripts/update01/init-shard03.js"
 ### step 3: Add new shard
 exec to a router node
 ```
-docker-compose exec router01 mongo --port 27017
+docker-compose exec store_service_router01 mongo --port 27017
 ```
 and run:
 ```
@@ -28,7 +28,7 @@ sh.addShard("rs-shard-03/shard03-a:27017,shard03-b:27017,shard03-c:27017")
 
 ### step 4: Verify and run mongo balancer
 ```
-docker-compose exec router01 mongo --port 27017
+docker-compose exec store_service_router01 mongo --port 27017
 > sh.status()
 > sh.startBalancer()
 ```

@@ -21,16 +21,16 @@ fi
 
 mkcert -install
 
-mkdir -p "ssl"
+mkdir -p "$SCRIPTDIR"/ssl
 
-mkcert -key-file ./ssl/"${NGINX_DOMAIN}"-key.pem -cert-file ./ssl/"${NGINX_DOMAIN}".pem \
+mkcert -key-file "$SCRIPTDIR"/ssl/"${NGINX_DOMAIN}"-key.pem -cert-file "$SCRIPTDIR"/ssl/"${NGINX_DOMAIN}".pem \
   www."${NGINX_DOMAIN}" \
   "${NGINX_AUTH_SB}"."${NGINX_DOMAIN}" \
   "${NGINX_STORE_SB}"."${NGINX_DOMAIN}" \
   127.0.0.1 \
   ::1
-cat ./ssl/"${NGINX_DOMAIN}".pem >./ssl/"${NGINX_DOMAIN}"-fullchain.pem
-cat "$(mkcert -CAROOT)/rootCA.pem" >>./ssl/"${NGINX_DOMAIN}"-fullchain.pem
+cat "$SCRIPTDIR"/ssl/"${NGINX_DOMAIN}".pem >"$SCRIPTDIR"/ssl/"${NGINX_DOMAIN}"-fullchain.pem
+cat "$(mkcert -CAROOT)/rootCA.pem" >>"$SCRIPTDIR"/ssl/"${NGINX_DOMAIN}"-fullchain.pem
 
-sed "s@${NGINX_DOMAIN:-fastapi-ecommerce.ru}@""fastapi-ecommerce.ru"'@' nginx.conf.example >nginx.conf
-sed 's@fastapi-ecommerce.ru@'"${NGINX_DOMAIN:-fastapi-ecommerce.ru}"'@' nginx.conf.example >nginx.conf
+sed "s@${NGINX_DOMAIN:-fastapi-ecommerce.ru}@""fastapi-ecommerce.ru"'@' "$SCRIPTDIR"/nginx.conf.example >"$SCRIPTDIR"/nginx.conf
+sed 's@fastapi-ecommerce.ru@'"${NGINX_DOMAIN:-fastapi-ecommerce.ru}"'@' "$SCRIPTDIR"/nginx.conf.example >"$SCRIPTDIR"/nginx.conf

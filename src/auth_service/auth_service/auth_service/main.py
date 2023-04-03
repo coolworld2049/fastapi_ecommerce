@@ -12,7 +12,7 @@ from auth_service.core.config import get_app_settings
 from auth_service.core.logger import configure_logging
 from auth_service.core.logging import LoguruLoggingMiddleware
 from auth_service.db.init_db import init_db
-from auth_service.db.session import engines, SessionLocal
+from auth_service.db.session import engines, scoped_session
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
@@ -29,18 +29,16 @@ def get_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=[
-            "*"
-            "Content-Range",
+            "*" "Content-Range",
             "X-Requested-With",
             "X-Request-ID",
-            "X-Response-Time"
+            "X-Response-Time",
         ],
         expose_headers=[
-            "*"
-            "Content-Range",
+            "*" "Content-Range",
             "Authorization",
             "X-Request-ID",
-            "X-Response-Time"
+            "X-Response-Time",
         ],
     )
     application.add_middleware(
@@ -71,9 +69,9 @@ async def startup():
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
-    request.state.db = SessionLocal()
-    response = await call_next(request)
-    await request.state.db.close()
+    async with scoped_session() as s:
+        request.state.db = s
+        response = await call_next(request)
     return response
 
 

@@ -24,5 +24,3 @@ async def get_users(
         users = [User(**x) for x in data]
         logger.info(len(users))
         return users
-
-

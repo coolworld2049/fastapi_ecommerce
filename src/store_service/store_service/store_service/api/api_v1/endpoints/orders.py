@@ -186,7 +186,7 @@ async def delete_product_from_order(
         data={
             "cost": {
                 "decrement": float(product.price)
-                             * len(order_products_where_product_id)
+                * len(order_products_where_product_id)
             },
             "order_products": {
                 "delete": [
