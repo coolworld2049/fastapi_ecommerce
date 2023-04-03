@@ -1,28 +1,20 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-  auth_service_default:
-    external: true
-
 services:
 
-  master:
+  postgresql_master:
     extends:
       file: docker-compose.yml
       service: master
     ports:
-      - "5432:5432"
-    volumes:
-      - ./conf/pg_hba.conf:/bitnami/postgresql/conf
+      - "5433:5432"
 
-  slave:
+  postgresql_slave:
     extends:
       file: docker-compose.yml
       service: slave
     ports:
-      - "5433:5432"
+      - "5434:5432"
 
   pgbouncer_master:
     extends:

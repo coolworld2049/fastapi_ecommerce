@@ -1,55 +1,42 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-  auth_service_default:
-    external: true
 
 services:
 
-  master:
+  postgresql_master:
     image: bitnami/postgresql:latest
+    env_file:
+      - ../../.env
     ports:
       - "5432:5432"
-    env_file:
-      - ../.env
     environment:
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
-    networks:
-      - default
-      - auth_service_default
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-1}
     volumes:
-      - ./conf/pg_hba.conf:/bitnami/postgresql/conf
-      - ../.volumes/postgresql/master/:/bitnami/postgresql
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts/:/docker-entrypoint-preinitdb.d
     restart: always
 
 
-  slave:
+  postgresql_slave:
     image: bitnami/postgresql:latest
     env_file:
-      - ../.env
+      - ../../.env
     ports:
       - "5432"
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
-      - POSTGRESQL_MASTER_HOST=master
+      - POSTGRESQL_MASTER_HOST=postgresql_master
       - POSTGRESQL_MASTER_PORT_NUMBER=5432
-    networks:
-      - default
-      - auth_service_default
+    volumes:
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts/:/docker-entrypoint-preinitdb.d
     restart: always
-    deploy:
-      replicas: ${POSTGRESQL_NUM_SLAVES:-2}
-      placement:
-        constraints: [ node.role == worker ]
-      update_config:
-        failure_action: rollback
 
 
   pgbouncer_master:
@@ -57,15 +44,12 @@ services:
     ports:
       - "6433:6433"
     env_file:
-      - ../.env
+      - ../../.env
     environment:
-      - POSTGRESQL_HOST=master
+      - POSTGRESQL_HOST=postgresql_master
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6433
-    networks:
-      - default
-      - auth_service_default
     restart: always
 
 
@@ -74,13 +58,10 @@ services:
     ports:
       - "6434:6434"
     env_file:
-      - ../.env
+      - ../../.env
     environment:
-      - POSTGRESQL_HOST=slave
+      - POSTGRESQL_HOST=postgresql_slave
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6434
-    networks:
-      - default
-      - auth_service_default
     restart: always

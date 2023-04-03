@@ -89,7 +89,7 @@ model OrderProduct {
 ![prisma-studio.png](assets%2Fprisma-studio.png)
 
 ## dev mode
-../src/.env
+../.env
 ```text
 APP_ENV=dev
 ```

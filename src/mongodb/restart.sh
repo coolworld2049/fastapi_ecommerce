@@ -1,7 +1,7 @@
 #! /bin/bash
 
 
-source .env ../.env
+source .env ../../.env
 
 docker-compose down
 docker-compose up -d

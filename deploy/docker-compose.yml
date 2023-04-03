@@ -1,0 +1,205 @@
+version: '3.9'
+
+networks:
+  net:
+    driver: bridge
+
+services:
+
+  # AUTH_SERVICE
+  auth_service:
+    image: coolworldocker/auth_service
+    extends:
+      service: auth_service
+      file: ../src/auth_service/docker-compose.yml
+    networks:
+      - net
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  ## POSTGRESQL
+  postgresql_master:
+    extends:
+      service: postgresql_master
+      file: ../src/postgresql/docker-compose.yml
+    volumes:
+      - ../.volumes/postgresql_master/:/bitnami/postgresql
+    networks:
+      - net
+
+  postgresql_slave:
+    extends:
+      service: postgresql_slave
+      file: ../src/postgresql/docker-compose.yml
+    networks:
+      - net
+    deploy:
+      replicas: 3
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
+
+  pgbouncer_master:
+    extends:
+      service: pgbouncer_master
+      file: ../src/postgresql/docker-compose.yml
+    networks:
+      - net
+
+  pgbouncer_slave:
+    extends:
+      service: pgbouncer_slave
+      file: ../src/postgresql/docker-compose.yml
+    networks:
+      - net
+
+  #-----------------------------------------------------------------------------------------------------------------------
+
+  # STORE_SERVICE
+  store_service:
+    image: coolworldocker/store_service
+    extends:
+      service: store_service
+      file: ../src/store_service/docker-compose.yml
+    networks:
+      - net
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [ node.role == worker ]
+      update_config:
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  ## MONGODB
+  router01:
+    extends:
+      service: router01
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_router01_db:/data/db
+      - mongodb_router01_config:/data/configdb
+  
+  configsvr01:
+    extends:
+      service: configsvr01
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_configsvr01_db:/data/db
+      - mongodb_configsvr01_config:/data/configdb
+
+  shard01-a:
+    extends:
+      service: shard01-a
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_shard01_a_db:/data/db
+      - mongodb_shard01_a_config:/data/configdb
+
+  shard01-b:
+    extends:
+      service: shard01-b
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_shard01_b_db:/data/db
+      - mongodb_shard01_b_config:/data/configdb
+  shard01-c:
+    extends:
+      service: shard01-c
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_shard01_c_db:/data/db
+      - mongodb_shard01_c_config:/data/configdb
+
+  shard02-a:
+    extends:
+      service: shard02-a
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_shard02_a_db:/data/db
+      - mongodb_shard02_a_config:/data/configdb
+  shard02-b:
+    extends:
+      service: shard02-b
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_shard02_b_db:/data/db
+      - mongodb_shard02_b_config:/data/configdb
+  shard02-c:
+    extends:
+      service: shard02-c
+      file: ../src/mongodb/docker-compose.yml
+    networks:
+      - net
+    volumes:
+      - mongodb_shard02_c_db:/data/db
+      - mongodb_shard02_c_config:/data/configdb
+
+  #---------------------------------------------------------------------------------------------------------------------
+
+  # PROXY
+  proxy_service:
+    image: coolworldocker/proxy:latest
+    extends:
+      service: proxy
+      file: ../src/proxy/docker-compose.yml
+    networks:
+      - net
+
+
+volumes:
+  mongodb_router01_db:
+  mongodb_router01_config:
+
+  mongodb_configsvr01_db:
+  mongodb_configsvr01_config:
+
+  mongodb_shard01_a_db:
+  mongodb_shard01_a_config:
+
+  mongodb_shard01_b_db:
+  mongodb_shard01_b_config:
+
+  mongodb_shard01_c_db:
+  mongodb_shard01_c_config:
+
+  mongodb_shard02_a_db:
+  mongodb_shard02_a_config:
+
+  mongodb_shard02_b_db:
+  mongodb_shard02_b_config:
+
+  mongodb_shard02_c_db:
+  mongodb_shard02_c_config:

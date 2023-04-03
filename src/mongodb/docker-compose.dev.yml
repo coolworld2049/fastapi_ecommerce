@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+
+  ## Router
+  router01:
+    extends:
+      service: router01
+      file: docker-compose.yml
+
+  ## Config Servers
+  configsvr01:
+    extends:
+      service: configsvr01
+      file: docker-compose.yml
+  ## Shards 01
+  shard01-a:
+    extends:
+      service: shard01-a
+      file: docker-compose.yml
+  shard01-b:
+    extends:
+      service: shard01-b
+      file: docker-compose.yml
+  shard01-c:
+    extends:
+      service: shard01-c
+      file: docker-compose.yml
+
+  ## Shards 02
+  shard02-a:
+    extends:
+      service: shard02-a
+      file: docker-compose.yml
+  shard02-b:
+    extends:
+      service: shard02-b
+      file: docker-compose.yml
+  shard02-c:
+    extends:
+      service: shard02-c
+      file: docker-compose.yml
+
+volumes:
+  mongodb_router01_db:
+  mongodb_router01_config:
+
+  mongodb_configsvr01_db:
+  mongodb_configsvr01_config:
+
+  mongodb_shard01_a_db:
+  mongodb_shard01_a_config:
+
+  mongodb_shard01_b_db:
+  mongodb_shard01_b_config:
+
+  mongodb_shard01_c_db:
+  mongodb_shard01_c_config:
+
+  mongodb_shard02_a_db:
+  mongodb_shard02_a_config:
+
+  mongodb_shard02_b_db:
+  mongodb_shard02_b_config:
+
+  mongodb_shard02_c_db:
+  mongodb_shard02_c_config:

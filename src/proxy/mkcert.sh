@@ -1,13 +1,12 @@
 #! /bin/bash
 
-set -e
+set -euo pipefail
 
-source ../.env
+SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-rm -rf ./ssl
-mkdir ./ssl
+printf "\n"
 
-cd ./ssl
+source "$SCRIPTDIR/../../.env"
 
 set +e
 echo "sudo apt install -y mkcert"
@@ -22,16 +21,16 @@ fi
 
 mkcert -install
 
-mkcert -key-file "${NGINX_DOMAIN}"-key.pem -cert-file "${NGINX_DOMAIN}".pem \
+mkdir -p "ssl"
+
+mkcert -key-file ./ssl/"${NGINX_DOMAIN}"-key.pem -cert-file ./ssl/"${NGINX_DOMAIN}".pem \
   www."${NGINX_DOMAIN}" \
   "${NGINX_AUTH_SB}"."${NGINX_DOMAIN}" \
   "${NGINX_STORE_SB}"."${NGINX_DOMAIN}" \
   127.0.0.1 \
   ::1
-cat "${NGINX_DOMAIN}".pem >"${NGINX_DOMAIN}"-fullchain.pem
-cat "$(mkcert -CAROOT)/rootCA.pem" >>"${NGINX_DOMAIN}"-fullchain.pem
-
-cd ..
+cat ./ssl/"${NGINX_DOMAIN}".pem >./ssl/"${NGINX_DOMAIN}"-fullchain.pem
+cat "$(mkcert -CAROOT)/rootCA.pem" >>./ssl/"${NGINX_DOMAIN}"-fullchain.pem
 
 sed "s@${NGINX_DOMAIN:-fastapi-ecommerce.ru}@""fastapi-ecommerce.ru"'@' nginx.conf.example >nginx.conf
 sed 's@fastapi-ecommerce.ru@'"${NGINX_DOMAIN:-fastapi-ecommerce.ru}"'@' nginx.conf.example >nginx.conf

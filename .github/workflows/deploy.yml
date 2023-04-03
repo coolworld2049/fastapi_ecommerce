@@ -16,7 +16,7 @@ jobs:
           chmod +x scripts/*
           cd scripts
           bash cpenv.sh
-          sed -i~ '/^APP_ENV=/s/=.*/=test/' ../src/.env
+          sed -i~ '/^APP_ENV=/s/=.*/=test/' ../.env
           bash start.sh
           cd ..
   build:

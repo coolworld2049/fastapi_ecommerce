@@ -3,17 +3,10 @@ version: '3.9'
 services:
 
   auth_service:
-    image: ${DOCKER_USER}/${APP_NAME}:${APP_VERSION}
     build: .
     env_file:
       - .env
-      - ../.env
+      - ../../.env
     ports:
       - "80"
     restart: always
-    deploy:
-      replicas: 2
-      placement:
-        constraints: [ node.role == worker ]
-      update_config:
-        failure_action: rollback

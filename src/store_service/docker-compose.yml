@@ -1,25 +1,14 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-  auth_service_default:
-    external: true
-
-
 services:
 
   store_service:
-    image: ${DOCKER_USER}/${APP_NAME}:${APP_VERSION}
     build: .
     env_file:
       - .env
-      - ../.env
+      - ../../.env
     ports:
       - "80"
-    networks:
-      - default
-      - auth_service_default
     restart: always
     deploy:
       replicas: 2

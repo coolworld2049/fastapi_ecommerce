@@ -3,7 +3,7 @@ version: '3.9'
 networks:
   default:
     driver: bridge
-  auth_service_default:
+  deploy_net:
     external: true
 
 services:
@@ -14,12 +14,12 @@ services:
       - ./:/mnt/locust
     command: -f /mnt/locust/locustfile.py --master --web-host 0.0.0.0 --web-port 8089
     ports:
-      - "8090:8089"
+      - "8089:8089"
     depends_on:
       - worker
     networks:
       - default
-      - auth_service_default
+      - deploy_net
 
   worker:
     image: locustio/locust
@@ -28,4 +28,4 @@ services:
     command: -f /mnt/locust/locustfile.py --worker --master-host master
     networks:
       - default
-      - auth_service_default
+      - deploy_net
