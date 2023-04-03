@@ -6,15 +6,15 @@ services:
     extends:
       file: docker-compose.yml
       service: master
-    command: >
-      ./conf/test/postgresql.conf >> /opt/bitnami/postgresql/conf/postgresql.conf
+    volumes:
+      - ./conf:/bitnami/postgresql/custom_conf
 
   postgresql_slave:
     extends:
       file: docker-compose.yml
       service: slave
-    command: >
-      ./conf/test/postgresql.conf >> /opt/bitnami/postgresql/conf/postgresql.conf
+    volumes:
+      - ./conf:/bitnami/postgresql/custom_conf
 
   pgbouncer_master:
     extends:

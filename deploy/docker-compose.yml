@@ -171,10 +171,10 @@ services:
 
   # PROXY
   proxy_service:
-    image: coolworldocker/proxy:latest
+    image: coolworldocker/proxy_service:latest
     extends:
-      service: proxy
-      file: ../src/proxy/docker-compose.yml
+      service: proxy_service
+      file: ../src/proxy_service/docker-compose.yml
     networks:
       - net
 

@@ -12,11 +12,12 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build images and publish to registry
         run: |
-          echo "${{ secrets.ENV_FILE }}" > src/.env
-          chmod +x scripts/*
-          cd scripts
+          echo "${{ secrets.ENV_FILE }}" > .env
+          chmod +x hack/*
+          cd hack
           bash cpenv.sh
           sed -i~ '/^APP_ENV=/s/=.*/=test/' ../.env
+          bash make_docker_images.sh
           bash start.sh
           cd ..
   build:
@@ -44,8 +45,9 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /root/fastapi_ecommerce/
-            echo "${{ secrets.ENV_FILE }}" > src/.env
-            chmod +x scripts/*
-            cd scripts
+            echo "${{ secrets.ENV_FILE }}" > .env
+            chmod +x hack/*
+            cd hack
             bash cpenv.sh
+            bash make_docker_images.sh
             bash restart.sh

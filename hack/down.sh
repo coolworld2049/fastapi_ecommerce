@@ -8,7 +8,7 @@ docker-compose -f ../deploy/docker-compose.yml down --rmi local --remove-orphans
 
 docker rmi -f \
   coolworldocker/auth_service:latest \
-  coolworldocker/proxy:latest \
+  coolworldocker/proxy_service:latest \
   coolworldocker/store_service:latest
 
 log "✔️✔️✔️ Successfully down all containers ✔️✔️✔️ "

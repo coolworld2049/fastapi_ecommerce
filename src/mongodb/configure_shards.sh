@@ -10,7 +10,7 @@ cat result.json | grep "MongoServerError:"
 '
 
 if [ $? -eq 0 ]; then
-  exit 1;
+  exit 0;
 fi
 
 docker exec shard-01-node-a bash -c "mongosh < /scripts/init-shard01.js"

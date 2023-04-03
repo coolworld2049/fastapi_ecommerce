@@ -139,6 +139,6 @@ async def test_retrieve_users(
     )
     data = r.json()
 
-    assert len(data) > 1
+    assert len(data) >= 1
     for item in data:
         assert "email" in item

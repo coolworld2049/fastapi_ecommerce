@@ -10,11 +10,5 @@ services:
     ports:
       - "80"
     restart: always
-    deploy:
-      replicas: 2
-      placement:
-        constraints: [ node.role == worker ]
-      update_config:
-        failure_action: rollback
 
 
