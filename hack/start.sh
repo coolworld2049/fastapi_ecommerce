@@ -7,13 +7,16 @@ log() { printf '\n%s\n' "$1" >&2; }
 docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d --no-build \
   --scale auth_service=0 --scale store_service=0 --scale proxy_service=0
 
-bash ../src/store_service/mongodb/configure_shards.sh
+# shellcheck disable=SC2155
+export COMPOSE_FILE="$(realpath ../fastapi-ecommerce/docker-compose.yml)"
+
+. ../src/store_service/mongodb/configure_shards.sh
 
 . ../src/proxy_service/mkcert.sh
 
-log "sleep 5"
+log "sleep 10"
 
-sleep 5
+sleep 10
 
 docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d --no-build
 

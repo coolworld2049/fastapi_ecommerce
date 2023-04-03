@@ -2,13 +2,14 @@
 
 set -e
 
-source ../../.env
+SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ "$APP_ENV" != prod ]; then
-  cd ../src/postgresql
-  docker-compose -f docker-compose."$APP_ENV".yml up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
-  cd ../../benchmark
-fi
+source ../.env ../src/.env.auth_service
+
+
+cd ../src/auth_service/postgresql
+docker-compose -f docker-compose.yml up -d --scale slave="$POSTGRESQL_NUM_SLAVES"
+cd "$SCRIPTDIR"
 
 echo "run vm"
 docker-compose run -d \
