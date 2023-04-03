@@ -22,7 +22,6 @@ services:
         failure_action: rollback
       resources:
         limits:
-          cpus: '0.75'
           memory: 512M
         reservations:
           cpus: '0.25'
@@ -30,16 +29,16 @@ services:
 
 
   ## POSTGRESQL
-  postgresql_master:
+  auth_service_postgresql_master:
     extends:
-      service: postgresql_master
+      service: auth_service_postgresql_master
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
       - net
 
-  postgresql_slave:
+  auth_service_postgresql_slave:
     extends:
-      service: postgresql_slave
+      service: auth_service_postgresql_slave
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
       - net
@@ -50,16 +49,16 @@ services:
       update_config:
         failure_action: rollback
 
-  pgbouncer_master:
+  auth_service_pgbouncer_master:
     extends:
-      service: pgbouncer_master
+      service: auth_service_pgbouncer_master
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
       - net
 
-  pgbouncer_slave:
+  auth_service_pgbouncer_slave:
     extends:
-      service: pgbouncer_slave
+      service: auth_service_pgbouncer_slave
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
       - net
@@ -82,7 +81,6 @@ services:
         failure_action: rollback
       resources:
         limits:
-          cpus: '0.75'
           memory: 512M
         reservations:
           cpus: '0.25'
@@ -158,7 +156,7 @@ services:
 
   monitoring_portainer:
     extends:
-      service: portainer
+      service: monitoring_portainer
       file: ../src/monitoring/docker-compose.yml
     networks:
       - net
