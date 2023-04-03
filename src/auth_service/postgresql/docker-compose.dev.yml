@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+
+  postgresql_master:
+    extends:
+      file: docker-compose.yml
+      service: postgresql_master
+    ports:
+      - "5433:5432"
+
+  postgresql_slave:
+    extends:
+      file: docker-compose.yml
+      service: postgresql_slave
+    ports:
+      - "5434:5432"
+
+  pgbouncer_master:
+    extends:
+      file: docker-compose.yml
+      service: pgbouncer_master
+
+  pgbouncer_slave:
+    extends:
+      file: docker-compose.yml
+      service: pgbouncer_slave

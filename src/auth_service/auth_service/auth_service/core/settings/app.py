@@ -62,7 +62,7 @@ class AppSettings(BaseAppSettings):
             "openapi_prefix": self.openapi_prefix,
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
-            "title": self.APP_NAME,
+            "title": self.APP_NAME + f"_{self.APP_ENV.name}",
             "version": self.APP_VERSION,
         }
 

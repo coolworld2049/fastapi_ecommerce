@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
-from auth_service.db.session import Base, MasterSlaves, SessionLocal
+from auth_service.db.session import Base, MasterSlaves, scoped_session
 from auth_service.db.session import engines
 from auth_service.models import UserRole
 from auth_service.models.user_role import UserRoleEnum
@@ -89,7 +89,7 @@ async def init_db():
     try:
         await engines.check_engines()
         await base_metadata(engines, create=True)
-        async with SessionLocal() as db:
+        async with scoped_session() as db:
             await create_first_superuser(db)
     except Exception as e:
         logger.error(f"{e.__class__.__name__} {e}")

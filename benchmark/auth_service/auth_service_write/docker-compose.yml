@@ -1,0 +1,25 @@
+version: '3.9'
+
+
+networks:
+  default:
+    driver: bridge
+  deploy_net:
+    external: true
+
+services:
+
+  master:
+    extends:
+      file: ../auth_service_read/docker-compose.yml
+      service: master
+    ports:
+      - "8090:8089"
+    volumes:
+      - ./:/mnt/locust
+  worker:
+    extends:
+      file: ../auth_service_read/docker-compose.yml
+      service: worker
+    volumes:
+      - ./:/mnt/locust

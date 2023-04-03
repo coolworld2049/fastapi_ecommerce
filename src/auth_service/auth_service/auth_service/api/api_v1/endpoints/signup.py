@@ -9,7 +9,6 @@ import auth_service.api.deps.db
 from auth_service import crud, schemas
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
-from auth_service.db import session
 from auth_service.models import UserRoleEnum
 from auth_service.services.email import Email
 

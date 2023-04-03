@@ -18,7 +18,6 @@ from auth_service.api.deps.auth import RoleChecker
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
 from auth_service.core.settings.base import AppEnvTypes
-from auth_service.db import session
 from auth_service.models.user import User
 from auth_service.schemas import RequestParams
 

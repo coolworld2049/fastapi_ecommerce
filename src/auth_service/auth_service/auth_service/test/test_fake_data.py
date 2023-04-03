@@ -16,7 +16,7 @@ from auth_service.db.init_db import (
     init_db,
     base_metadata,
 )
-from auth_service.db.session import engines, SessionLocal
+from auth_service.db.session import engines, scoped_session
 from auth_service.models.user import User
 from auth_service.models.user_role import UserRoleEnum
 from auth_service.test.utils.utils import (
@@ -70,17 +70,16 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
 
 
 @pytest.mark.asyncio
-async def test_fake_data():
+async def test_fake_data(db: AsyncSession):
     await base_metadata(engines, drop=True)
     await init_db()
     if get_app_settings().APP_ENV != AppEnvTypes.prod:
-        count = 30 if get_app_settings().APP_ENV == AppEnvTypes.dev else 15
+        count = 30
         out_user_creds = "test_users_creds.json"
-        async with SessionLocal() as db:
-            users = await create_users(
-                db=db, count=count, out_user_creds=out_user_creds
-            )
-            logger.info(
-                f"users_count - {len(users)}, "
-                f"fake user credentials stored in {pathlib.Path().absolute()}/{out_user_creds}"
-            )
+        users = await create_users(
+            db=db, count=count, out_user_creds=out_user_creds
+        )
+        logger.info(
+            f"users_count - {len(users)}, "
+            f"fake user credentials stored in {pathlib.Path().absolute()}/{out_user_creds}"
+        )

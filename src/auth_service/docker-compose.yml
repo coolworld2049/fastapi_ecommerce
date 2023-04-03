@@ -1,23 +1,13 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-  external_net:
-    driver: bridge
-  
 services:
 
   auth_service:
-    image: ${DOCKER_USER}/${APP_NAME}:${APP_VERSION}
     build: .
     env_file:
       - .env
-      - ../.env
+      - ../.env.auth_service
+      - ../../.env
     ports:
-      - ${APP_PORT}:80
-    networks:
-      - default
-      - external_net
+      - "80"
     restart: always
-

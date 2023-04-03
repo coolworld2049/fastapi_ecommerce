@@ -2,7 +2,7 @@
 
 set -e
 
-source ../src/.env
+source ../../.env
 
 if [ "$APP_ENV" != prod ]; then
   cd ../src/postgresql

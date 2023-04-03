@@ -24,7 +24,11 @@ async def login_access_token(
     async with aiohttp.ClientSession(
         base_url=get_app_settings().AUTH_SERVICE_URL
     ) as session:
-        resp = await session.post(get_app_settings().AUTH_SERVICE_LOGIN_PATH, headers=headers, data=body)
+        resp = await session.post(
+            get_app_settings().AUTH_SERVICE_LOGIN_PATH,
+            headers=headers,
+            data=body,
+        )
         data: dict = await resp.json()
         assert data.get("access_token"), data
         return data
