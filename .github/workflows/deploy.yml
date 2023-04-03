@@ -19,6 +19,7 @@ jobs:
           chmod +x hack/*
           cd hack
           bash cpenv.sh
+          ls -I venv -I  __pycache__ -I __init__.py -R ..
           bash make_docker_images.sh
           bash start.sh
           cd ..
@@ -53,5 +54,6 @@ jobs:
             chmod +x hack/*
             cd hack
             bash cpenv.sh
+            ls -I venv -I  __pycache__ -I __init__.py -R ..
             bash make_docker_images.sh
             bash restart.sh
