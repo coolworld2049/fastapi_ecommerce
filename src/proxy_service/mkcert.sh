@@ -13,12 +13,6 @@ echo "sudo apt install -y mkcert"
 sudo apt install -y libnss3-tools mkcert
 set -e
 
-if [[ -z "${SERVER_IP}" ]]; then
-  SERVER_IP=127.0.0.1
-else
-  SERVER_IP="$(ip -f inet a show eth0 | grep inet | awk '{ print $2}' | cut -d/ -f1)"
-fi
-
 mkcert -install
 
 mkdir -p "$SCRIPTDIR"/ssl
