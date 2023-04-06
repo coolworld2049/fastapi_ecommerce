@@ -155,12 +155,12 @@ services:
 
   # MONITORING
 
-  monitoring_portainer:
-    extends:
-      service: monitoring_portainer
-      file: ../src/monitoring/docker-compose.yml
-    networks:
-      - bridge_net
+#  monitoring_portainer:
+#    extends:
+#      service: monitoring_portainer
+#      file: ../src/monitoring/docker-compose.yml
+#    networks:
+#      - bridge_net
 
 volumes:
   store_service_mongodb_router01_db:
