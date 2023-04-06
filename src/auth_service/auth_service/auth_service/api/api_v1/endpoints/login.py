@@ -7,13 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import auth_service.api.deps.db
 from auth_service import crud, schemas
-from auth_service.core.config import get_app_settings
-from auth_service.db import session
 from auth_service.api.exceptions import (
     CouldNotValidateCredentialsException,
     InactiveUserException,
     AccountNotVerifiedException,
 )
+from auth_service.core.config import get_app_settings
 from auth_service.services import jwt
 
 router = APIRouter()
@@ -31,7 +30,7 @@ async def login_access_token(
     )
     if not user:
         raise CouldNotValidateCredentialsException
-    if get_app_settings().TEST_USE_USER_CHECKS:
+    if get_app_settings().USE_USER_CHECKS:
         if not user.is_active:
             raise InactiveUserException
         elif not user.is_verified:

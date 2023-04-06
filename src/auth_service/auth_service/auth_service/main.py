@@ -11,8 +11,9 @@ from auth_service.api.api_v1.api import api_router
 from auth_service.core.config import get_app_settings
 from auth_service.core.logger import configure_logging
 from auth_service.core.logging import LoguruLoggingMiddleware
+from auth_service.core.settings.base import AppEnvTypes
 from auth_service.db.init_db import init_db
-from auth_service.db.session import engines, scoped_session
+from auth_service.db.session import async_engines, scoped_session
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
@@ -64,7 +65,8 @@ app = get_application()
 
 @app.on_event("startup")
 async def startup():
-    await init_db()
+    if get_app_settings().APP_ENV == AppEnvTypes.dev:
+        await init_db()
 
 
 @app.middleware("http")
@@ -77,4 +79,4 @@ async def db_session_middleware(request: Request, call_next):
 
 @app.on_event("shutdown")
 async def shutdown():
-    [await x.dispose() for x in engines.get_all]
+    [await x.dispose() for x in async_engines.get_all]

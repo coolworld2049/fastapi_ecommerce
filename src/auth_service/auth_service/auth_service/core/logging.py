@@ -1,3 +1,4 @@
+import json
 import time
 from typing import Callable
 
@@ -41,7 +42,7 @@ class LoguruLoggingMiddleware:
                 )
                 msg += f" - response: {response_body[0].decode()}"
             elif isinstance(response, Response):
-                msg += f" - response: {response.body}"
+                msg += f" - response: {json.loads(response.body)}"
         if request.app.debug:
             headers = []
             for route in request.app.router.routes:

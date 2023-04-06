@@ -7,8 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
 from auth_service.models.user import User
-from auth_service.test.utils.utils import gen_random_password
-from auth_service.test.utils.utils import random_email
+from auth_service.test.utils.random_data import (
+    gen_random_password,
+    random_email,
+)
 
 
 async def user_authentication_headers(
@@ -49,3 +51,19 @@ async def authentication_token_from_email(
     return await user_authentication_headers(
         client=client, email=email, password=password
     )
+
+
+async def get_superuser_token_headers(client: AsyncClient) -> Dict[str, str]:
+    body = {
+        "username": get_app_settings().FIRST_SUPERUSER_EMAIL,
+        "password": get_app_settings().FIRST_SUPERUSER_PASSWORD,
+    }
+    r = await client.post(
+        f"{get_app_settings().api_prefix}/login/access-token",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data=body,
+    )
+    a_token = r.json().get("access_token")
+    assert a_token, r.json()
+    headers = {"Authorization": f"Bearer {a_token}"}
+    return headers

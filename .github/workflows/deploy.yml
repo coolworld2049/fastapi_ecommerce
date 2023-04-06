@@ -19,9 +19,7 @@ jobs:
           chmod +x hack/*
           cd hack
           bash cpenv.sh
-          ls -I venv -I  __pycache__ -I __init__.py -R -a ..
-          bash make_docker_images.sh
-          bash start.sh
+          bash make_docker_images-restart.sh
           cd ..
   build:
     name: Production Deployment
@@ -54,6 +52,4 @@ jobs:
             chmod +x hack/*
             cd hack
             bash cpenv.sh
-            ls -I venv -I  __pycache__ -I __init__.py -R -a ..
-            bash make_docker_images.sh
-            bash restart.sh
+            bash make_docker_images-restart.sh

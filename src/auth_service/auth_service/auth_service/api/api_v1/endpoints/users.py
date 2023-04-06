@@ -83,8 +83,6 @@ async def update_user_me(
     Update own user.
     """
     user = await crud.user.update(db, db_obj=current_user, obj_in=user_in)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     return user
 
 
@@ -140,7 +138,7 @@ async def update_user(
     """
     user = await crud.user.get(db, id)
     if not user:
-        raise DuplicateUserException
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
 
@@ -154,11 +152,21 @@ async def delete_user(
     *,
     id: int,
     db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
     Delete user
     """
-    user = await crud.user.remove(db=db, id=id)
+    user = await crud.user.get(db, id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if (
+        id == current_user.id
+        or user.email == get_app_settings().FIRST_SUPERUSER_EMAIL
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Forbidden to delete",
+        )
+    user = await crud.user.remove(db=db, id=id)
     return user

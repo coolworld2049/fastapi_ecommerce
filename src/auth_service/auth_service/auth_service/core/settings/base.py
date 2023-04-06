@@ -22,4 +22,4 @@ class BaseAppSettings(BaseSettings):
     APP_ENV: AppEnvTypes = os.getenv("APP_ENV")
 
     class Config:
-        env_file = ".env"
+        env_file = ".env.auth_service"

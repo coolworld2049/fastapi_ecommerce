@@ -31,7 +31,7 @@ async def signup_client(
         role=UserRoleEnum.client, **user_in.dict(exclude_unset=True)
     )
     user = await crud.user.create(db, obj_in=obj_in)
-    if get_app_settings().TEST_USE_EMAILS:
+    if get_app_settings().USE_EMAILS:
         email = Email(EmailStr(get_app_settings().SMTP_FROM))
         res = await crud.user.send_email_for_verif(
             db,

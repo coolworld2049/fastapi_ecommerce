@@ -15,7 +15,7 @@ from prisma.types import CategoryCreateInput, ProductCreateInput
 from store_service.core.config import get_app_settings
 from store_service.core.settings.base import AppEnvTypes
 from store_service.schemas.user import User
-from store_service.test.test_auth_service.test_users import get_users
+from store_service.test.auth_service.test_users import get_users
 from store_service.test.utils import RandomDateTime, rnd_string
 
 fake = Faker()
@@ -139,7 +139,9 @@ async def test_auth_service_client(auth_service_client: ClientSession):
 
 
 @pytest.mark.asyncio
-async def test_data(prisma_client: Prisma, auth_service_client: ClientSession):
+async def test_fake_data(
+    prisma_client: Prisma, auth_service_client: ClientSession
+):
     await prisma_client.connect()
     degree = 2 if get_app_settings().APP_ENV == "dev" else 1
     users = await get_users(

@@ -1,8 +1,9 @@
+import pytest
 from aiohttp import ClientSession
 from loguru import logger
 
 from store_service.schemas.user import User
-from store_service.test.test_auth_service.utils import get_auth_service_token
+from store_service.test.auth_service.test_login import get_auth_service_token
 
 
 async def get_users(
@@ -24,3 +25,9 @@ async def get_users(
         users = [User(**x) for x in data]
         logger.info(len(users))
         return users
+
+
+@pytest.mark.asyncio
+async def test_get_users(auth_service_client: ClientSession):
+    users = await get_users(count=5, auth_service_client=auth_service_client)
+    assert len(users) >= 1

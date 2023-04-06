@@ -14,12 +14,10 @@ from auth_service.core.config import get_app_settings
 from auth_service.core.settings.base import AppEnvTypes
 from auth_service.db.init_db import (
     init_db,
-    base_metadata,
 )
-from auth_service.db.session import engines, scoped_session
 from auth_service.models.user import User
 from auth_service.models.user_role import UserRoleEnum
-from auth_service.test.utils.utils import (
+from auth_service.test.utils.random_data import (
     gen_random_password,
     random_lower_string,
 )
@@ -71,7 +69,6 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
 
 @pytest.mark.asyncio
 async def test_fake_data(db: AsyncSession):
-    await base_metadata(engines, drop=True)
     await init_db()
     if get_app_settings().APP_ENV != AppEnvTypes.prod:
         count = 30

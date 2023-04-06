@@ -1,6 +1,5 @@
 version: '3.9'
 
-
 services:
 
   auth_service_postgresql_master:
@@ -16,56 +15,97 @@ services:
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-1}
+      - POSTGRESQL_TCP_KEEPALIVES_INTERVAL=0
+      - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
+      - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
       - ../../.volumes/auth_service_postgresql/master/:/bitnami/postgresql
     restart: always
 
-
-  auth_service_postgresql_slave:
-    image: bitnami/postgresql:latest
-    env_file:
-      - ../../.env.auth_service
-    ports:
-      - "5432"
-    environment:
-      - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_REPLICATION_USER=repl_user
-      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
-      - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
-      - POSTGRESQL_MASTER_PORT_NUMBER=5432
-    volumes:
-      - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts/:/docker-entrypoint-preinitdb.d
-    restart: always
-
-
   auth_service_pgbouncer_master:
     image: bitnami/pgbouncer:latest
     container_name: auth_service_pgbouncer_master
     ports:
-      - "6433:6433"
+      - "6432:6432"
     env_file:
       - ../../.env.auth_service
     environment:
       - POSTGRESQL_HOST=auth_service_postgresql_master
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6433
+      - PGBOUNCER_PORT=6432
     restart: always
 
-
-  auth_service_pgbouncer_slave:
-    image: bitnami/pgbouncer:latest
-    container_name: auth_service_pgbouncer_slave
+  auth_service_postgresql_slave_01:
+    image: bitnami/postgresql:latest
+    env_file:
+      - ../../.env.auth_service
     ports:
-      - "6434:6434"
+      - "5433:5432"
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_TCP_KEEPALIVES_INTERVAL=0
+      - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
+      - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
+    volumes:
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts/:/docker-entrypoint-preinitdb.d
+      - ../../.volumes/auth_service_postgresql/slave_01/:/bitnami/postgresql
+    restart: always
+  auth_service_pgbouncer_slave_01:
+    image: bitnami/pgbouncer:latest
+    container_name: auth_service_pgbouncer_slave01
+    ports:
+      - "6433:6432"
     env_file:
       - ../../.env.auth_service
     environment:
-      - POSTGRESQL_HOST=auth_service_postgresql_slave
+      - POSTGRESQL_HOST=auth_service_postgresql_slave_01
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6434
+      - PGBOUNCER_PORT=6432
+    volumes:
+      - ../../.volumes/auth_service_pgbouncer/slave_01/:/bitnami/pgbouncer/conf/
+    restart: always
+
+  auth_service_postgresql_slave_02:
+    image: bitnami/postgresql:latest
+    env_file:
+      - ../../.env.auth_service
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_TCP_KEEPALIVES_INTERVAL=0
+      - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
+      - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
+    volumes:
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts/:/docker-entrypoint-preinitdb.d
+      - ../../.volumes/auth_service_postgresql/slave_02/:/bitnami/postgresql
+    restart: always
+  auth_service_pgbouncer_slave_02:
+    image: bitnami/pgbouncer:latest
+    container_name: auth_service_pgbouncer_slave02
+    ports:
+      - "6434:6432"
+    env_file:
+      - ../../.env.auth_service
+    environment:
+      - POSTGRESQL_HOST=auth_service_postgresql_slave_02
+      - POSTGRESQL_PORT=5432
+      - PGBOUNCER_POOL_MODE=session
+      - PGBOUNCER_PORT=6432
+    volumes:
+      - ../../.volumes/auth_service_pgbouncer/slave_02/:/bitnami/pgbouncer/conf/
     restart: always

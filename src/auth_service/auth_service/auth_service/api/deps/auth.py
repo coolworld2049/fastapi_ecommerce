@@ -32,7 +32,7 @@ async def get_current_user(
 async def get_active_current_user(
     user: models.User = Depends(get_current_user),
 ) -> models.User:
-    if get_app_settings().TEST_USE_USER_CHECKS:
+    if get_app_settings().USE_USER_CHECKS:
         if not user.is_verified:
             raise AccountNotVerifiedException
         if not user.is_active:
@@ -55,6 +55,6 @@ class RoleChecker:
                 current_user.role
             except AttributeError as e:
                 logger.error(e)
-            if get_app_settings().TEST_USE_RBAC:
+            if get_app_settings().USE_RBAC:
                 if current_user.role not in self.roles:
                     raise PermissionDeniedException

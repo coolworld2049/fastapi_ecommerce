@@ -8,7 +8,7 @@ from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_fixed
 
-from db.session import engines
+from db.session import async_engines
 
 max_tries = 60 * 2  # 2 minute
 wait_seconds = 1
@@ -21,7 +21,7 @@ wait_seconds = 1
     after=after_log(logger, logging.WARNING),
 )
 async def init() -> None:
-    await engines.check_engines()
+    await async_engines.check_engines()
 
 
 def main() -> None:

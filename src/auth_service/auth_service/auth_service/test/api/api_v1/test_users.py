@@ -10,12 +10,12 @@ from auth_service import crud, schemas
 from auth_service import models
 from auth_service.core.config import get_app_settings
 from auth_service.models.user_role import UserRoleEnum
-from auth_service.test.test_fake_data import fake
-from auth_service.test.utils.utils import (
+from auth_service.test.db.test_fake_data import fake
+from auth_service.test.utils.random_data import (
     gen_random_password,
     random_lower_string,
 )
-from auth_service.test.utils.utils import random_email
+from auth_service.test.utils.random_data import random_email
 
 
 @pytest.mark.asyncio
