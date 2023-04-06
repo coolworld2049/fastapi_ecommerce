@@ -40,6 +40,7 @@ services:
 
   auth_service_postgresql_slave_01:
     image: bitnami/postgresql:latest
+    container_name: auth_service_postgresql_slave_01
     env_file:
       - ../../.env.auth_service
     ports:
@@ -60,7 +61,7 @@ services:
     restart: always
   auth_service_pgbouncer_slave_01:
     image: bitnami/pgbouncer:latest
-    container_name: auth_service_pgbouncer_slave01
+    container_name: auth_service_pgbouncer_slave_01
     ports:
       - "6433:6432"
     env_file:
@@ -76,6 +77,7 @@ services:
 
   auth_service_postgresql_slave_02:
     image: bitnami/postgresql:latest
+    container_name: auth_service_postgresql_slave_02
     env_file:
       - ../../.env.auth_service
     ports:
@@ -96,7 +98,7 @@ services:
     restart: always
   auth_service_pgbouncer_slave_02:
     image: bitnami/pgbouncer:latest
-    container_name: auth_service_pgbouncer_slave02
+    container_name: auth_service_pgbouncer_slave_02
     ports:
       - "6434:6432"
     env_file:
