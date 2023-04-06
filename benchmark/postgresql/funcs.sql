@@ -30,4 +30,5 @@ $$;
 
 select checkpoint_count();
 
-select * from pg_stat_bgwriter;
+select *
+from pg_stat_bgwriter;

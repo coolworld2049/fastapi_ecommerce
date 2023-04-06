@@ -9,9 +9,9 @@ class TestAppSettings(AppSettings):
 
     LOGGING_LEVEL: int = logging.DEBUG
 
-    TEST_USE_RBAC = False
-    TEST_USE_USER_CHECKS = False
-    TEST_USE_EMAILS = False
+    USE_RBAC = False
+    USE_USER_CHECKS = False
+    USE_EMAILS = False
 
     class Config(AppSettings.Config):
-        env_file = ".env"
+        env_file = ".env.auth_service"

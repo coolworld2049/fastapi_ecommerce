@@ -33,4 +33,4 @@ done
 
 log "$(printf '%s\n' "${pushed_images[@]}")"
 
-log "✔️✔️✔️ Successfully built and pushed all images in $((SECONDS - start)) sec ✔️✔️✔️ "
+log "✔️✔️✔️ Successfully built and pushed all images in $(((SECONDS - start))) sec ✔️✔️✔️ "

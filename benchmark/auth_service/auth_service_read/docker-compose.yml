@@ -3,7 +3,7 @@ version: '3.9'
 networks:
   default:
     driver: bridge
-  deploy_net:
+  fastapi-ecommerce_bridge_net:
     external: true
 
 services:
@@ -19,7 +19,7 @@ services:
       - worker
     networks:
       - default
-      - deploy_net
+      - fastapi-ecommerce_bridge_net
 
   worker:
     image: locustio/locust
@@ -28,4 +28,4 @@ services:
     command: -f /mnt/locust/locustfile.py --worker --master-host master
     networks:
       - default
-      - deploy_net
+      - fastapi-ecommerce_bridge_net

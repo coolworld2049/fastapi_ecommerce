@@ -14,13 +14,15 @@ from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
 
 from auth_service.core.config import get_app_settings
-from auth_service.db.base import MasterSlaves, ReplicaType
+from auth_service.db.base import MasterReplica, ReplType
 
 Base: DeclarativeBase = declarative_base()
 
-engines = MasterSlaves(
+async_engines = MasterReplica(
     master_url=get_app_settings().postgres_asyncpg_master,
-    slaves_url=get_app_settings().postgres_asyncpg_slaves,
+    slaves_url=get_app_settings().postgres_asyncpg_replicas,
+    pool_size=56,
+    max_overflow=0,
 )
 
 
@@ -37,18 +39,18 @@ class RoutingSession(Session):
     ):
         if self._flushing or isinstance(clause, (Insert, Update, Delete)):
             return random.choice(
-                engines.engine[ReplicaType.master]
+                async_engines.engine[ReplType.master]
             ).sync_engine
         else:
             try:
                 slave: AsyncEngine = random.choice(
-                    engines.engine[ReplicaType.slave]
+                    async_engines.engine[ReplType.slave]
                 ).sync_engine
                 with slave.sync_engine.engine.begin() as c:
                     c.execute(text("select 1"))
             except Exception:
                 return random.choice(
-                    engines.engine[ReplicaType.master]
+                    async_engines.engine[ReplType.master]
                 ).sync_engine
 
 
@@ -58,15 +60,19 @@ async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
     expire_on_commit=False,
 )
 
+async_scoped_factory = async_scoped_session(
+    session_factory=async_session,
+    scopefunc=current_task,
+)
+
 
 @asynccontextmanager
 async def scoped_session():
-    scoped_factory = async_scoped_session(
-        session_factory=async_session,
-        scopefunc=current_task,
-    )
     try:
-        async with scoped_factory() as s:
-            yield s
+        async with async_scoped_factory() as s:
+            try:
+                yield s
+            except Exception:
+                await s.close()
     finally:
-        await scoped_factory.remove()
+        await async_scoped_factory.remove()

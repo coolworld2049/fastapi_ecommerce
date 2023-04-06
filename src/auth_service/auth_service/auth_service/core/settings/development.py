@@ -10,4 +10,4 @@ class DevAppSettings(AppSettings):
     LOGGING_LEVEL: int = logging.DEBUG
 
     class Config(AppSettings.Config):
-        env_file = ".env"
+        env_file = ".env.auth_service"

@@ -1,7 +1,10 @@
 version: '3.9'
 
 networks:
-  net:
+  overlay_net:
+    driver: overlay
+    attachable: true
+  bridge_net:
     driver: bridge
 
 services:
@@ -13,19 +16,8 @@ services:
       service: auth_service
       file: ../src/auth_service/docker-compose.yml
     networks:
-      - net
-    deploy:
-      replicas: 2
-      placement:
-        constraints: [ node.role == worker ]
-      update_config:
-        failure_action: rollback
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+      - overlay_net
+      - bridge_net
 
 
   ## POSTGRESQL
@@ -34,34 +26,46 @@ services:
       service: auth_service_postgresql_master
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - net
-
-  auth_service_postgresql_slave:
-    extends:
-      service: auth_service_postgresql_slave
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    networks:
-      - net
-    deploy:
-      replicas: 3
-      placement:
-        constraints: [ node.role == worker ]
-      update_config:
-        failure_action: rollback
+      - overlay_net
+      - bridge_net
 
   auth_service_pgbouncer_master:
     extends:
       service: auth_service_pgbouncer_master
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
 
-  auth_service_pgbouncer_slave:
+  auth_service_postgresql_slave_01:
     extends:
-      service: auth_service_pgbouncer_slave
+      service: auth_service_postgresql_slave_01
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
+  auth_service_pgbouncer_slave_01:
+    extends:
+      service: auth_service_pgbouncer_slave_01
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - overlay_net
+      - bridge_net
+
+  auth_service_postgresql_slave_02:
+    extends:
+      service: auth_service_postgresql_slave_02
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - overlay_net
+      - bridge_net
+  auth_service_pgbouncer_slave_02:
+    extends:
+      service: auth_service_pgbouncer_slave_02
+      file: ../src/auth_service/postgresql/docker-compose.yml
+    networks:
+      - overlay_net
+      - bridge_net
 
   #---------------------------------------------------------------------------------------------------------------------
 
@@ -72,19 +76,8 @@ services:
       service: store_service
       file: ../src/store_service/docker-compose.yml
     networks:
-      - net
-    deploy:
-      replicas: 2
-      placement:
-        constraints: [ node.role == worker ]
-      update_config:
-        failure_action: rollback
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+      - overlay_net
+      - bridge_net
 
   ## MONGODB
   store_service_router01:
@@ -92,52 +85,82 @@ services:
       service: store_service_router01
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
 
   store_service_configsvr01:
     extends:
       service: store_service_configsvr01
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
 
   store_service_shard01_a:
     extends:
       service: store_service_shard01_a
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
   store_service_shard01_b:
     extends:
       service: store_service_shard01_b
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
   store_service_shard01_c:
     extends:
       service: store_service_shard01_c
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
 
   store_service_shard02_a:
     extends:
       service: store_service_shard02_a
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
   store_service_shard02_b:
     extends:
       service: store_service_shard02_b
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
   store_service_shard02_c:
     extends:
       service: store_service_shard02_c
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
+  
+  store_service_shard03_a:
+    extends:
+      service: store_service_shard03_a
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - overlay_net
+      - bridge_net
+  store_service_shard03_b:
+    extends:
+      service: store_service_shard03_b
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - overlay_net
+      - bridge_net
+  store_service_shard03_c:
+    extends:
+      service: store_service_shard03_c
+      file: ../src/store_service/mongodb/docker-compose.yml
+    networks:
+      - overlay_net
+      - bridge_net
 
   #---------------------------------------------------------------------------------------------------------------------
 
@@ -148,7 +171,8 @@ services:
       service: proxy_service
       file: ../src/proxy_service/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
 
   #---------------------------------------------------------------------------------------------------------------------
 
@@ -159,4 +183,78 @@ services:
       service: monitoring_portainer
       file: ../src/monitoring/docker-compose.yml
     networks:
-      - net
+      - overlay_net
+      - bridge_net
+
+volumes:
+  store_service_mongodb_router01_db:
+    labels:
+      - keep
+  store_service_mongodb_router01_config:
+    labels:
+      - keep
+
+  store_service_mongodb_configsvr01_db:
+    labels:
+      - keep
+  store_service_mongodb_configsvr01_config:
+    labels:
+      - keep
+
+  store_service_mongodb_shard01_a_db:
+    labels:
+      - keep
+  store_service_mongodb_shard01_a_config:
+    labels:
+      - keep
+  store_service_mongodb_shard01_b_db:
+    labels:
+      - keep
+  store_service_mongodb_shard01_b_config:
+    labels:
+      - keep
+  store_service_mongodb_shard01_c_db:
+    labels:
+      - keep
+  store_service_mongodb_shard01_c_config:
+    labels:
+      - keep
+
+  store_service_mongodb_shard02_a_db:
+    labels:
+      - keep
+  store_service_mongodb_shard02_a_config:
+    labels:
+      - keep
+  store_service_mongodb_shard02_b_db:
+    labels:
+      - keep
+  store_service_mongodb_shard02_b_config:
+    labels:
+      - keep
+  store_service_mongodb_shard02_c_db:
+    labels:
+      - keep
+  store_service_mongodb_shard02_c_config:
+    labels:
+      - keep
+  
+  
+  store_service_mongodb_shard03_a_db:
+    labels:
+      - keep
+  store_service_mongodb_shard03_a_config:
+    labels:
+      - keep
+  store_service_mongodb_shard03_b_db:
+    labels:
+      - keep
+  store_service_mongodb_shard03_b_config:
+    labels:
+      - keep
+  store_service_mongodb_shard03_c_db:
+    labels:
+      - keep
+  store_service_mongodb_shard03_c_config:
+    labels:
+      - keep

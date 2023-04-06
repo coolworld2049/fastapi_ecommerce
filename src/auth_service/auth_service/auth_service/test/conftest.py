@@ -8,8 +8,10 @@ from httpx import AsyncClient
 from auth_service.core.config import get_app_settings
 from auth_service.db.session import scoped_session
 from auth_service.main import app
-from auth_service.test.utils.user import authentication_token_from_email
-from auth_service.test.utils.utils import get_superuser_token_headers
+from auth_service.test.utils.user import (
+    authentication_token_from_email,
+    get_superuser_token_headers,
+)
 
 
 @pytest.fixture(scope="session")
@@ -30,7 +32,7 @@ async def client() -> AsyncGenerator:
         yield _client
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def db() -> AsyncGenerator:
     async with scoped_session() as s:
         yield s
