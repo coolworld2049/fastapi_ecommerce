@@ -21,6 +21,7 @@ jobs:
           bash cpenv.sh
           bash make_docker_images.sh
           bash start.sh
+          docker logs auth_service_postgresql_master
           cd ..
   build:
     name: Production Deployment
