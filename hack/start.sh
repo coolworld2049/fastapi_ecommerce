@@ -17,18 +17,22 @@ set -e
 
 . ../src/proxy_service/mkcert.sh
 
-docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d --no-build --scale proxy_service=0
+docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d \
+  --scale auth_service=0 --scale store_service=0 --scale proxy_service=0
 
 . ../src/store_service/mongodb/init.sh
 
 . ../src/store_service/mongodb/shard.sh
 
-docker-compose -f ../fastapi-ecommerce/docker-compose.yml --profile proxy_service up -d --no-build
+docker-compose -f ../fastapi-ecommerce/docker-compose.yml --profile proxy_service up -d
 
 docker volume prune -f --filter "label!=keep"
 
 docker ps
 
 docker stats --no-stream
+
+log "sleep 10"
+sleep 10
 
 . netcat.sh

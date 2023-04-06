@@ -19,7 +19,8 @@ jobs:
           chmod +x hack/*
           cd hack
           bash cpenv.sh
-          bash make_docker_images-restart.sh
+          bash make_docker_images.sh
+          bash start.sh
           cd ..
   build:
     name: Production Deployment
