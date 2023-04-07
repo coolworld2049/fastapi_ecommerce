@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$APP_ENV" != dev ]; then
+if [ "$APP_ENV" != dev ] && [ -f /bitnami/postgresql/custom_conf/postgresql."$APP_ENV".conf ]; then
   part=."$APP_ENV"
 else
   part=''
@@ -22,6 +22,8 @@ else
   cat $old >$saved_old
   mod_pg_conf
 fi
+
+echo "$new extends $old"
 
 if [ $? -eq 0 ]; then
   echo "✅  postgresql.conf changed successfully"

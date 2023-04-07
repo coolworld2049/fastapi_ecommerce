@@ -16,15 +16,14 @@ services:
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS:-1}
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
       - POSTGRESQL_TCP_KEEPALIVES_INTERVAL=0
       - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
-      - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts:/docker-entrypoint-preinitdb.d
-      - auth_service_postgresql_master:/bitnami/postgresql
-    restart: always
+      - ./conf:/bitnami/postgresql/custom_conf:ro
+      - ./scripts:/docker-entrypoint-preinitdb.d:ro
+      - auth_service_postgresql_master_data:/bitnami/postgresql
 
   auth_service_pgbouncer_master:
     image: bitnami/pgbouncer:latest
@@ -36,9 +35,7 @@ services:
       - ../.env.prod
     environment:
       - POSTGRESQL_HOST=auth_service_postgresql_master
-      - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6432
     restart: always
 
   auth_service_postgresql_replica_01:
@@ -55,14 +52,13 @@ services:
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
-      - POSTGRESQL_MASTER_PORT_NUMBER=5432
       - POSTGRESQL_TCP_KEEPALIVES_INTERVAL=0
       - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
-      - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts:/docker-entrypoint-preinitdb.d
-      - auth_service_postgresql_replica_01:/bitnami/postgresql
+      - ./conf:/bitnami/postgresql/custom_conf:ro
+      - ./scripts:/docker-entrypoint-preinitdb.d:ro
+      - auth_service_postgresql_replica_01_data:/bitnami/postgresql
     restart: always
   auth_service_pgbouncer_replica_01:
     image: bitnami/pgbouncer:latest
@@ -75,9 +71,7 @@ services:
       - ../.env.prod
     environment:
       - POSTGRESQL_HOST=auth_service_postgresql_replica_01
-      - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6432
     volumes:
       - auth_service_pgbouncer_replica_01:/bitnami/pgbouncer/conf
     restart: always
@@ -95,14 +89,13 @@ services:
       - POSTGRESQL_REPLICATION_USER=repl_user
       - POSTGRESQL_REPLICATION_PASSWORD=repl_password
       - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
-      - POSTGRESQL_MASTER_PORT_NUMBER=5432
       - POSTGRESQL_TCP_KEEPALIVES_INTERVAL=0
       - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
-      - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts:/docker-entrypoint-preinitdb.d
-      - auth_service_postgresql_replica_02:/bitnami/postgresql
+      - ./conf:/bitnami/postgresql/custom_conf:ro
+      - ./scripts:/docker-entrypoint-preinitdb.d:ro
+      - auth_service_postgresql_replica_02_data:/bitnami/postgresql
     restart: always
   auth_service_pgbouncer_replica_02:
     image: bitnami/pgbouncer:latest
@@ -114,29 +107,27 @@ services:
       - ../.env.prod
     environment:
       - POSTGRESQL_HOST=auth_service_postgresql_replica_02
-      - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_PORT=6432
     volumes:
       - auth_service_pgbouncer_replica_02:/bitnami/pgbouncer/conf
     restart: always
 
 volumes:
-  auth_service_postgresql_master:
+  auth_service_postgresql_master_data:
     labels:
       keep:
   auth_service_pgbouncer_master:
     labels:
       keep:
 
-  auth_service_postgresql_replica_01:
+  auth_service_postgresql_replica_01_data:
     labels:
       keep:
   auth_service_pgbouncer_replica_01:
     labels:
       keep:
 
-  auth_service_postgresql_replica_02:
+  auth_service_postgresql_replica_02_data:
     labels:
       keep:
   auth_service_pgbouncer_replica_02:
