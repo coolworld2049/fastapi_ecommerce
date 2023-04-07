@@ -1,6 +1,5 @@
 import logging
 import sys
-import time
 
 from loguru import logger
 
@@ -43,6 +42,7 @@ def configure_logging(
     )
     logger.add(
         access_log_path,
+        serialize=True,
         level=logging_level,
         enqueue=True,
         backtrace=True,
@@ -54,6 +54,7 @@ def configure_logging(
     )
     logger.add(
         error_log_path,
+        serialize=True,
         level=logging.ERROR,
         enqueue=True,
         backtrace=True,

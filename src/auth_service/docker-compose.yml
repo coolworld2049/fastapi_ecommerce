@@ -10,4 +10,7 @@ services:
       - .env.prod
     ports:
       - "80"
+    volumes:
+      - ../.volumes/auth_service/log/:/app/auth_service/.logs/
+      - ../.volumes/auth_service/htmlcov/:/app/htmlcov/
     restart: always

@@ -1,7 +1,7 @@
 version: '3.9'
 
 networks:
-  bridge_net:
+  default:
     driver: bridge
 
 services:
@@ -15,7 +15,7 @@ services:
     env_file:
       - ../.env
     networks:
-      - bridge_net
+      - default
 
 
   ## POSTGRESQL
@@ -24,40 +24,40 @@ services:
       service: auth_service_postgresql_master
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   auth_service_pgbouncer_master:
     extends:
       service: auth_service_pgbouncer_master
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   auth_service_postgresql_replica_01:
     extends:
       service: auth_service_postgresql_replica_01
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   auth_service_pgbouncer_replica_01:
     extends:
       service: auth_service_pgbouncer_replica_01
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   auth_service_postgresql_replica_02:
     extends:
       service: auth_service_postgresql_replica_02
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   auth_service_pgbouncer_replica_02:
     extends:
       service: auth_service_pgbouncer_replica_02
       file: ../src/auth_service/postgresql/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   #---------------------------------------------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ services:
     env_file:
       - ../.env
     networks:
-      - bridge_net
+      - default
 
   ## MONGODB
   store_service_router01:
@@ -78,93 +78,99 @@ services:
       service: store_service_router01
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   store_service_configsvr01:
     extends:
       service: store_service_configsvr01
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   store_service_shard01_a:
     extends:
       service: store_service_shard01_a
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   store_service_shard01_b:
     extends:
       service: store_service_shard01_b
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   store_service_shard01_c:
     extends:
       service: store_service_shard01_c
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   store_service_shard02_a:
     extends:
       service: store_service_shard02_a
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   store_service_shard02_b:
     extends:
       service: store_service_shard02_b
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   store_service_shard02_c:
     extends:
       service: store_service_shard02_c
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   
   store_service_shard03_a:
     extends:
       service: store_service_shard03_a
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   store_service_shard03_b:
     extends:
       service: store_service_shard03_b
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
   store_service_shard03_c:
     extends:
       service: store_service_shard03_c
       file: ../src/store_service/mongodb/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   #---------------------------------------------------------------------------------------------------------------------
 
   # PROXY_SERVICE
   proxy_service:
-    image: coolworldocker/proxy_service:latest
     extends:
       service: proxy_service
       file: ../src/proxy_service/docker-compose.yml
     networks:
-      - bridge_net
+      - default
 
   #---------------------------------------------------------------------------------------------------------------------
 
   # MONITORING
 
   monitoring_portainer:
-    extends:
-      service: monitoring_portainer
-      file: ../src/monitoring/docker-compose.yml
-    networks:
-      - bridge_net
+    image: portainer/portainer-ce:latest
+    container_name: monitoring_portainer
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - monitoring_portainer:/data
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    restart: always
 
 volumes:
   auth_service_postgresql_master:
@@ -257,5 +263,9 @@ volumes:
     labels:
       keep:
   store_service_mongodb_shard03_c_config:
+    labels:
+      keep:
+
+  monitoring_portainer:
     labels:
       keep:

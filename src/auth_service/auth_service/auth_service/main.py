@@ -16,8 +16,8 @@ from auth_service.db.session import async_engines, scoped_session
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
-    access_log_path=get_app_settings().logs_path / "access/access.log",
-    error_log_path=get_app_settings().logs_path / "errors/error.log",
+    access_log_path=get_app_settings().logs_path / "access.log",
+    error_log_path=get_app_settings().logs_path / "error.log",
 )
 
 
