@@ -21,8 +21,8 @@ services:
       - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
-      - ./conf:/bitnami/postgresql/custom_conf:ro
-      - ./scripts:/docker-entrypoint-preinitdb.d:ro
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_master_data:/bitnami/postgresql
 
   auth_service_pgbouncer_master:
@@ -56,8 +56,8 @@ services:
       - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
-      - ./conf:/bitnami/postgresql/custom_conf:ro
-      - ./scripts:/docker-entrypoint-preinitdb.d:ro
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_replica_01_data:/bitnami/postgresql
     restart: always
   auth_service_pgbouncer_replica_01:
@@ -93,8 +93,8 @@ services:
       - POSTGRESQL_TCP_KEEPALIVES_IDLE=0
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
-      - ./conf:/bitnami/postgresql/custom_conf:ro
-      - ./scripts:/docker-entrypoint-preinitdb.d:ro
+      - ./conf:/bitnami/postgresql/custom_conf
+      - ./scripts:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_replica_02_data:/bitnami/postgresql
     restart: always
   auth_service_pgbouncer_replica_02:
