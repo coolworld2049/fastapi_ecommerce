@@ -24,5 +24,5 @@ mkcert -key-file "$SCRIPTDIR"/certs/server.key -cert-file "$SCRIPTDIR"/certs/ser
   127.0.0.1 \
   ::1
 
-sed "s@${NGINX_DOMAIN:-fastapi-ecommerce.ru}@""fastapi-ecommerce.ru"'@' "$SCRIPTDIR"/config/nginx.conf.example >"$SCRIPTDIR"/config/nginx.conf
-sed 's@fastapi-ecommerce.ru@'"${NGINX_DOMAIN:-fastapi-ecommerce.ru}"'@' "$SCRIPTDIR"/config/nginx.conf.example >"$SCRIPTDIR"/config/nginx.conf
+sed "s@${NGINX_DOMAIN:-fastapi-ecommerce.com}@""fastapi-ecommerce.com"'@' "$SCRIPTDIR"/config/nginx.conf.example >"$SCRIPTDIR"/config/nginx.conf
+sed 's@fastapi-ecommerce.com@'"${NGINX_DOMAIN:-fastapi-ecommerce.com}"'@' "$SCRIPTDIR"/config/nginx.conf.example >"$SCRIPTDIR"/config/nginx.conf
