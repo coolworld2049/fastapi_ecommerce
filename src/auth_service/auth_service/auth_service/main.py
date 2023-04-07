@@ -4,7 +4,6 @@ from asgi_correlation_id import CorrelationIdMiddleware
 from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 
 from auth_service.api.api_v1.api import api_router
@@ -17,8 +16,8 @@ from auth_service.db.session import async_engines, scoped_session
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
-    access_log_path=get_app_settings().logs_path / "access/access.log",
-    error_log_path=get_app_settings().logs_path / "errors/error.log",
+    access_log_path=get_app_settings().logs_path / "access.log",
+    error_log_path=get_app_settings().logs_path / "error.log",
 )
 
 
@@ -29,21 +28,7 @@ def get_application() -> FastAPI:
         allow_origins=get_app_settings().APP_BACKEND_CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=[
-            "*" "Content-Range",
-            "X-Requested-With",
-            "X-Request-ID",
-            "X-Response-Time",
-        ],
-        expose_headers=[
-            "*" "Content-Range",
-            "Authorization",
-            "X-Request-ID",
-            "X-Response-Time",
-        ],
-    )
-    application.add_middleware(
-        SessionMiddleware, secret_key=get_app_settings().JWT_SECRET_KEY
+        expose_headers=["*"],
     )
     application.include_router(
         api_router, prefix=get_app_settings().api_prefix

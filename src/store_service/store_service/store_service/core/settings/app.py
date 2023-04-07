@@ -3,6 +3,8 @@ import os
 import pathlib
 from typing import Any
 
+from pydantic import validator
+
 from store_service.core.settings.base import BaseAppSettings, AppEnvTypes
 
 
@@ -32,6 +34,14 @@ class AppSettings(BaseAppSettings):
 
     LOGGING_LEVEL: int = logging.INFO
 
+    @validator("APP_BACKEND_CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: str | list[str]) -> str | list[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+
     class Config:
         validate_assignment = True
 
@@ -43,7 +53,8 @@ class AppSettings(BaseAppSettings):
             "openapi_prefix": self.openapi_prefix,
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
-            "title": self.title,
+            "title": self.APP_NAME
+            + f"{f'_{self.APP_ENV.name}' if self.APP_ENV != AppEnvTypes.prod else ''}",
             "version": self.APP_VERSION,
         }
 

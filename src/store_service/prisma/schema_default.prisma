@@ -30,7 +30,7 @@ model Category {
   updated_at  DateTime? @updatedAt
   products    Product[]
 
-  @@index([name, created_at], map: "name_1_created_at_1")
+  @@unique([name], map: "name_1")
 }
 
 model Product {
@@ -45,7 +45,7 @@ model Product {
   category_id    String         @db.ObjectId
   order_products OrderProduct[]
 
-  @@index([title, category_id, created_at], map: "title_1_category_id_1_created_at_1")
+  @@unique([title, category_id], map: "title_1_category_id_1")
 }
 
 model Order {
@@ -56,8 +56,6 @@ model Order {
   updated_at     DateTime?      @updatedAt
   user_id        String
   order_products OrderProduct[]
-
-  @@index([user_id, status, created_at], map: "user_id_1_status_1_created_at_1")
 }
 
 model OrderProduct {
@@ -68,6 +66,4 @@ model OrderProduct {
   product_id String?   @db.ObjectId
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
-
-  @@index([order_id, product_id, created_at], map: "order_id_1_product_id_1_created_at_1")
 }

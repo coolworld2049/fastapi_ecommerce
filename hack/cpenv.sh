@@ -2,13 +2,19 @@
 
 set -euo pipefail
 
-log() { printf '\n%s\n' "$1" >&2; }
+log() { printf '\n%s' "$1" >&2; }
+log_t() { printf '\n\t%s' "$1" >&2; }
 
 for dir in ../src/*; do
-  if [ -f "$dir"/.env.example ]; then
-    cp "$dir"/.env.example "$dir"/.env
-    log "✅  created $dir/.env"
+  log "$(basename "$dir")"
+  target_f_name="$dir"/.env
+  example_f_name="$target_f_name".example
+  if [ -f "$example_f_name" ]; then
+    cp "$example_f_name" "$target_f_name"
+    log_t "✅  file created $(basename "$target_f_name")"
   else
-    log "❌ $dir/.env.example File not exist"
+    log_t "$(basename "$example_f_name") FileNotFound"
   fi
 done
+
+log ""

@@ -9,5 +9,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* \
     && rm -Rf /usr/share/doc && rm -Rf /usr/share/man
+RUN echo "benchmark_vm started"
 
 CMD ["/bin/bash"]

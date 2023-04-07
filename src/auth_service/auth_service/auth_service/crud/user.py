@@ -47,7 +47,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         *,
         db_obj: User,
         email: Email,
-        url_verify_token: str,
     ):
         try:
             db_obj.verification_token = random.randbytes(24).hex()
@@ -58,7 +57,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await email.send_verification_code(
                 subject="Verification",
                 recipients=[EmailStr(db_obj.email)],
-                url_verify_token=url_verify_token,
                 data=email_data,
                 token=db_obj.verification_token,
             )

@@ -4,11 +4,10 @@ set -e
 
 SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source ../.env
+docker rm -f benchmark_vm
 
-docker rm -f vm
-
-cd ../src/postgresql
-docker-compose -f docker-compose.yml down
+cd ../src/auth_service/postgresql
+docker-compose -p benchmark_postgresql down
 cd "$SCRIPTDIR"
-set +e && rm -R ../src/.volumes/postgresql_master
+
+docker volume prune -f --filter "label=keep"

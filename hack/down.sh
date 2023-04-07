@@ -8,9 +8,6 @@ source ../.env
 
 docker-compose -f ../fastapi-ecommerce/docker-compose.yml down --rmi local --remove-orphans
 
-docker rmi -f \
-  coolworldocker/auth_service:latest \
-  coolworldocker/proxy_service:latest \
-  coolworldocker/store_service:latest
+docker volume prune -f --filter "label!=keep"
 
 log "✔️✔️✔️ Successfully down all containers ✔️✔️✔️ "

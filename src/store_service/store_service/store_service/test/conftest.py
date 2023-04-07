@@ -3,11 +3,9 @@ import asyncio
 import aiohttp
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
 from loguru import logger
 
 from store_service.core.config import get_app_settings
-from store_service.main import app
 from store_service.main import prisma
 
 
@@ -18,15 +16,6 @@ def event_loop():
         yield loop
     finally:
         loop.close()
-
-
-@pytest_asyncio.fixture(scope="module")
-async def store_service_client():
-    async with AsyncClient(
-        app=app,
-        base_url=f"http://{get_app_settings().APP_HOST}:{get_app_settings().APP_PORT}",
-    ) as c:
-        yield c
 
 
 @pytest_asyncio.fixture(scope="module")

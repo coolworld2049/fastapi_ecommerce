@@ -4,7 +4,7 @@ set -e
 
 dt=$(date '+%d-%m-%Y')
 ts=$(date +%s)
-LOG_FLE="$APP_ENV"_"$dt"_"$ts".txt
+LOG_FLE="$dt"_"$ts".txt
 
 printf '%s\n' "logs in $LOG_FLE"
 
@@ -17,7 +17,10 @@ if [ "" = "$PKG_OK" ]; then
 fi
 printf '\n'
 
-pgbench -i -s "${SCALE:-50}" -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_MASTER_HOST" -p "$POSTGRESQL_MASTER_PORT" "$POSTGRESQL_DATABASE"
+until pgbench -i -s "${SCALE:-50}" -U "$POSTGRESQL_USERNAME" \
+  -h "$POSTGRESQL_MASTER_HOST" -p "$POSTGRESQL_MASTER_PORT" "$POSTGRESQL_DATABASE"; do
+  echo "Try again"
+done
 
 printf '\n'
 
@@ -28,19 +31,19 @@ for i in $(seq 500 500 2000); do
   clients=$((i / 10))
   transactions=$i
   # WRITE
-  printf '%s\n'"$counter, WRITE master, options clients=$clients transactions=$transactions threads=$proc_num "
+  printf '%s\n'"$counter, WRITE master $counter, options clients=$clients transactions=$transactions threads=$proc_num "
   printf '\n'
   until pgbench -j "$proc_num" -c $clients -t "$transactions" \
     -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_MASTER_HOST" -p "$POSTGRESQL_MASTER_PORT" "$POSTGRESQL_DATABASE"; do
     echo "Try again"
   done
-  clients=$(((i / 10) * "$POSTGRESQL_NUM_SLAVES"))
-  transactions=$((i * "$POSTGRESQL_NUM_SLAVES"))
+  clients=$(((i / 10) * "$POSTGRESQL_NUM_REPLICAS"))
+  transactions=$((i * "$POSTGRESQL_NUM_REPLICAS"))
   # READ
-  printf '%s\n'"$counter, READ master [$counter], options clients=$clients transactions=$transactions threads=$proc_num "
+  printf '%s\n'"$counter, READ master $counter, options clients=$clients transactions=$transactions threads=$proc_num "
   printf '\n'
   until pgbench -j "$proc_num" -c $clients -t "$transactions" \
-    -b select-only -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_SLAVE_HOST" -p "$POSTGRESQL_SLAVE_PORT" "$POSTGRESQL_DATABASE"; do
+    -b select-only -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_REPLICA_HOST" -p "$POSTGRESQL_REPLICA_PORT" "$POSTGRESQL_DATABASE"; do
     echo "Try again"
   done
   : $((counter++))

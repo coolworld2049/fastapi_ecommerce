@@ -4,10 +4,13 @@ services:
 
   auth_service:
     build: .
+    container_name: auth_service
     env_file:
       - .env
-      - ../.env.auth_service
-      - ../../.env
+      - .env.prod
     ports:
       - "80"
+    volumes:
+      - ../.volumes/auth_service/log/:/app/auth_service/.logs/
+      - ../.volumes/auth_service/htmlcov/:/app/htmlcov/
     restart: always
