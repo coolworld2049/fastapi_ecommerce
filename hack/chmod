@@ -1,0 +1,1 @@
+find . -type f -not -path './venv/*' -name *.sh -o -name *.conf -exec chmod 755 {} \;
