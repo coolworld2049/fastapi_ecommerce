@@ -1,13 +1,13 @@
 version: '3.9'
 
 networks:
-  deploy_net:
+  benchmark_postgresql_default:
     external: true
 
 services:
-  vm:
+  benchmark_vm:
     build: .
     volumes:
       - ./postgresql:/postgresql
     networks:
-      - deploy_net
+      - benchmark_postgresql_default

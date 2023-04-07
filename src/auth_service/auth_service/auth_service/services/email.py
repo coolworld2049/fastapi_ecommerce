@@ -22,14 +22,13 @@ class Email(FastMail):
         self,
         subject: str,
         recipients: list[EmailStr],
-        url_verify_token: str,
         data: dict,
         token: str,
     ):
         template = get_app_settings().jinja_templates.get_template(
             f"/verif_email/verification.html"
         )
-        body = template.render(url=f"{url_verify_token}/{token}", **data)
+        body = template.render(**data)
         message = MessageSchema(
             subject=subject,
             recipients=recipients,

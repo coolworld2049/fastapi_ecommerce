@@ -15,7 +15,7 @@ from prisma.types import CategoryCreateInput, ProductCreateInput
 from store_service.core.config import get_app_settings
 from store_service.core.settings.base import AppEnvTypes
 from store_service.schemas.user import User
-from store_service.test.auth_service.test_users import get_users
+from store_service.test.auth_service_client.test_users import get_users
 from store_service.test.utils import RandomDateTime, rnd_string
 
 fake = Faker()
@@ -155,7 +155,7 @@ async def test_fake_data(
             [1, datetime.now().month],
         )
         products = await create_product(
-            categories, multiplier=10**degree, created_at=created_at
+            categories, multiplier=4**degree, created_at=created_at
         )
         orders_count = 0
         for _ in range(degree):

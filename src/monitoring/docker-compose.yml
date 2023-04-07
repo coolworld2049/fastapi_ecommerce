@@ -13,4 +13,10 @@ services:
       - ../.volumes/monitoring/portainer:/data
     ports:
       - "9000:9000"
-    restart: unless-stopped
+      - "9443:9443"
+    restart: always
+
+volumes:
+  monitoring_portainer:
+    labels:
+      keep:

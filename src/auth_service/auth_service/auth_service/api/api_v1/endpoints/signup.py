@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.post(
     "/client",
-    response_model=schemas.User,
+    response_model=dict,
     status_code=status.HTTP_201_CREATED,
 )
 async def signup_client(
@@ -37,12 +37,10 @@ async def signup_client(
             db,
             db_obj=user,
             email=email,
-            url_verify_token=get_app_settings().base_url
-            + f"{get_app_settings().api_prefix}/verify/email",
         )
         if not res:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="There was an error sending email",
             )
-    return user
+    return {"detail": "The confirmation code has been sent to your email"}

@@ -4,10 +4,10 @@ services:
 
   auth_service:
     build: .
+    container_name: auth_service
     env_file:
       - .env
-      - ../.env.auth_service
-      - ../../.env
+      - .env.prod
     ports:
       - "80"
     restart: always

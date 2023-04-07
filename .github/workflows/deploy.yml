@@ -13,9 +13,9 @@ jobs:
       - name: Build images and publish to registry
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
-          echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/.env.auth_service
-          echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/.env.store_service
-          sed -i~ '/^APP_ENV=/s/=.*/=test/' .env
+          echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
+          echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
+          export APP_ENV=test
           chmod +x hack/*
           cd hack
           bash cpenv.sh
@@ -49,8 +49,8 @@ jobs:
           script: |
             cd /root/fastapi_ecommerce/
             echo "${{ secrets.ENV_FILE }}" > .env
-            echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/.env.auth_service
-            echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/.env.store_service
+            echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
+            echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
             chmod +x hack/*
             cd hack
             bash cpenv.sh

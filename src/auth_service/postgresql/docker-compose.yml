@@ -6,7 +6,8 @@ services:
     image: bitnami/postgresql:latest
     container_name: auth_service_postgresql_master
     env_file:
-      - ../../.env.auth_service
+      - ../.env
+      - ../.env.prod
     ports:
       - "5432:5432"
     environment:
@@ -21,7 +22,7 @@ services:
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
-      - ../../.volumes/auth_service_postgresql/master/:/bitnami/postgresql
+      - auth_service_postgresql_master:/bitnami/postgresql
     restart: always
 
   auth_service_pgbouncer_master:
@@ -30,7 +31,8 @@ services:
     ports:
       - "6432:6432"
     env_file:
-      - ../../.env.auth_service
+      - ../.env
+      - ../.env.prod
     environment:
       - POSTGRESQL_HOST=auth_service_postgresql_master
       - POSTGRESQL_PORT=5432
@@ -38,11 +40,12 @@ services:
       - PGBOUNCER_PORT=6432
     restart: always
 
-  auth_service_postgresql_slave_01:
+  auth_service_postgresql_replica_01:
     image: bitnami/postgresql:latest
-    container_name: auth_service_postgresql_slave_01
+    container_name: auth_service_postgresql_replica_01
     env_file:
-      - ../../.env.auth_service
+      - ../.env
+      - ../.env.prod
     ports:
       - "5433:5432"
     environment:
@@ -57,29 +60,31 @@ services:
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
-      - ../../.volumes/auth_service_postgresql/slave_01/:/bitnami/postgresql
+      - auth_service_postgresql_replica_01:/bitnami/postgresql
     restart: always
-  auth_service_pgbouncer_slave_01:
+  auth_service_pgbouncer_replica_01:
     image: bitnami/pgbouncer:latest
-    container_name: auth_service_pgbouncer_slave_01
+    container_name: auth_service_pgbouncer_replica_01
     ports:
       - "6433:6432"
     env_file:
-      - ../../.env.auth_service
+      - ../.env
+      - ../.env.prod
     environment:
-      - POSTGRESQL_HOST=auth_service_postgresql_slave_01
+      - POSTGRESQL_HOST=auth_service_postgresql_replica_01
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6432
     volumes:
-      - ../../.volumes/auth_service_pgbouncer/slave_01/:/bitnami/pgbouncer/conf/
+      - auth_service_pgbouncer_replica_01:/bitnami/pgbouncer/conf/
     restart: always
 
-  auth_service_postgresql_slave_02:
+  auth_service_postgresql_replica_02:
     image: bitnami/postgresql:latest
-    container_name: auth_service_postgresql_slave_02
+    container_name: auth_service_postgresql_replica_02
     env_file:
-      - ../../.env.auth_service
+      - ../.env
+      - ../.env.prod
     ports:
       - "5434:5432"
     environment:
@@ -94,20 +99,43 @@ services:
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
-      - ../../.volumes/auth_service_postgresql/slave_02/:/bitnami/postgresql
+      - auth_service_postgresql_replica_02:/bitnami/postgresql
     restart: always
-  auth_service_pgbouncer_slave_02:
+  auth_service_pgbouncer_replica_02:
     image: bitnami/pgbouncer:latest
-    container_name: auth_service_pgbouncer_slave_02
+    container_name: auth_service_pgbouncer_replica_02
     ports:
       - "6434:6432"
     env_file:
-      - ../../.env.auth_service
+      - ../.env
+      - ../.env.prod
     environment:
-      - POSTGRESQL_HOST=auth_service_postgresql_slave_02
+      - POSTGRESQL_HOST=auth_service_postgresql_replica_02
       - POSTGRESQL_PORT=5432
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6432
     volumes:
-      - ../../.volumes/auth_service_pgbouncer/slave_02/:/bitnami/pgbouncer/conf/
+      - auth_service_pgbouncer_replica_02:/bitnami/pgbouncer/conf/
     restart: always
+
+volumes:
+  auth_service_postgresql_master:
+    labels:
+      keep:
+  auth_service_pgbouncer_master:
+    labels:
+      keep:
+
+  auth_service_postgresql_replica_01:
+    labels:
+      keep:
+  auth_service_pgbouncer_replica_01:
+    labels:
+      keep:
+
+  auth_service_postgresql_replica_02:
+    labels:
+      keep:
+  auth_service_pgbouncer_replica_02:
+    labels:
+      keep:

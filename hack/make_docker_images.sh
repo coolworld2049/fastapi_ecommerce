@@ -9,8 +9,6 @@ log() { printf '\n%s\n' "$1" >&2; }
 
 source ../.env
 
-log "❗ STAGE=$APP_ENV"
-
 echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
 
 for dir in ../src/*; do

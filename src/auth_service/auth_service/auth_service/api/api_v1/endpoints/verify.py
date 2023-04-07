@@ -6,7 +6,6 @@ from auth_service import crud, models
 from auth_service.api.exceptions import (
     InvalidVerificationTokenException,
 )
-from auth_service.db import session
 
 router = APIRouter()
 
@@ -22,3 +21,4 @@ async def verify_me(
     if not user or user.is_verified:
         raise InvalidVerificationTokenException
     await crud.user.verify_token_from_email(db, db_obj=user, token=token)
+    return {"detail": "Verified"}

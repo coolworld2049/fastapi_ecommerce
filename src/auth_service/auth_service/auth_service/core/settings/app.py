@@ -4,6 +4,7 @@ import pathlib
 from typing import Any, Optional
 from urllib.parse import urlparse
 
+from pydantic import validator
 from pydantic.networks import PostgresDsn
 from starlette.templating import Jinja2Templates
 
@@ -11,6 +12,7 @@ from auth_service.core.settings.base import BaseAppSettings, AppEnvTypes
 
 
 class AppSettings(BaseAppSettings):
+    title: str = os.getenv("APP_NAME")
     docs_url: str = "/docs"
     api_prefix: str = "/api/v1"
     openapi_prefix: str = ""
@@ -28,7 +30,7 @@ class AppSettings(BaseAppSettings):
     APP_VERSION: str = "latest"
 
     APP_BACKEND_CORS_ORIGINS: list[str]
-    JWT_ALGORITHM: str
+    JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     FIRST_SUPERUSER_EMAIL: str
@@ -51,6 +53,14 @@ class AppSettings(BaseAppSettings):
 
     LOGGING_LEVEL: int = logging.INFO
 
+    @validator("APP_BACKEND_CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: str | list[str]) -> str | list[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+
     class Config:
         validate_assignment = True
 
@@ -62,7 +72,8 @@ class AppSettings(BaseAppSettings):
             "openapi_prefix": self.openapi_prefix,
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
-            "title": self.APP_NAME,
+            "title": self.APP_NAME
+            + f"{f'_{self.APP_ENV.name}' if self.APP_ENV != AppEnvTypes.prod else ''}",
             "version": self.APP_VERSION,
         }
 
@@ -77,11 +88,6 @@ class AppSettings(BaseAppSettings):
     @property
     def jinja_templates(self) -> Jinja2Templates:
         return Jinja2Templates(directory=self.project_path / "templates")
-
-    @property
-    def base_url(self):
-        proto = "https" if os.getenv("APP_ENV") == AppEnvTypes.prod else "http"
-        return f"{proto}://{self.APP_HOST}"
 
     @property
     def postgres_master_dsn(self) -> str:

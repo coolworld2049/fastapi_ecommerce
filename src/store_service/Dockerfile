@@ -16,8 +16,12 @@ COPY prisma /app/prisma
 
 ENV PYTHONPATH=/app
 
+ENV PYTHONDONTWRITEBYTECODE=1
+
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 EXPOSE 80
 
-CMD ["bash", "./start.sh"]
+ENTRYPOINT  ["bash", "./start.sh"]
