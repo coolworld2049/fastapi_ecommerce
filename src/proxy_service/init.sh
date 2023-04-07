@@ -16,7 +16,9 @@ mkcert -install
 mkdir -p "$SCRIPTDIR"/certs
 
 mkcert -key-file "$SCRIPTDIR"/certs/server.key -cert-file "$SCRIPTDIR"/certs/server.crt \
+  "${NGINX_DOMAIN}" \
   www."${NGINX_DOMAIN}" \
+  monitoring."${NGINX_DOMAIN}" \
   "${NGINX_AUTH_SB}"."${NGINX_DOMAIN}" \
   "${NGINX_STORE_SB}"."${NGINX_DOMAIN}" \
   127.0.0.1 \

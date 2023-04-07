@@ -22,7 +22,6 @@ http {
         zone store_service 64k;
         server store_service:80;
     }
-
     server {
         server_name www.fastapi-ecommerce.com fastapi-ecommerce.com;
         include /etc/nginx/includes/listen.conf;

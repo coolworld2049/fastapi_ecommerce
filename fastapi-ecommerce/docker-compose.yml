@@ -178,28 +178,28 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - monitoring_portainer:/data
+      - ./.volumes/monitoring_portainer:/data
     ports:
       - "9000:9000"
       - "9443:9443"
     restart: always
 
 volumes:
-  auth_service_postgresql_master:
+  auth_service_postgresql_master_data:
     labels:
       keep:
   auth_service_pgbouncer_master:
     labels:
       keep:
 
-  auth_service_postgresql_replica_01:
+  auth_service_postgresql_replica_01_data:
     labels:
       keep:
   auth_service_pgbouncer_replica_01:
     labels:
       keep:
 
-  auth_service_postgresql_replica_02:
+  auth_service_postgresql_replica_02_data:
     labels:
       keep:
   auth_service_pgbouncer_replica_02:
