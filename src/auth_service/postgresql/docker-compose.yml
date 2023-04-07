@@ -23,6 +23,7 @@ services:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_master:/bitnami/postgresql
+      - ../../.volumes/auth_service_postgresql/master/:/opt/bitnami/postgresql/conf/
     restart: always
 
   auth_service_pgbouncer_master:
@@ -47,7 +48,7 @@ services:
       - ../.env
       - ../.env.prod
     ports:
-      - "5433:5432"
+      - "5434:5432"
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
@@ -61,12 +62,13 @@ services:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_replica_01:/bitnami/postgresql
+      - ../../.volumes/auth_service_postgresql/replica_01/:/opt/bitnami/postgresql/conf/
     restart: always
   auth_service_pgbouncer_replica_01:
     image: bitnami/pgbouncer:latest
     container_name: auth_service_pgbouncer_replica_01
     ports:
-      - "6433:6432"
+      - "6434:6432"
     env_file:
       - ../.env
       - ../.env.prod
@@ -86,7 +88,7 @@ services:
       - ../.env
       - ../.env.prod
     ports:
-      - "5434:5432"
+      - "5435:5432"
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
@@ -100,12 +102,13 @@ services:
       - ./conf:/bitnami/postgresql/custom_conf
       - ./scripts/:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_replica_02:/bitnami/postgresql
+      - ../../.volumes/auth_service_postgresql/replica_02/:/opt/bitnami/postgresql/conf/
     restart: always
   auth_service_pgbouncer_replica_02:
     image: bitnami/pgbouncer:latest
     container_name: auth_service_pgbouncer_replica_02
     ports:
-      - "6434:6432"
+      - "6435:6432"
     env_file:
       - ../.env
       - ../.env.prod

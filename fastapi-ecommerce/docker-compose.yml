@@ -23,6 +23,8 @@ services:
     extends:
       service: auth_service_postgresql_master
       file: ../src/auth_service/postgresql/docker-compose.yml
+    env_file:
+      - ../.env
     networks:
       - default
 
@@ -30,6 +32,8 @@ services:
     extends:
       service: auth_service_pgbouncer_master
       file: ../src/auth_service/postgresql/docker-compose.yml
+    env_file:
+      - ../.env
     networks:
       - default
 
@@ -37,12 +41,16 @@ services:
     extends:
       service: auth_service_postgresql_replica_01
       file: ../src/auth_service/postgresql/docker-compose.yml
+    env_file:
+      - ../.env
     networks:
       - default
   auth_service_pgbouncer_replica_01:
     extends:
       service: auth_service_pgbouncer_replica_01
       file: ../src/auth_service/postgresql/docker-compose.yml
+    env_file:
+      - ../.env
     networks:
       - default
 
@@ -50,12 +58,16 @@ services:
     extends:
       service: auth_service_postgresql_replica_02
       file: ../src/auth_service/postgresql/docker-compose.yml
+    env_file:
+      - ../.env
     networks:
       - default
   auth_service_pgbouncer_replica_02:
     extends:
       service: auth_service_pgbouncer_replica_02
       file: ../src/auth_service/postgresql/docker-compose.yml
+    env_file:
+      - ../.env
     networks:
       - default
 
