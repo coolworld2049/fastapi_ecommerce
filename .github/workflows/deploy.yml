@@ -16,7 +16,7 @@ jobs:
           echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
           echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
           export APP_ENV=test
-          find . -type f -not -path './venv/*' -name *.sh -o -name *.conf -exec chmod 755 {} \;
+          find . -type f -name *.sh -exec chmod +x {} \;
           cd hack
           bash cpenv.sh
           bash make_docker_images.sh
@@ -51,7 +51,7 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
             echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
-            find . -type f -not -path './venv/*' -name *.sh -o -name *.conf -exec chmod 755 {} \;
+            find . -type f -name *.sh -exec chmod +x {} \;
             cd hack
             bash cpenv.sh
             bash make_docker_images-restart.sh

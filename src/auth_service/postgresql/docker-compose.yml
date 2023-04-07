@@ -4,6 +4,7 @@ services:
 
   auth_service_postgresql_master:
     image: bitnami/postgresql:latest
+    user: root
     container_name: auth_service_postgresql_master
     env_file:
       - ../.env
@@ -21,9 +22,8 @@ services:
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts/:/docker-entrypoint-preinitdb.d
+      - ./scripts:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_master:/bitnami/postgresql
-      - ../../.volumes/auth_service_postgresql/master/:/opt/bitnami/postgresql/conf/
     restart: always
 
   auth_service_pgbouncer_master:
@@ -43,6 +43,7 @@ services:
 
   auth_service_postgresql_replica_01:
     image: bitnami/postgresql:latest
+    user: root
     container_name: auth_service_postgresql_replica_01
     env_file:
       - ../.env
@@ -60,12 +61,12 @@ services:
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts/:/docker-entrypoint-preinitdb.d
+      - ./scripts:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_replica_01:/bitnami/postgresql
-      - ../../.volumes/auth_service_postgresql/replica_01/:/opt/bitnami/postgresql/conf/
     restart: always
   auth_service_pgbouncer_replica_01:
     image: bitnami/pgbouncer:latest
+    user: root
     container_name: auth_service_pgbouncer_replica_01
     ports:
       - "6434:6432"
@@ -78,7 +79,7 @@ services:
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6432
     volumes:
-      - auth_service_pgbouncer_replica_01:/bitnami/pgbouncer/conf/
+      - auth_service_pgbouncer_replica_01:/bitnami/pgbouncer/conf
     restart: always
 
   auth_service_postgresql_replica_02:
@@ -100,9 +101,8 @@ services:
       - POSTGRESQL_TCP_KEEPALIVES_COUNT=10
     volumes:
       - ./conf:/bitnami/postgresql/custom_conf
-      - ./scripts/:/docker-entrypoint-preinitdb.d
+      - ./scripts:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_replica_02:/bitnami/postgresql
-      - ../../.volumes/auth_service_postgresql/replica_02/:/opt/bitnami/postgresql/conf/
     restart: always
   auth_service_pgbouncer_replica_02:
     image: bitnami/pgbouncer:latest
@@ -118,7 +118,7 @@ services:
       - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_PORT=6432
     volumes:
-      - auth_service_pgbouncer_replica_02:/bitnami/pgbouncer/conf/
+      - auth_service_pgbouncer_replica_02:/bitnami/pgbouncer/conf
     restart: always
 
 volumes:

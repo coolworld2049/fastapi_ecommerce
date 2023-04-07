@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 python ./auth_service/pre_start.py
 

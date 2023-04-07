@@ -1,4 +1,4 @@
-#! /bin/bash -x
+#! /usr/bin/env bash -x
 
 docker exec store_service_router01 mongosh --port 27017 --eval '[
   db.getSiblingDB("app").stats(),

@@ -1,11 +1,11 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 set -e
 
 # waldump
 
 docker exec -i postgresql-master-1 bash <<'EOF'
-#! /bin/bash
+#! /usr/bin/env bash
 
 set -e
 
