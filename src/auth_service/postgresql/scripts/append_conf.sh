@@ -1,8 +1,6 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 set -e
-
-log() { printf '\n%s\n' "$1" >&2; }
 
 if [ "$APP_ENV" != dev ]; then
   part=."$APP_ENV"
@@ -26,7 +24,7 @@ else
 fi
 
 if [ $? -eq 0 ]; then
-  log "✅  postgresql.conf changed successfully"
+  echo "✅  postgresql.conf changed successfully"
 else
-  log "❌  error changing postgresql.conf"
+  echo "❌  error changing postgresql.conf"
 fi
