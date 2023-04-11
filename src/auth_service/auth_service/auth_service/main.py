@@ -3,6 +3,7 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
+from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
@@ -19,6 +20,13 @@ configure_logging(
     access_log_path=get_app_settings().logs_path / "access.log",
     error_log_path=get_app_settings().logs_path / "error.log",
 )
+
+if get_app_settings().APP_ENV == AppEnvTypes.test:
+    logger.warning(
+        f"USE_RBAC={get_app_settings().USE_RBAC},"
+        f" USE_USER_CHECKS={get_app_settings().USE_USER_CHECKS},"
+        f" USE_EMAILS={get_app_settings().USE_EMAILS}"
+    )
 
 
 def get_application() -> FastAPI:
