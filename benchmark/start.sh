@@ -7,7 +7,7 @@ SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ../src/auth_service/.env.prod ../src/auth_service/.env
 
 cd ../src/auth_service/postgresql
-docker-compose -p benchmark_postgresql  up -d
+docker-compose -p benchmark_postgresql up -d
 cd "$SCRIPTDIR"
 
 POSTGRESQL_REPLICA_HOST=auth_service_pgbouncer_replica_01

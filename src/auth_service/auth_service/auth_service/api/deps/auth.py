@@ -29,14 +29,20 @@ async def get_current_user(
     return user
 
 
-async def get_active_current_user(
+async def get_verified_current_user(
     user: models.User = Depends(get_current_user),
 ) -> models.User:
-    if get_app_settings().USE_USER_CHECKS:
+    if get_app_settings().USE_EMAILS:
         if not user.is_verified:
             raise AccountNotVerifiedException
-        if not user.is_active:
-            raise AccountNotVerifiedException
+    return user
+
+
+async def get_active_current_user(
+    user: models.User = Depends(get_verified_current_user),
+) -> models.User:
+    if not user.is_active:
+        raise AccountNotVerifiedException
     return user
 
 

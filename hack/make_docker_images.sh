@@ -13,8 +13,8 @@ echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
 
 for dir in ../src/*; do
   if [[ -f "$dir/Dockerfile" ]]; then
-    service_name="$(basename "${dir}")"
-    image="${DOCKER_USER}"/"$service_name":${TAG:-latest}
+    dir_name="$(basename "${dir}")"
+    image="${DOCKER_USER}"/"$dir_name":${TAG:-latest}
     log "Building: ${image}"
     docker build -t "${image}" ../src/"$dir"
     log "Pushing: ${image}"
