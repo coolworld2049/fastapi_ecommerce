@@ -6,6 +6,8 @@ log() { printf '\n%s\n' "$1" >&2; }
 
 compose_file=../fastapi-ecommerce/docker-compose.yml
 
+source ../.env
+
 docker-compose -f $compose_file up -d auth_service_postgresql_master
 
 docker-compose -f $compose_file up --force-recreate -d auth_service

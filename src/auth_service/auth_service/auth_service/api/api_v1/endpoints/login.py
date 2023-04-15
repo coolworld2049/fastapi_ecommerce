@@ -26,7 +26,7 @@ async def login_access_token(
         password=form_data.password,
         db=db,
     )
-    if not user or not get_active_current_user(user):
+    if not user or not await get_active_current_user(user):
         raise CouldNotValidateCredentialsException
     token = jwt.encode_access_token(sub=user.id, user=user)
     return token.dict()
