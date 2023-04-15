@@ -8,6 +8,6 @@ services:
   benchmark_vm:
     build: .
     volumes:
-      - ./postgresql:/postgresql
+      - ./auth_service_postgresql:/postgresql
     networks:
       - benchmark_postgresql_default

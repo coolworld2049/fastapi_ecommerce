@@ -9,9 +9,6 @@ services:
       - .env.prod
     ports:
       - "80"
-    volumes:
-      - ../.volumes/store_service/log/:/app/store_service/.logs/
-      - ../.volumes/store_service/htmlcov/:/app/htmlcov/
     restart: always
 
 

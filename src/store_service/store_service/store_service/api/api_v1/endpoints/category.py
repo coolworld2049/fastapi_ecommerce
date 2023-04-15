@@ -12,7 +12,7 @@ from starlette import status
 from store_service.api.api_v1.deps import params
 from store_service.api.api_v1.deps.auth import RoleChecker
 from store_service.core.config import get_app_settings
-from store_service.core.settings.base import AppEnvTypes
+from store_service.core.settings.base import StageType
 from store_service.schemas.request_params import RequestParams
 
 router = APIRouter()
@@ -22,7 +22,7 @@ router = APIRouter()
     "/",
     response_model=list[CategoryWithoutRelations],
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin", "manager", "customer", "guest"]))],
 )
 async def read_categories(
@@ -38,7 +38,7 @@ async def read_categories(
     "/",
     response_model=CategoryWithoutRelations,
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin", "manager"]))],
 )
 async def create_category(category_in: CategoryCreate) -> Optional[Category]:

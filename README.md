@@ -91,7 +91,7 @@ model OrderProduct {
 ## dev mode
 .env
 ```text
-APP_ENV=dev
+STAGE=dev
 ```
 add the following lines to /etc/hosts
 ```text

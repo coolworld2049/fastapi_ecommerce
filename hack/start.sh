@@ -4,22 +4,26 @@ set -euo pipefail
 
 log() { printf '\n%s\n' "$1" >&2; }
 
-docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d \
-  --scale auth_service=0 --scale store_service=0 --scale proxy_service=0
+compose_file=../fastapi-ecommerce/docker-compose.yml
 
-until . ../src/store_service/mongodb/init.sh; do
-  log "Try again"
-  sleep 1
-done
+docker-compose -f $compose_file up -d auth_service_postgresql_master
 
-until . ../src/store_service/mongodb/shard.sh; do
-  log "Try again"
-  sleep 1
-done
+docker-compose -f $compose_file up --force-recreate -d auth_service
 
-. ../src/proxy_service/init.sh
+docker-compose -f $compose_file up -d store_service_router01
 
-docker-compose -f ../fastapi-ecommerce/docker-compose.yml up -d
+dir=../databases/store_service_mongodb
+log "execute $dir/ scripts"
+log "$(. $dir/init.sh)"
+log "$(. $dir/shard.sh)"
+
+docker-compose -f $compose_file up --force-recreate -d store_service
+
+dir=../src/proxy_service/
+log "execute $dir/ scripts"
+log "$(. ../src/proxy_service/init.sh)"
+
+docker-compose -f $compose_file up -d proxy_service
 
 log "$(docker ps)"
 

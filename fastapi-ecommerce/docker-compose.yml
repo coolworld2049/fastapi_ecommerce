@@ -2,7 +2,16 @@ version: '3.9'
 
 services:
 
-  # AUTH_SERVICE
+  proxy_service:
+    extends:
+      service: proxy_service
+      file: ../src/proxy_service/docker-compose.yml
+    env_file:
+      - ../.env
+    depends_on: 
+      - auth_service
+      - store_service
+  
   auth_service:
     image: coolworldocker/auth_service:latest
     extends:
@@ -11,58 +20,6 @@ services:
     env_file:
       - ../.env
 
-
-
-  ## POSTGRESQL
-  auth_service_postgresql_master:
-    extends:
-      service: auth_service_postgresql_master
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    env_file:
-      - ../.env
-
-
-  auth_service_pgbouncer_master:
-    extends:
-      service: auth_service_pgbouncer_master
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    env_file:
-      - ../.env
-
-
-  auth_service_postgresql_replica_01:
-    extends:
-      service: auth_service_postgresql_replica_01
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    env_file:
-      - ../.env
-
-  auth_service_pgbouncer_replica_01:
-    extends:
-      service: auth_service_pgbouncer_replica_01
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    env_file:
-      - ../.env
-
-
-  auth_service_postgresql_replica_02:
-    extends:
-      service: auth_service_postgresql_replica_02
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    env_file:
-      - ../.env
-
-  auth_service_pgbouncer_replica_02:
-    extends:
-      service: auth_service_pgbouncer_replica_02
-      file: ../src/auth_service/postgresql/docker-compose.yml
-    env_file:
-      - ../.env
-
-
-  #---------------------------------------------------------------------------------------------------------------------
-
-  # STORE_SERVICE
   store_service:
     image: coolworldocker/store_service:latest
     extends:
@@ -72,166 +29,116 @@ services:
       - ../.env
 
 
-  ## MONGODB
+  auth_service_postgresql_master:
+    extends:
+      service: auth_service_postgresql_master
+      file: ../databases/auth_service_postgresql/docker-compose.yml
+    env_file:
+      - ../.env
+    depends_on:
+      - auth_service_pgbouncer_master
+      - auth_service_postgresql_replica_01
+      - auth_service_pgbouncer_replica_01
+      - auth_service_postgresql_replica_02
+      - auth_service_pgbouncer_replica_02
+
+  auth_service_pgbouncer_master:
+    extends:
+      service: auth_service_pgbouncer_master
+      file: ../databases/auth_service_postgresql/docker-compose.yml
+
+  auth_service_postgresql_replica_01:
+    extends:
+      service: auth_service_postgresql_replica_01
+      file: ../databases/auth_service_postgresql/docker-compose.yml
+    env_file:
+      - ../.env
+
+
+  auth_service_pgbouncer_replica_01:
+    extends:
+      service: auth_service_pgbouncer_replica_01
+      file: ../databases/auth_service_postgresql/docker-compose.yml
+
+  auth_service_postgresql_replica_02:
+    extends:
+      service: auth_service_postgresql_replica_02
+      file: ../databases/auth_service_postgresql/docker-compose.yml
+    env_file:
+      - ../.env
+
+
+  auth_service_pgbouncer_replica_02:
+    extends:
+      service: auth_service_pgbouncer_replica_02
+      file: ../databases/auth_service_postgresql/docker-compose.yml
+
   store_service_router01:
     extends:
       service: store_service_router01
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
+    depends_on:
+      - store_service_configsvr01
+      - store_service_shard01_a
+      - store_service_shard01_b
+      - store_service_shard01_c
+      - store_service_shard02_a
+      - store_service_shard02_b
+      - store_service_shard02_c
+      - store_service_shard03_a
+      - store_service_shard03_b
+      - store_service_shard03_c
 
 
   store_service_configsvr01:
     extends:
       service: store_service_configsvr01
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
 
   store_service_shard01_a:
     extends:
       service: store_service_shard01_a
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   store_service_shard01_b:
     extends:
       service: store_service_shard01_b
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   store_service_shard01_c:
     extends:
       service: store_service_shard01_c
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
 
   store_service_shard02_a:
     extends:
       service: store_service_shard02_a
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   store_service_shard02_b:
     extends:
       service: store_service_shard02_b
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   store_service_shard02_c:
     extends:
       service: store_service_shard02_c
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   
   store_service_shard03_a:
     extends:
       service: store_service_shard03_a
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   store_service_shard03_b:
     extends:
       service: store_service_shard03_b
-      file: ../src/store_service/mongodb/docker-compose.yml
+      file: ../databases/store_service_mongodb/docker-compose.yml
 
   store_service_shard03_c:
     extends:
       service: store_service_shard03_c
-      file: ../src/store_service/mongodb/docker-compose.yml
-
-
-  #---------------------------------------------------------------------------------------------------------------------
-
-  # PROXY_SERVICE
-  proxy_service:
-    extends:
-      service: proxy_service
-      file: ../src/proxy_service/docker-compose.yml
-
-
-volumes:
-  auth_service_postgresql_master_data:
-    labels:
-      keep:
-  auth_service_pgbouncer_master:
-    labels:
-      keep:
-
-  auth_service_postgresql_replica_01_data:
-    labels:
-      keep:
-  auth_service_pgbouncer_replica_01:
-    labels:
-      keep:
-
-  auth_service_postgresql_replica_02_data:
-    labels:
-      keep:
-  auth_service_pgbouncer_replica_02:
-    labels:
-      keep:
-
-  store_service_mongodb_router01_db:
-    labels:
-      keep:
-  store_service_mongodb_router01_config:
-    labels:
-      keep:
-
-  store_service_mongodb_configsvr01_db:
-    labels:
-      keep:
-  store_service_mongodb_configsvr01_config:
-    labels:
-      keep:
-
-  store_service_mongodb_shard01_a_db:
-    labels:
-      keep:
-  store_service_mongodb_shard01_a_config:
-    labels:
-      keep:
-  store_service_mongodb_shard01_b_db:
-    labels:
-      keep:
-  store_service_mongodb_shard01_b_config:
-    labels:
-      keep:
-  store_service_mongodb_shard01_c_db:
-    labels:
-      keep:
-  store_service_mongodb_shard01_c_config:
-    labels:
-      keep:
-
-  store_service_mongodb_shard02_a_db:
-    labels:
-      keep:
-  store_service_mongodb_shard02_a_config:
-    labels:
-      keep:
-  store_service_mongodb_shard02_b_db:
-    labels:
-      keep:
-  store_service_mongodb_shard02_b_config:
-    labels:
-      keep:
-  store_service_mongodb_shard02_c_db:
-    labels:
-      keep:
-  store_service_mongodb_shard02_c_config:
-    labels:
-      keep:
-  
-  
-  store_service_mongodb_shard03_a_db:
-    labels:
-      keep:
-  store_service_mongodb_shard03_a_config:
-    labels:
-      keep:
-  store_service_mongodb_shard03_b_db:
-    labels:
-      keep:
-  store_service_mongodb_shard03_b_config:
-    labels:
-      keep:
-  store_service_mongodb_shard03_c_db:
-    labels:
-      keep:
-  store_service_mongodb_shard03_c_config:
-    labels:
-      keep:
+      file: ../databases/store_service_mongodb/docker-compose.yml

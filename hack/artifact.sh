@@ -15,6 +15,7 @@ for dir in ../src/*; do
   if [[ -f "$dir/Dockerfile" ]]; then
     dir_name="$(basename "${dir}")"
     image="${DOCKER_USER}"/"$dir_name":${TAG:-latest}
+    set +e && docker rmi -f "${image}"
     log "Building: ${image}"
     docker build -t "${image}" ../src/"$dir"
     log "Pushing: ${image}"

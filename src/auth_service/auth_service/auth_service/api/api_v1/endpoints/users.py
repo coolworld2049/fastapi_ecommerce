@@ -17,7 +17,7 @@ from auth_service.api.deps import params
 from auth_service.api.deps.auth import RoleChecker
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
-from auth_service.core.settings.base import AppEnvTypes
+from auth_service.core.settings.base import StageType
 from auth_service.models.user import User
 from auth_service.schemas import RequestParams
 
@@ -28,7 +28,7 @@ router = APIRouter()
     "/",
     response_model=List[schemas.User],
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin"]))],
 )
 async def read_users(

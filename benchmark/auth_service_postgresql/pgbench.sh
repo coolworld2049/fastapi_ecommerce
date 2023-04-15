@@ -1,6 +1,7 @@
-#! /usr/bin/env bash -x
+#! /usr/bin/env bash
 
 set -e
+set -x
 
 dt=$(date '+%d-%m-%Y')
 ts=$(date +%s)

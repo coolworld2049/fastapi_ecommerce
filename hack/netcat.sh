@@ -20,7 +20,6 @@ set -e
 PORTS=(27122-27130 27017 27119 6432 6434-6435 5432 5434-5435 443 80)
 
 for port in "${PORTS[@]}"; do
-  set +e
   url="127.0.0.1"
   CMD="$(nc -vz $url "$port")"
   if [ $? -eq 1 ]; then

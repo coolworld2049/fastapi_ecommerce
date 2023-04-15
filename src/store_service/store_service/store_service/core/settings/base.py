@@ -9,16 +9,17 @@ from pydantic import BaseSettings
 load_dotenv()
 
 
-class AppEnvTypes(str, Enum):
-    prod: str = "prod"
+class StageType(str, Enum):
     dev: str = "dev"
     test: str = "test"
+    stag: str = "stag"
+    prod: str = "prod"
 
 
-def load_env_files(app_env: AppEnvTypes):
+def load_env_files(stage: StageType):
     service_path = pathlib.Path(__file__).parent.parent.parent.parent.parent
     try:
-        stage_env_path = pathlib.Path(f"{service_path / '.env'}.{app_env}")
+        stage_env_path = pathlib.Path(f"{service_path / '.env'}.{stage}")
         res = load_dotenv(stage_env_path, override=True)
         msg = f"load_dotenv {stage_env_path.parts[-1]} {res}"
         assert res, msg
@@ -28,6 +29,6 @@ def load_env_files(app_env: AppEnvTypes):
 
 
 class BaseAppSettings(BaseSettings):
-    APP_ENV: AppEnvTypes = os.getenv("APP_ENV")
-    if APP_ENV == AppEnvTypes.dev:
-        load_env_files(APP_ENV)
+    STAGE: StageType = os.getenv("STAGE")
+    if STAGE == StageType.dev:
+        load_env_files(STAGE)

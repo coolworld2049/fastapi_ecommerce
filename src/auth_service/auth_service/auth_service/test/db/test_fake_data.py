@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
-from auth_service.core.settings.base import AppEnvTypes
+from auth_service.core.settings.base import StageType
 from auth_service.db.init_db import (
     init_db,
 )
@@ -70,7 +70,7 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
 @pytest.mark.asyncio
 async def test_fake_data(db: AsyncSession):
     await init_db()
-    if get_app_settings().APP_ENV != AppEnvTypes.prod:
+    if get_app_settings().STAGE != StageType.prod:
         count = 30
         out_user_creds = "test_users_creds.json"
         users = await create_users(

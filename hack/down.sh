@@ -1,12 +1,12 @@
 #! /usr/bin/env bash
 
-set -euo pipefail
+set +e
 
 log() { printf '\n%s\n' "$1" >&2; }
 
-source ../.env
+compose_file=../fastapi-ecommerce/docker-compose.yml
 
-docker-compose -f ../fastapi-ecommerce/docker-compose.yml down --rmi local --remove-orphans
+docker-compose -f $compose_file down --rmi local --remove-orphans
 
 docker volume prune -f --filter "label!=keep"
 

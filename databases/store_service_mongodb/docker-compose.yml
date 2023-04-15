@@ -9,19 +9,30 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_router01_db:/data/db
-      - store_service_mongodb_router01_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_router01:/data/db
+      - ./.volumes/configdb/mongodb_router01:/data/configdb
     restart: always
+    depends_on:
+      - store_service_configsvr01
+      - store_service_shard01_a
+      - store_service_shard01_b
+      - store_service_shard01_c
+      - store_service_shard02_a
+      - store_service_shard02_b
+      - store_service_shard02_c
+      - store_service_shard03_a
+      - store_service_shard03_b
+      - store_service_shard03_c
 
   store_service_configsvr01:
     image: mongo:latest
     container_name: store_service_configsvr01
     command: mongod --port 27017 --configsvr --replSet rs-config-server
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_configsvr01_db:/data/db
-      - store_service_mongodb_configsvr01_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_configsvr01:/data/db
+      - ./.volumes/configdb/mongodb_configsvr01:/data/configdb
     ports:
       - "27119:27017"
     restart: always
@@ -31,9 +42,9 @@ services:
     container_name: store_service_shard01_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard01_a_db:/data/db
-      - store_service_mongodb_shard01_a_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard01_a:/data/db
+      - ./.volumes/configdb/mongodb_shard01_a:/data/configdb
     ports:
       - "27122:27017"
     restart: always
@@ -42,9 +53,9 @@ services:
     container_name: store_service_shard01_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard01_b_db:/data/db
-      - store_service_mongodb_shard01_b_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard01_b:/data/db
+      - ./.volumes/configdb/mongodb_shard01_b:/data/configdb
     ports:
       - "27123:27017"
     restart: always
@@ -53,9 +64,9 @@ services:
     container_name: store_service_shard01_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard01_c_db:/data/db
-      - store_service_mongodb_shard01_c_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard01_c:/data/db
+      - ./.volumes/configdb/mongodb_shard01_c:/data/configdb
     ports:
       - "27124:27017"
     restart: always
@@ -66,9 +77,9 @@ services:
     container_name: store_service_shard02_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard02_a_db:/data/db
-      - store_service_mongodb_shard02_a_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard02_a:/data/db
+      - ./.volumes/configdb/mongodb_shard02_a:/data/configdb
     ports:
       - "27125:27017"
     restart: always
@@ -77,9 +88,9 @@ services:
     container_name: store_service_shard02_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard02_b_db:/data/db
-      - store_service_mongodb_shard02_b_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard02_b:/data/db
+      - ./.volumes/configdb/mongodb_shard02_b:/data/configdb
     ports:
       - "27126:27017"
     restart: always
@@ -88,22 +99,22 @@ services:
     container_name: store_service_shard02_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard02_c_db:/data/db
-      - store_service_mongodb_shard02_c_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard02_c:/data/db
+      - ./.volumes/configdb/mongodb_shard02_c:/data/configdb
     ports:
       - "27127:27017"
     restart: always
-    
-    
+
+
   store_service_shard03_a:
     image: mongo:latest
     container_name: store_service_shard03_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-03
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard03_a_db:/data/db
-      - store_service_mongodb_shard03_a_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard03_a:/data/db
+      - ./.volumes/configdb/mongodb_shard03_a:/data/configdb
     ports:
       - "27128:27017"
     restart: always
@@ -112,9 +123,9 @@ services:
     container_name: store_service_shard03_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-03
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard03_b_db:/data/db
-      - store_service_mongodb_shard03_b_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard03_b:/data/db
+      - ./.volumes/configdb/mongodb_shard03_b:/data/configdb
     ports:
       - "27129:27017"
     restart: always
@@ -123,44 +134,9 @@ services:
     container_name: store_service_shard03_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-03
     volumes:
-      - ./scripts:/scripts
-      - store_service_mongodb_shard03_c_db:/data/db
-      - store_service_mongodb_shard03_c_config:/data/configdb
+      - ./scripts:/scripts:ro
+      - ./.volumes/db/mongodb_shard03_c:/data/db
+      - ./.volumes/configdb/mongodb_shard03_c:/data/configdb
     ports:
       - "27130:27017"
     restart: always
-
-
-volumes:
-  store_service_mongodb_router01_db:
-  store_service_mongodb_router01_config:
-
-  store_service_mongodb_configsvr01_db:
-  store_service_mongodb_configsvr01_config:
-
-  store_service_mongodb_shard01_a_db:
-  store_service_mongodb_shard01_a_config:
-
-  store_service_mongodb_shard01_b_db:
-  store_service_mongodb_shard01_b_config:
-
-  store_service_mongodb_shard01_c_db:
-  store_service_mongodb_shard01_c_config:
-
-  store_service_mongodb_shard02_a_db:
-  store_service_mongodb_shard02_a_config:
-
-  store_service_mongodb_shard02_b_db:
-  store_service_mongodb_shard02_b_config:
-
-  store_service_mongodb_shard02_c_db:
-  store_service_mongodb_shard02_c_config:
-
-  store_service_mongodb_shard03_a_db:
-  store_service_mongodb_shard03_a_config:
-
-  store_service_mongodb_shard03_b_db:
-  store_service_mongodb_shard03_b_config:
-
-  store_service_mongodb_shard03_c_db:
-  store_service_mongodb_shard03_c_config:

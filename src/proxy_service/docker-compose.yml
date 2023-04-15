@@ -9,7 +9,6 @@ services:
       - ./config/includes:/etc/nginx/includes/
       - ./config:/etc/nginx/
       - ./certs:/etc/ssl/certs/nginx/
-      - ../.volumes/proxy_service/logs:/var/log/nginx
     ports:
       - "80:80"
       - "443:443"

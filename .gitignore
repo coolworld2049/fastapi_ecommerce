@@ -166,3 +166,5 @@ cython_debug/
 /src/store_service/store_service/store_service/.logs/
 /src/.volumes/
 /.volumes/
+/databases/auth_service_postgresql/.volumes/
+/databases/store_service_mongodb/.volumes/

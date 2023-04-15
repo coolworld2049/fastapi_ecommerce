@@ -8,7 +8,7 @@ from pydantic import validator
 from pydantic.networks import PostgresDsn
 from starlette.templating import Jinja2Templates
 
-from auth_service.core.settings.base import BaseAppSettings, AppEnvTypes
+from auth_service.core.settings.base import BaseAppSettings, StageType
 
 
 class AppSettings(BaseAppSettings):
@@ -26,7 +26,7 @@ class AppSettings(BaseAppSettings):
     APP_NAME: str
     APP_HOST: str
     APP_PORT: int
-    APP_ENV: AppEnvTypes
+    STAGE: StageType
     APP_VERSION: str = "latest"
 
     APP_BACKEND_CORS_ORIGINS: list[str]
@@ -35,8 +35,6 @@ class AppSettings(BaseAppSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
-    FIRST_SUPERUSER_FULLNAME: str
-    FIRST_SUPERUSER_USERNAME: str
 
     POSTGRESQL_MASTER_HOST: str
     POSTGRESQL_REPLICA_HOSTS: str
@@ -65,6 +63,10 @@ class AppSettings(BaseAppSettings):
         validate_assignment = True
 
     @property
+    def stage_not_prod(self):
+        return True if self.STAGE != StageType.prod else False
+
+    @property
     def fastapi_kwargs(self) -> dict[str, Any]:
         return {
             "debug": True if self.LOGGING_LEVEL == logging.DEBUG else False,
@@ -73,7 +75,7 @@ class AppSettings(BaseAppSettings):
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
             "title": self.APP_NAME
-            + f"{f'_{self.APP_ENV.name}' if self.APP_ENV != AppEnvTypes.prod else ''}",
+                     + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}",
             "version": self.APP_VERSION,
         }
 

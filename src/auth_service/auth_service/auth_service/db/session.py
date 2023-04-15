@@ -3,6 +3,7 @@ from asyncio import current_task
 from contextlib import asynccontextmanager
 from typing import Any
 
+from loguru import logger
 from sqlalchemy import Update, Delete, Insert, text
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
@@ -14,6 +15,7 @@ from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
 
 from auth_service.core.config import get_app_settings
+from auth_service.core.settings.base import StageType
 from auth_service.db.base import MasterReplica, ReplType
 
 Base: DeclarativeBase = declarative_base()
@@ -72,7 +74,10 @@ async def scoped_session():
         async with async_scoped_factory() as s:
             try:
                 yield s
-            except Exception:
+                await s.commit()
+            except Exception as e:
+                if get_app_settings().STAGE != StageType.prod:
+                    logger.exception(e)
                 await s.close()
     finally:
         await async_scoped_factory.remove()

@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import validator
 
-from store_service.core.settings.base import BaseAppSettings, AppEnvTypes
+from store_service.core.settings.base import BaseAppSettings, StageType
 
 
 class AppSettings(BaseAppSettings):
@@ -19,7 +19,7 @@ class AppSettings(BaseAppSettings):
     APP_NAME: str
     APP_HOST: str
     APP_PORT: int
-    APP_ENV: AppEnvTypes
+    STAGE: StageType
     APP_VERSION: str = "latest"
 
     APP_BACKEND_CORS_ORIGINS: list[str]
@@ -54,7 +54,7 @@ class AppSettings(BaseAppSettings):
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
             "title": self.APP_NAME
-            + f"{f'_{self.APP_ENV.name}' if self.APP_ENV != AppEnvTypes.prod else ''}",
+            + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}",
             "version": self.APP_VERSION,
         }
 

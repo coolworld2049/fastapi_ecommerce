@@ -13,7 +13,7 @@ from prisma.models import Category, Product, Order, OrderProduct
 from prisma.types import CategoryCreateInput, ProductCreateInput
 
 from store_service.core.config import get_app_settings
-from store_service.core.settings.base import AppEnvTypes
+from store_service.core.settings.base import StageType
 from store_service.schemas.user import User
 from store_service.test.auth_service_client.test_users import get_users
 from store_service.test.utils import RandomDateTime, rnd_string
@@ -143,11 +143,11 @@ async def test_fake_data(
     prisma_client: Prisma, auth_service_client: ClientSession
 ):
     await prisma_client.connect()
-    degree = 2 if get_app_settings().APP_ENV == "dev" else 1
+    degree = 2 if get_app_settings().STAGE == "dev" else 1
     users = await get_users(
         count=10**degree, auth_service_client=auth_service_client
     )
-    if get_app_settings().APP_ENV != AppEnvTypes.prod:
+    if get_app_settings().STAGE != StageType.prod:
         categories = await create_category(count=10 * degree)
         now = datetime.now()
         created_at = RandomDateTime(
