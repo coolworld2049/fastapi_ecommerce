@@ -14,7 +14,7 @@ class ReplType(str, Enum):
 class MasterReplica:
     __slots__ = ("engine",)
 
-    def __init__(self, master_url: str, slaves_url: str, *args, **kwargs):
+    def __init__(self, master_url: str, slaves_url: list[str], *args, **kwargs):
         self.engine: dict[ReplType, AsyncEngine | tuple[AsyncEngine]] = {}
         self.engine.update(
             {ReplType.master: (create_async_engine(master_url, **kwargs),)}

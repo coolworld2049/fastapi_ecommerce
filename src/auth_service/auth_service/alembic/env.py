@@ -49,7 +49,7 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=get_app_settings().postgres_master_dsn,
+        url=get_app_settings().postgres_master,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
@@ -67,7 +67,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_app_settings().postgres_master_dsn
+    configuration["sqlalchemy.url"] = get_app_settings().postgres_master
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

@@ -92,7 +92,7 @@ class AppSettings(BaseAppSettings):
         return Jinja2Templates(directory=self.project_path / "templates")
 
     @property
-    def postgres_master_dsn(self) -> str:
+    def postgres_master(self) -> str:
         dsn = PostgresDsn.build(
             scheme="postgresql",
             user=self.POSTGRESQL_USERNAME,
@@ -103,22 +103,23 @@ class AppSettings(BaseAppSettings):
         )
         return dsn
 
-    @property
-    def postgres_replica_dsn(self) -> list[str]:
-        def split_netloc():
-            path = urlparse(
-                self.POSTGRESQL_REPLICA_HOSTS, allow_fragments=True
-            ).path
-            path_arr = path.replace(" ", "").split(",")
-            assert len(path_arr) > 0
-            separated_str = [x.split(":") for x in path_arr if ":" in x]
-            assert len(separated_str) > 0 and len(separated_str) == len(
-                path_arr
-            )
-            return separated_str
+    @staticmethod
+    def split_netloc(path):
+        path_arr = path.replace(" ", "").split(",")
+        assert len(path_arr) > 0
+        separated_str = [x.split(":") for x in path_arr if ":" in x]
+        assert len(separated_str) > 0 and len(separated_str) == len(
+            path_arr
+        )
+        return separated_str
 
+    @property
+    def postgres_replica(self) -> list[str]:
         dsn_list = []
-        for repl in split_netloc():
+        path = urlparse(
+            self.POSTGRESQL_REPLICA_HOSTS, allow_fragments=True
+        ).path
+        for repl in self.split_netloc(path):
             dsn = PostgresDsn.build(
                 scheme="postgresql",
                 user=self.POSTGRESQL_USERNAME,
@@ -132,7 +133,7 @@ class AppSettings(BaseAppSettings):
 
     @property
     def postgres_asyncpg_master(self) -> str:
-        return self.postgres_master_dsn.replace(
+        return self.postgres_master.replace(
             "postgresql", "postgresql+asyncpg"
         )
 
@@ -140,5 +141,5 @@ class AppSettings(BaseAppSettings):
     def postgres_asyncpg_replicas(self):
         return [
             x.replace("postgresql", "postgresql+asyncpg")
-            for x in self.postgres_replica_dsn
+            for x in self.postgres_replica
         ]

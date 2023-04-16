@@ -3,7 +3,9 @@
 set -e
 
 STAGE=${STAGE:-dev}
-echo "env STAGE=default value 'dev'"
+
+echo "env STAGE=$STAGE"
+
 if [ "$STAGE" == prod ]; then
   part=""
 else
