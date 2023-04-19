@@ -16,12 +16,10 @@ jobs:
           echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
           echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
           export STAGE=test
-          find . -type f -name *.sh -exec chmod +x {} \;
           cd hack
           bash cpenv.sh
           bash artifact.sh
           bash start.sh
-          docker logs auth_service_postgresql_master
           cd ..
   build:
     name: Production Deployment
@@ -51,7 +49,6 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
             echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
-            find . -type f -name *.sh -exec chmod +x {} \;
             cd hack
             bash cpenv.sh
             bash artifact-restart.sh

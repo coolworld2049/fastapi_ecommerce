@@ -36,7 +36,9 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
     for r, c in roles.items():
         for i in range(c):
             password = gen_random_password()
-            random_phone = "+7" + "".join(random.choice(string.digits) for _ in range(10))
+            random_phone = "+7" + "".join(
+                random.choice(string.digits) for _ in range(10)
+            )
             user_in = schemas.UserCreate(
                 email=EmailStr(
                     f"{r.name}{i}{random_lower_string(8)}@gmail.com"
@@ -56,7 +58,11 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
     if out_user_creds and len(users) > 0:
         with open(out_user_creds, "w") as wr:
             wr.write(
-                json.dumps(test_users, indent=4, default=str, ),
+                json.dumps(
+                    test_users,
+                    indent=4,
+                    default=str,
+                ),
             )
     return users
 

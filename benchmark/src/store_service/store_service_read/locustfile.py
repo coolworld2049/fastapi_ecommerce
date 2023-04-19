@@ -22,7 +22,7 @@ class RWUser(FastHttpUser):
         with self.rest(
             "GET",
             f'/api/v1/{random.choice(["categories", "products", "orders"])}'
-            f'/?range=[{range_[0]},{range_[1]}]',
+            f"/?range=[{range_[0]},{range_[1]}]",
         ) as resp:
             if resp.js is None:
                 resp.failure(resp.text)

@@ -71,7 +71,10 @@ class AppSettings(BaseAppSettings):
 
     @property
     def fastapi_kwargs(self) -> dict[str, Any]:
-        title = self.APP_NAME + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}"
+        title = (
+            self.APP_NAME
+            + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}"
+        )
         return {
             "debug": True if self.LOGGING_LEVEL == logging.DEBUG else False,
             "docs_url": self.docs_url,
