@@ -9,17 +9,18 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
-      - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
+      - STAGE=${STAGE:-dev}
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
       - POSTGRESQL_REPLICATION_MODE=master
-      - POSTGRESQL_REPLICATION_USER=repl_user
-      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_REPLICATION_USER=repluser
+      - POSTGRESQL_REPLICATION_PASSWORD=replpassword
     env_file:
       - .env
     volumes:
-      - ./postgresql/conf:/bitnami/postgresql/conf
-      - ./scripts:/docker-entrypoint-preinitdb.d
-      - ./.volumes/postgresql_master:/bitnami/postgresql
+      - ./custom_conf:/bitnami/postgresql/custom_conf
+      - ./scripts/initdb:/.docker-entrypoint-initdb.d
+      - ./scripts/preinitdb:/.docker-entrypoint-preinitdb.d
+      - postgresql_master:/bitnami/postgresql
     restart: always
 
   auth_service_pgbouncer_master:
@@ -28,6 +29,7 @@ services:
     ports:
       - "6432:6432"
     environment:
+      - STAGE=${STAGE:-dev}
       - POSTGRESQL_HOST=auth_service_postgresql_master
       - PGBOUNCER_POOL_MODE=session
     env_file:
@@ -41,14 +43,16 @@ services:
     ports:
       - "5434:5432"
     environment:
+      - STAGE=${STAGE:-dev}
       - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_REPLICATION_USER=repl_user
-      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_REPLICATION_USER=repluser
+      - POSTGRESQL_REPLICATION_PASSWORD=replpassword
       - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
     volumes:
-      - ./postgresql/conf:/bitnami/postgresql/conf
-      - ./scripts:/docker-entrypoint-preinitdb.d
-      - ./.volumes/postgresql_replica_01:/bitnami/postgresql
+      - ./custom_conf:/bitnami/postgresql/custom_conf
+      - ./scripts/initdb:/.docker-entrypoint-initdb.d
+      - ./scripts/preinitdb:/.docker-entrypoint-preinitdb.d
+      - postgresql_replica_01:/bitnami/postgresql
     env_file:
       - .env
     restart: always
@@ -59,6 +63,7 @@ services:
     ports:
       - "6434:6432"
     environment:
+      - STAGE=${STAGE:-dev}
       - POSTGRESQL_HOST=auth_service_postgresql_replica_01
       - PGBOUNCER_POOL_MODE=session
     env_file:
@@ -72,16 +77,18 @@ services:
     ports:
       - "5435:5432"
     environment:
+      - STAGE=${STAGE:-dev}
       - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_REPLICATION_USER=repl_user
-      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_REPLICATION_USER=repluser
+      - POSTGRESQL_REPLICATION_PASSWORD=replpassword
       - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
     env_file:
       - .env
     volumes:
-      - ./postgresql/conf:/bitnami/postgresql/conf
-      - ./scripts:/docker-entrypoint-preinitdb.d
-      - ./.volumes/postgresql_replica_02:/bitnami/postgresql
+      - ./custom_conf:/bitnami/postgresql/custom_conf
+      - ./scripts/initdb:/.docker-entrypoint-initdb.d
+      - ./scripts/preinitdb:/.docker-entrypoint-preinitdb.d
+      - postgresql_replica_02:/bitnami/postgresql
     restart: always
 
   auth_service_pgbouncer_replica_02:
@@ -90,8 +97,20 @@ services:
     ports:
       - "6435:6432"
     environment:
+      - STAGE=${STAGE:-dev}
       - POSTGRESQL_HOST=auth_service_postgresql_replica_02
       - PGBOUNCER_POOL_MODE=session
     env_file:
       - .env
     restart: always
+
+volumes:
+  postgresql_master:
+    labels:
+      keep:
+  postgresql_replica_01:
+    labels:
+      keep:
+  postgresql_replica_02:
+    labels:
+      keep:

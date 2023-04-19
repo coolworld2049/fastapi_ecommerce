@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+start=$SECONDS
+
 log() { printf '\n%s\n' "$1" >&2; }
 
 compose_file=../fastapi-ecommerce/docker-compose.yml
@@ -16,16 +18,20 @@ docker-compose -f $compose_file up -d store_service_router01
 
 dir=../databases/store_service_mongodb
 log "execute $dir/ scripts"
-log "$(. $dir/init.sh)"
-log "$(. $dir/shard.sh)"
+bash $dir/init.sh
+bash $dir/shard.sh
 
 docker-compose -f $compose_file up --force-recreate -d store_service
 
 dir=../src/proxy_service/
 log "execute $dir/ scripts"
-log "$(. ../src/proxy_service/init.sh)"
+bash $dir/init.sh
 
 docker-compose -f $compose_file up -d proxy_service
+
+docker volume prune -f --filter "label!=keep"
+
+stop=$SECONDS
 
 log "$(docker ps)"
 
@@ -40,3 +46,5 @@ done
 log "$(docker stats --no-stream)"
 
 . netcat.sh
+
+log "✔️✔️✔️ Successfully started in $(((stop - start))) sec ✔️✔️✔️ "

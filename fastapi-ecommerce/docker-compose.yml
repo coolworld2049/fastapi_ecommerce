@@ -8,7 +8,7 @@ services:
       file: ../src/proxy_service/docker-compose.yml
     env_file:
       - ../.env
-    depends_on: 
+    depends_on:
       - auth_service
       - store_service
   
@@ -142,3 +142,83 @@ services:
     extends:
       service: store_service_shard03_c
       file: ../databases/store_service_mongodb/docker-compose.yml
+
+volumes:
+  postgresql_master:
+    labels:
+      keep:
+
+  postgresql_replica_01:
+    labels:
+      keep:
+  postgresql_replica_02:
+    labels:
+      keep:
+
+  store_service_mongodb_router01_db:
+    labels:
+      keep:
+  store_service_mongodb_configsvr01_db:
+    labels:
+      keep:
+  store_service_mongodb_shard01_a_db:
+    labels:
+      keep:
+  store_service_mongodb_shard01_b_db:
+    labels:
+      keep:
+  store_service_mongodb_shard01_c_db:
+    labels:
+      keep:
+  store_service_mongodb_shard02_a_db:
+    labels:
+      keep:
+  store_service_mongodb_shard02_b_db:
+    labels:
+      keep:
+  store_service_mongodb_shard02_c_db:
+    labels:
+      keep:
+  store_service_mongodb_shard03_a_db:
+    labels:
+      keep:
+  store_service_mongodb_shard03_b_db:
+    labels:
+      keep:
+  store_service_mongodb_shard03_c_db:
+    labels:
+      keep:
+
+  store_service_mongodb_router01_configdb:
+    labels:
+      keep:
+  store_service_mongodb_configsvr01_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard01_a_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard01_b_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard01_c_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard02_a_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard02_b_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard02_c_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard03_a_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard03_b_configdb:
+    labels:
+      keep:
+  store_service_mongodb_shard03_c_configdb:
+    labels:
+      keep:

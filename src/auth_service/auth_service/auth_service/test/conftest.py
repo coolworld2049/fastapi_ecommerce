@@ -32,7 +32,7 @@ async def client() -> AsyncGenerator:
         yield _client
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session")
 async def db() -> AsyncGenerator:
     async with scoped_session() as s:
         yield s

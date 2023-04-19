@@ -3,14 +3,14 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
+from fastapi_ecommerce_ext.logger.configure import configure_logging
+from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.core.config import get_app_settings
-from auth_service.core.logger import configure_logging
-from auth_service.core.logging import LoguruLoggingMiddleware
 from auth_service.core.settings.base import StageType
 from auth_service.db.init_db import init_db
 from auth_service.db.session import async_engines, scoped_session

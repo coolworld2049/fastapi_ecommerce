@@ -18,6 +18,6 @@ environments: Dict[StageType, Type[AppSettings]] = {
 
 @lru_cache
 def get_app_settings() -> AppSettings:
-    STAGE: StageType = BaseAppSettings().STAGE
-    config = environments[STAGE]
+    stage: StageType = BaseAppSettings().STAGE
+    config = environments[stage]
     return config()
