@@ -95,6 +95,6 @@ STAGE=dev
 ```
 add the following lines to /etc/hosts
 ```text
-127.0.0.1 auth-service.fastapi-ecommerce.ru
-127.0.0.1 store-service.fastapi-ecommerce.ru
+127.0.0.1 auth-service.fastapi-ecommerce.com
+127.0.0.1 store-service.fastapi-ecommerce.com
 ```
