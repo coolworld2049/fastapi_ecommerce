@@ -5,11 +5,12 @@ from typing import Any
 
 from loguru import logger
 from sqlalchemy import Update, Delete, Insert, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
-    AsyncEngine,
     async_scoped_session,
     AsyncSession,
+    AsyncEngine,
 )
 from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
@@ -23,8 +24,8 @@ Base: DeclarativeBase = declarative_base()
 async_engines = MasterReplica(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_replicas,
-    pool_size=56,
-    max_overflow=0,
+    pool_size=get_app_settings().SQLALCHEMNY_POOL_SIZE,
+    max_overflow=get_app_settings().SQLALCHEMNY_MAX_OVERFLOW,
 )
 
 
@@ -40,26 +41,22 @@ class RoutingSession(Session):
         **kw: Any,
     ):
         if self._flushing or isinstance(clause, (Insert, Update, Delete)):
-            return random.choice(
-                async_engines.engine[ReplType.master]
-            ).sync_engine
+            return async_engines.engine[ReplType.master][0].sync_engine
         else:
             try:
                 slave: AsyncEngine = random.choice(
                     async_engines.engine[ReplType.slave]
-                ).sync_engine
-                with slave.sync_engine.engine.begin() as c:
+                )
+                with slave.sync_engine.begin() as c:
                     c.execute(text("select 1"))
-            except Exception:
-                return random.choice(
-                    async_engines.engine[ReplType.master]
-                ).sync_engine
+                return slave.sync_engine
+            except (ConnectionError, SQLAlchemyError):
+                return async_engines.engine[ReplType.master][0].sync_engine
 
 
 async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
     sync_session_class=RoutingSession,
-    autoflush=False,
-    expire_on_commit=False,
+    expire_on_commit=True,
 )
 
 async_scoped_factory = async_scoped_session(
@@ -78,6 +75,5 @@ async def scoped_session():
             except Exception as e:
                 if get_app_settings().STAGE != StageType.prod:
                     logger.exception(e)
-                await s.close()
     finally:
         await async_scoped_factory.remove()

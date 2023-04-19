@@ -9,12 +9,12 @@ from store_service.core.settings.base import BaseAppSettings, StageType
 
 
 class AppSettings(BaseAppSettings):
-    docs_url: str = "/docs"
-    api_perfix: str = "/api/v1"
-    openapi_prefix: str = ""
-    openapi_url: str = f"{api_perfix}/openapi.json"
-    redoc_url: str = "/redoc"
     title: str = os.getenv("APP_NAME")
+    api_prefix: str = "/api/v1"
+    docs_url: str = f"{api_prefix}/docs"
+    openapi_prefix: str = f""
+    openapi_url: str = f"{api_prefix}/openapi.json"
+    redoc_url: str = f"{api_prefix}/redoc"
 
     APP_NAME: str
     APP_HOST: str
@@ -47,14 +47,14 @@ class AppSettings(BaseAppSettings):
 
     @property
     def fastapi_kwargs(self) -> dict[str, Any]:
+        title = self.APP_NAME + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}"
         return {
             "debug": True if self.LOGGING_LEVEL == logging.DEBUG else False,
             "docs_url": self.docs_url,
             "openapi_prefix": self.openapi_prefix,
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
-            "title": self.APP_NAME
-            + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}",
+            "title": title,
             "version": self.APP_VERSION,
         }
 

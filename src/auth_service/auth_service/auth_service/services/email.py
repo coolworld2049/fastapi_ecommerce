@@ -23,7 +23,6 @@ class Email(FastMail):
         subject: str,
         recipients: list[EmailStr],
         data: dict,
-        token: str,
     ):
         template = get_app_settings().jinja_templates.get_template(
             f"/verif_email/verification.html"

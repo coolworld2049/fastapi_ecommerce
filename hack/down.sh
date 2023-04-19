@@ -8,6 +8,6 @@ compose_file=../fastapi-ecommerce/docker-compose.yml
 
 docker-compose -f $compose_file down --rmi local --remove-orphans
 
-docker volume prune -f --filter "label!=keep"
-
 log "✔️✔️✔️ Successfully down all containers ✔️✔️✔️ "
+
+log ""

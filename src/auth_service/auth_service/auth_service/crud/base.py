@@ -99,11 +99,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj = self.model(**obj_in.dict(exclude_none=True))
         try:
             db.add(db_obj)
+            await db.commit()
+            await db.refresh(db_obj)
         except IntegrityError as e:
             logger.error(e.args)
             raise
-        await db.commit()
-        await db.refresh(db_obj)
         return db_obj
 
     @staticmethod
@@ -123,20 +123,20 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 setattr(db_obj, field, update_data[field])
         try:
             db.add(db_obj)
+            await db.commit()
+            await db.refresh(db_obj)
         except SQLAlchemyError as e:
             logger.error(e.args)
             raise
-        await db.commit()
-        await db.refresh(db_obj)
         return db_obj
 
     async def remove(self, db: AsyncSession, *, id: Any) -> ModelType:
         obj = await self.get(db, id)
         try:
             await db.delete(obj)
+            await db.commit()
         except SQLAlchemyError:
             return None
         except Exception as ex:
             raise ex
-        await db.commit()
         return obj

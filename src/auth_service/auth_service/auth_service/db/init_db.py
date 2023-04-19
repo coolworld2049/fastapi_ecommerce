@@ -40,17 +40,17 @@ async def base_metadata(
                 try:
                     async with eng.begin() as conn:
                         if drop:
-                            action = "metadata.drop_all"
+                            action = "dropped"
                             await conn.run_sync(Base.metadata.drop_all)
                         elif create:
-                            action = "metadata.create_all"
+                            action = "created"
                             await conn.run_sync(Base.metadata.create_all)
                         else:
                             raise ValueError(
                                 "'drop' or 'create' must be True", drop, create
                             )
                         logger.opt(colors=True).info(
-                            f"<fg 255,70,230>{action}</fg 255,70,230> - {msg}"
+                            f"<fg 255,70,230>{action}</fg 255,70,230>"
                         )
                 except ConnectionRefusedError as ex:
                     logger.opt(colors=True).error(
@@ -65,7 +65,6 @@ async def create_roles(db: AsyncSession):
 
 
 async def create_first_superuser(db: AsyncSession):
-    await create_roles(db)
     super_user = await crud.user.get_by_email(
         db,
         email=get_app_settings().FIRST_SUPERUSER_EMAIL,
@@ -92,6 +91,8 @@ async def init_db():
     try:
         await async_engines.check_engines()
         await base_metadata(async_engines, create=True)
+        async with scoped_session() as db:
+            await create_roles(db)
         async with scoped_session() as db:
             await create_first_superuser(db)
     except Exception as e:

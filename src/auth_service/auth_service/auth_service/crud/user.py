@@ -58,7 +58,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 subject="Verification",
                 recipients=[EmailStr(db_obj.email)],
                 data=email_data,
-                token=db_obj.verification_token,
             )
         except Exception as e:
             await super().remove(db, id=db_obj.id)

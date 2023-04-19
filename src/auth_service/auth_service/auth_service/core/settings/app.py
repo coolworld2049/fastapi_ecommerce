@@ -13,11 +13,11 @@ from auth_service.core.settings.base import BaseAppSettings, StageType
 
 class AppSettings(BaseAppSettings):
     title: str = os.getenv("APP_NAME")
-    docs_url: str = "/docs"
     api_prefix: str = "/api/v1"
-    openapi_prefix: str = ""
-    openapi_url: str = f"/openapi.json"
-    redoc_url: str = "/redoc"
+    docs_url: str = f"{api_prefix}/docs"
+    openapi_prefix: str = f""
+    openapi_url: str = f"{api_prefix}/openapi.json"
+    redoc_url: str = f"{api_prefix}/redoc"
 
     USE_RBAC: Optional[bool] = True
     USE_USER_CHECKS: Optional[bool] = True
@@ -36,6 +36,12 @@ class AppSettings(BaseAppSettings):
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
 
+    SMTP_HOST: Optional[str]
+    SMTP_PORT: Optional[int]
+    SMTP_USERNAME: Optional[str]
+    SMTP_PASSWORD: Optional[str]
+    SMTP_FROM: Optional[str]
+
     POSTGRESQL_MASTER_HOST: str
     POSTGRESQL_REPLICA_HOSTS: str
     POSTGRESQL_MASTER_PORT: int
@@ -43,11 +49,8 @@ class AppSettings(BaseAppSettings):
     POSTGRESQL_USERNAME: str
     POSTGRESQL_PASSWORD: str
 
-    SMTP_HOST: Optional[str]
-    SMTP_PORT: Optional[int]
-    SMTP_USERNAME: Optional[str]
-    SMTP_PASSWORD: Optional[str]
-    SMTP_FROM: Optional[str]
+    SQLALCHEMNY_POOL_SIZE: Optional[int] = 20
+    SQLALCHEMNY_MAX_OVERFLOW: Optional[int] = 0
 
     LOGGING_LEVEL: int = logging.INFO
 
@@ -68,14 +71,14 @@ class AppSettings(BaseAppSettings):
 
     @property
     def fastapi_kwargs(self) -> dict[str, Any]:
+        title = self.APP_NAME + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}"
         return {
             "debug": True if self.LOGGING_LEVEL == logging.DEBUG else False,
             "docs_url": self.docs_url,
             "openapi_prefix": self.openapi_prefix,
             "openapi_url": self.openapi_url,
             "redoc_url": self.redoc_url,
-            "title": self.APP_NAME
-                     + f"{f'_{self.STAGE.name}' if self.STAGE != StageType.prod else ''}",
+            "title": title,
             "version": self.APP_VERSION,
         }
 
@@ -92,7 +95,7 @@ class AppSettings(BaseAppSettings):
         return Jinja2Templates(directory=self.project_path / "templates")
 
     @property
-    def postgres_master_dsn(self) -> str:
+    def postgres_master(self) -> str:
         dsn = PostgresDsn.build(
             scheme="postgresql",
             user=self.POSTGRESQL_USERNAME,
@@ -103,22 +106,21 @@ class AppSettings(BaseAppSettings):
         )
         return dsn
 
-    @property
-    def postgres_replica_dsn(self) -> list[str]:
-        def split_netloc():
-            path = urlparse(
-                self.POSTGRESQL_REPLICA_HOSTS, allow_fragments=True
-            ).path
-            path_arr = path.replace(" ", "").split(",")
-            assert len(path_arr) > 0
-            separated_str = [x.split(":") for x in path_arr if ":" in x]
-            assert len(separated_str) > 0 and len(separated_str) == len(
-                path_arr
-            )
-            return separated_str
+    @staticmethod
+    def split_netloc(path):
+        path_arr = path.replace(" ", "").split(",")
+        assert len(path_arr) > 0
+        separated_str = [x.split(":") for x in path_arr if ":" in x]
+        assert len(separated_str) > 0 and len(separated_str) == len(path_arr)
+        return separated_str
 
+    @property
+    def postgres_replica(self) -> list[str]:
         dsn_list = []
-        for repl in split_netloc():
+        path = urlparse(
+            self.POSTGRESQL_REPLICA_HOSTS, allow_fragments=True
+        ).path
+        for repl in self.split_netloc(path):
             dsn = PostgresDsn.build(
                 scheme="postgresql",
                 user=self.POSTGRESQL_USERNAME,
@@ -132,13 +134,11 @@ class AppSettings(BaseAppSettings):
 
     @property
     def postgres_asyncpg_master(self) -> str:
-        return self.postgres_master_dsn.replace(
-            "postgresql", "postgresql+asyncpg"
-        )
+        return self.postgres_master.replace("postgresql", "postgresql+asyncpg")
 
     @property
     def postgres_asyncpg_replicas(self):
         return [
             x.replace("postgresql", "postgresql+asyncpg")
-            for x in self.postgres_replica_dsn
+            for x in self.postgres_replica
         ]

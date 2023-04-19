@@ -28,8 +28,8 @@ def parse_react_admin_params(
         sort_: Optional[str] = Query(
             None,
             alias="sort",
-            description='Format: `["field_name", "direction"]`',
-            example='["id", "ASC"]',
+            description='Format: `{"field_name": "direction"}`',
+            example='{"id": "ASC"}',
         ),
         filter_: Optional[str] = Query(
             None,
@@ -45,16 +45,17 @@ def parse_react_admin_params(
 
             order_by = desc(model.id)
             if sort_:
-                sort_column, sort_order = json.loads(sort_)
-                if sort_order.lower() == "asc":
-                    direction = asc
-                elif sort_order.lower() == "desc":
-                    direction = desc
-                else:
-                    raise HTTPException(
-                        400, f"Invalid sort direction {sort_order}"
-                    )
-                order_by = direction(model.__table__.c[sort_column])
+                sort_data = json.loads(sort_)
+                for k, v in sort_data.items():
+                    if v.lower() == "asc":
+                        direction = asc
+                    elif v.lower() == "desc":
+                        direction = desc
+                    else:
+                        raise HTTPException(
+                            400, f"Invalid sort direction {k}:{v}"
+                        )
+                    order_by = direction(model.__table__.c[k])
             filter_by = None
             if filter_:
                 ft: dict = json.loads(filter_)

@@ -17,7 +17,7 @@ async def get_users(
         "Authorization": f"Bearer {token}",
     }
     async with auth_service_client.get(
-        f"""/api/v1/users/?range=[0, {count}]&sort=["id", "ASC"]""",
+        f"""/api/v1/users/?range=[0, {count}]""",
         headers=headers,
     ) as resp:
         data = await resp.json()

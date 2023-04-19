@@ -13,7 +13,6 @@ def sort_query_param(param: dict):
     sorted_ = {}
     if len(param) > 0:
         for k, v in param.items():
-            # noinspection PyPep8
             try:
                 if v is None:
                     sorted_.update({k: None})
@@ -28,7 +27,7 @@ def parse_query_params(
     use_range=True,
     use_order=True,
     use_where=True,
-    range_example="[0,50]",
+    range_example="[0,10]",
     order_example='{"id": "ASC"}',
     where_example: Any = None,
     range_description: str = "",
@@ -68,7 +67,7 @@ def parse_query_params(
         ),
     ):
         try:
-            skip, limit = 0, 50
+            skip, limit = 0, 10
             if range_:
                 start, end = json.loads(range_)
                 if end is None:

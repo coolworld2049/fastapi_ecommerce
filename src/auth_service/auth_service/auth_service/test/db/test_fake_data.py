@@ -15,7 +15,6 @@ from auth_service.core.settings.base import StageType
 from auth_service.db.init_db import (
     init_db,
 )
-from auth_service.models.user import User
 from auth_service.models.user_role import UserRoleEnum
 from auth_service.test.utils.random_data import (
     gen_random_password,
@@ -30,12 +29,14 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
         UserRoleEnum.admin: count // 10,
         UserRoleEnum.manager: count // 5,
         UserRoleEnum.client: count,
+        UserRoleEnum.guest: count // 15,
     }
-    users: list[User] = []
-    users_cred_list = []
+    users: list[schemas.User] = []
+    test_users: dict[str, dict] = {}
     for r, c in roles.items():
         for i in range(c):
             password = gen_random_password()
+            random_phone = "+7" + "".join(random.choice(string.digits) for _ in range(10))
             user_in = schemas.UserCreate(
                 email=EmailStr(
                     f"{r.name}{i}{random_lower_string(8)}@gmail.com"
@@ -45,25 +46,18 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
                 username=f"{r.name}{i}{random.randint(1000, 10000)}",
                 full_name=fake.name(),
                 age=random.randint(18, 25),
-                phone="+7"
-                + "".join(random.choice(string.digits) for _ in range(10)),
+                phone=random_phone,
                 role=r.name,
             )
-            if out_user_creds:
-                users_cred_list.append(
-                    {
-                        user_in.role: {
-                            "email": user_in.email,
-                            "username": user_in.username,
-                            "password": user_in.password,
-                        }
-                    },
-                )
             user_in_obj = await crud.user.create(db, obj_in=user_in)
-            users.append(user_in_obj)
-    if out_user_creds and len(users_cred_list) > 0:
+            user_in_data = schemas.User(**user_in_obj.__dict__).dict()
+            users.append(user_in_data)
+            test_users.update({r.name: user_in_data})
+    if out_user_creds and len(users) > 0:
         with open(out_user_creds, "w") as wr:
-            wr.write(json.dumps(users_cred_list, indent=4))
+            wr.write(
+                json.dumps(test_users, indent=4, default=str, ),
+            )
     return users
 
 
@@ -71,7 +65,7 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
 async def test_fake_data(db: AsyncSession):
     await init_db()
     if get_app_settings().STAGE != StageType.prod:
-        count = 30
+        count = 20
         out_user_creds = "test_users_creds.json"
         users = await create_users(
             db=db, count=count, out_user_creds=out_user_creds
