@@ -1,9 +1,8 @@
-#file: noinspection YAMLSchemaValidation
 name: Deploy
 on:
   pull_request:
     branches:
-      - master
+      - master  
 jobs:
   test:
     name: Test
@@ -51,4 +50,4 @@ jobs:
             echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
             cd hack
             bash cpenv.sh
-            bash artifact-restart.sh
+            bash restart.sh
