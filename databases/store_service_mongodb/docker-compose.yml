@@ -13,17 +13,6 @@ services:
       - store_service_mongodb_router01_db:/data/db
       - store_service_mongodb_router01_configdb:/data/configdb
     restart: on-failure
-    depends_on:
-      - store_service_configsvr01
-      - store_service_shard01_a
-      - store_service_shard01_b
-      - store_service_shard01_c
-      - store_service_shard02_a
-      - store_service_shard02_b
-      - store_service_shard02_c
-      - store_service_shard03_a
-      - store_service_shard03_b
-      - store_service_shard03_c
 
   store_service_configsvr01:
     image: mongo:latest
