@@ -20,7 +20,7 @@ class RWUser(FastHttpUser):
 
         with self.rest(
             "GET",
-            f'/api/v1/users/?range=[{range_[0]},{range_[1]}]',
+            f"/api/v1/users/?range=[{range_[0]},{range_[1]}]",
         ) as resp:
             if resp.js is None:
                 resp.failure(resp.text)
