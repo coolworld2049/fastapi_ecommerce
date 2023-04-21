@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from loguru import logger
+from sqlalchemy import text
 from tenacity import after_log
 from tenacity import before_log
 from tenacity import retry
@@ -21,7 +22,15 @@ wait_seconds = 1
     after=after_log(logger, logging.WARNING),
 )
 async def init() -> None:
-    await async_engines.check_engines()
+    eng = async_engines.get_master()
+    try:
+        async with eng.begin() as conn:
+            await conn.execute(text("select 1"))
+        logger.info(f"repl_type: master, url: {eng.url}")
+    except ConnectionRefusedError as ex:
+        logger.error(
+            f"repl_type: master, url: {eng.url}, {ex.__class__.__name__} {ex}"
+        )
 
 
 def main() -> None:

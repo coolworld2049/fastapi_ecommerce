@@ -10,7 +10,6 @@ services:
       - "5432:5432"
     environment:
       - STAGE=${STAGE:-dev}
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repluser
       - POSTGRESQL_REPLICATION_PASSWORD=replpassword

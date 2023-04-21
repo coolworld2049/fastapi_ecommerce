@@ -14,7 +14,7 @@ docker-compose -f $compose_file up -d auth_service_postgresql_master
 
 docker-compose -f $compose_file up --force-recreate -d auth_service
 
-docker-compose -f $compose_file up -d store_service_router01
+docker-compose -f $compose_file up -d store_service_mongodb_router01
 
 dir=../databases/store_service_mongodb
 log "execute $dir/ scripts"

@@ -9,7 +9,7 @@ log() { printf '\n%s\n' "$1" >&2; }
 #rs-shard-03 HI_RAM and FLASH
 
 until
-  docker exec store_service_router01 mongosh --port 27017 --eval '[
+  docker exec store_service_mongodb_router01 mongosh --port 27017 --eval '[
     sh.addShardToZone("rs-shard-01", "HI_RAM"),
     sh.addShardToZone("rs-shard-03", "HI_RAM"),
     sh.addShardToZone("rs-shard-02", "FLASH"),
