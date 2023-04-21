@@ -23,9 +23,9 @@ docker run -itd \
   -e POSTGRESQL_REPLICA_HOST=auth_service_pgbouncer_replica_01 \
   -e POSTGRESQL_REPLICA_PORT=6432 \
   -e WRITE_TX_MULTIPLIER=1 \
-  -e WRITE_CLIENT_MULTIPLIER=2 \
+  -e WRITE_CLIENT_MULTIPLIER=1 \
   -e READ_TX_MULTIPLIER=1 \
-  -e READ_CLIENT_MULTIPLIER=2 \
+  -e READ_CLIENT_MULTIPLIER=1 \
   --name $cont \
   --mount type=bind,src="$PWD"/pgbench,dst=/pgbench \
   $cont bash

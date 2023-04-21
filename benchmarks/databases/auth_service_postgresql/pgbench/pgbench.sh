@@ -61,7 +61,6 @@ function main() {
 
   for replica_type in master replica; do
     path="$LOG_DIR"/postgresql."$replica_type".txt
-    printf '\n%s\n' "replica_type is $replica_type" >>"$path"
     log "export postgresql $replica_type conf to file"
     psql -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_MASTER_HOST" \
       -p "$POSTGRESQL_MASTER_PORT" -d "$POSTGRESQL_DATABASE" \
