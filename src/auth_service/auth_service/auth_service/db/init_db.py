@@ -3,13 +3,13 @@ import pathlib
 from asyncpg import Connection
 from loguru import logger
 from pydantic import EmailStr
-from sqlalchemy import insert
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
 from auth_service.db.base import ReplType
-from auth_service.db.session import Base, MasterReplica, scoped_session
+from auth_service.db.session import Base, MasterReplica, scoped_session_tr
 from auth_service.db.session import async_engines
 from auth_service.models import UserRole
 from auth_service.models.user_role import UserRoleEnum
@@ -49,19 +49,18 @@ async def base_metadata(
                             raise ValueError(
                                 "'drop' or 'create' must be True", drop, create
                             )
-                        logger.opt(colors=True).info(
-                            f"<fg 255,70,230>{action}</fg 255,70,230>"
-                        )
+                        logger.info(action)
                 except ConnectionRefusedError as ex:
-                    logger.opt(colors=True).error(
-                        f"<fg 255,70,230>{action}</fg 255,70,230> - {msg}, {ex.__class__.__name__} {ex}"
-                    )
+                    logger.error(f"{action}- {msg}, {ex.__class__.__name__} {ex}")
 
 
 async def create_roles(db: AsyncSession):
     for r in UserRoleEnum:
-        if not await db.get(UserRole, r.name):
-            await db.execute(insert(UserRole).values(name=r.name))
+        q = select(UserRole).where(UserRole.name == r.name)
+        res = await db.execute(q)
+        if not res.fetchone():
+            db_obj = UserRole(name=r.name)  # noqa
+            db.add(db_obj)
 
 
 async def create_first_superuser(db: AsyncSession):
@@ -91,9 +90,9 @@ async def init_db():
     try:
         await async_engines.check_engines()
         await base_metadata(async_engines, create=True)
-        async with scoped_session() as db:
+        async with scoped_session_tr() as db:
             await create_roles(db)
-        async with scoped_session() as db:
             await create_first_superuser(db)
+            await db.commit()
     except Exception as e:
         logger.exception(e)

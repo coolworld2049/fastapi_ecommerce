@@ -19,6 +19,8 @@ services:
       file: ../src/auth_service/docker-compose.yml
     env_file:
       - ../.env
+    deploy:
+      replicas: 2
 
   store_service:
     image: coolworldocker/store_service:latest
@@ -27,6 +29,8 @@ services:
       file: ../src/store_service/docker-compose.yml
     env_file:
       - ../.env
+    deploy:
+      replicas: 2
 
   auth_service_postgresql_master:
     extends:
@@ -37,7 +41,9 @@ services:
     depends_on:
       - auth_service_pgbouncer_master
       - auth_service_postgresql_replica_01
+      - auth_service_pgbouncer_replica_01
       - auth_service_postgresql_replica_02
+      - auth_service_pgbouncer_replica_02
 
   auth_service_pgbouncer_master:
     extends:
@@ -50,8 +56,6 @@ services:
       file: ../databases/auth_service_postgresql/docker-compose.yml
     env_file:
       - ../.env
-    depends_on:
-      - auth_service_pgbouncer_replica_01
   auth_service_pgbouncer_replica_01:
     extends:
       service: auth_service_pgbouncer_replica_01
@@ -63,8 +67,6 @@ services:
       file: ../databases/auth_service_postgresql/docker-compose.yml
     env_file:
       - ../.env
-    depends_on:
-      - auth_service_pgbouncer_replica_02
   auth_service_pgbouncer_replica_02:
     extends:
       service: auth_service_pgbouncer_replica_02

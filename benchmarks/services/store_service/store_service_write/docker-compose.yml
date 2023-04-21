@@ -1,0 +1,31 @@
+version: '3.9'
+
+networks:
+  default:
+    driver: bridge
+  fastapi-ecommerce_default:
+    external: true
+
+services:
+
+  master:
+    user: root
+    extends:
+      file: ../../docker-compose.locust.yml
+      service: master
+    volumes:
+      - ./:/mnt/locust
+    networks:
+      - default
+      - fastapi-ecommerce_default
+
+  worker:
+    user: root
+    extends:
+      file: ../../docker-compose.locust.yml
+      service: worker
+    volumes:
+      - ./:/mnt/locust
+    networks:
+      - default
+      - fastapi-ecommerce_default

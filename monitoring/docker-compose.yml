@@ -10,7 +10,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - /var/run/.docker.sock:/var/run/.docker.sock
-      - ./.volumes/monitoring_portainer:/data
+      - monitoring_portainer:/data
     ports:
       - "9000:9000"
       - "9443:9443"

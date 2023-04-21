@@ -49,8 +49,7 @@ class AppSettings(BaseAppSettings):
     POSTGRESQL_USERNAME: str
     POSTGRESQL_PASSWORD: str
 
-    SQLALCHEMNY_POOL_SIZE: Optional[int] = 20
-    SQLALCHEMNY_MAX_OVERFLOW: Optional[int] = 0
+    REDIS_URL: Optional[str]
 
     LOGGING_LEVEL: int = logging.INFO
 

@@ -20,7 +20,7 @@ class InterceptHandler(logging.Handler):
 
 
 def configure_logging(
-    logging_level: int, access_log_path: str, error_log_path: str
+    logging_level: int, access_log_path: str
 ) -> None:
     loggers = [
         logging.getLogger(name)
@@ -48,19 +48,7 @@ def configure_logging(
         backtrace=True,
         diagnose=True,
         encoding="UTF-8",
-        rotation="500 MB",
-        retention="14 days",
-        compression="zip",
-    )
-    logger.add(
-        error_log_path,
-        serialize=True,
-        level=logging.ERROR,
-        enqueue=True,
-        backtrace=True,
-        diagnose=True,
-        encoding="UTF-8",
-        rotation="500 MB",
-        retention="14 days",
+        rotation="256 MB",
+        retention="7 days",
         compression="zip",
     )

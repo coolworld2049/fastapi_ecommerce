@@ -33,6 +33,15 @@ class InvalidVerificationTokenException(HTTPException):
         )
 
 
+class CouldNotValidateApiKeyException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate api key",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 class CouldNotValidateCredentialsException(HTTPException):
     def __init__(self):
         super().__init__(

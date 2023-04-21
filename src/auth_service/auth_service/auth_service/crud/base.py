@@ -12,7 +12,6 @@ from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.engine import Result, RowMapping, Row
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 from starlette.responses import Response
@@ -38,6 +37,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
         q: Select = select(self.model).where(self.model.id == id)  # noqa
         result: Result = await db.execute(q)
+        await db.commit()
         return result.scalar()
 
     async def get_by_attr(
@@ -45,6 +45,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> Optional[Result]:
         q: Select = select(self.model).where(where_clause)
         result: Result = await db.execute(q)
+        await db.commit()
         return result.scalar()
 
     async def constr_query_filter(
@@ -91,6 +92,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         response.headers[
             "Content-Range"
         ] = f"{request_params.skip}-{request_params.skip + len(r)}/{total.fetchone().count}"
+        await db.commit()
         return r
 
     async def create(
@@ -101,7 +103,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             db.add(db_obj)
             await db.commit()
             await db.refresh(db_obj)
-        except IntegrityError as e:
+        except Exception as e:
             logger.error(e.args)
             raise
         return db_obj
@@ -123,9 +125,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 setattr(db_obj, field, update_data[field])
         try:
             db.add(db_obj)
-            await db.commit()
             await db.refresh(db_obj)
-        except SQLAlchemyError as e:
+            await db.commit()
+        except Exception as e:
             logger.error(e.args)
             raise
         return db_obj
@@ -135,8 +137,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         try:
             await db.delete(obj)
             await db.commit()
-        except SQLAlchemyError:
-            return None
-        except Exception as ex:
-            raise ex
+        except Exception as e:
+            logger.error(e.args)
+            raise
         return obj

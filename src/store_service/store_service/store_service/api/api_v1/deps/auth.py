@@ -13,7 +13,7 @@ from store_service.api.api_v1.deps.custom_exception import (
 from store_service.core.config import get_app_settings
 from store_service.schemas.user import User
 
-oauth2Scheme = OAuth2PasswordBearer(
+oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=get_app_settings().api_prefix + "/store_service/login"
 )
 
@@ -32,7 +32,7 @@ def jwt_decode(token: str):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2Scheme),
+    token: str = Depends(oauth2_scheme),
 ) -> User:
     try:
         payload = jwt_decode(token)

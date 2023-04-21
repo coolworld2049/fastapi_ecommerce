@@ -10,7 +10,7 @@ services:
       - "5432:5432"
     environment:
       - STAGE=${STAGE:-dev}
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repluser
       - POSTGRESQL_REPLICATION_PASSWORD=replpassword
@@ -18,8 +18,8 @@ services:
       - .env
     volumes:
       - ./custom_conf:/bitnami/postgresql/custom_conf
-      - ./scripts/initdb:/.docker-entrypoint-initdb.d
-      - ./scripts/preinitdb:/.docker-entrypoint-preinitdb.d
+      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
       - postgresql_master:/bitnami/postgresql
     restart: always
 
@@ -31,7 +31,6 @@ services:
     environment:
       - STAGE=${STAGE:-dev}
       - POSTGRESQL_HOST=auth_service_postgresql_master
-      - PGBOUNCER_POOL_MODE=session
     env_file:
       - .env
     restart: always
@@ -50,8 +49,8 @@ services:
       - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
     volumes:
       - ./custom_conf:/bitnami/postgresql/custom_conf
-      - ./scripts/initdb:/.docker-entrypoint-initdb.d
-      - ./scripts/preinitdb:/.docker-entrypoint-preinitdb.d
+      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
       - postgresql_replica_01:/bitnami/postgresql
     env_file:
       - .env
@@ -65,7 +64,6 @@ services:
     environment:
       - STAGE=${STAGE:-dev}
       - POSTGRESQL_HOST=auth_service_postgresql_replica_01
-      - PGBOUNCER_POOL_MODE=session
     env_file:
       - .env
     restart: always
@@ -86,8 +84,8 @@ services:
       - .env
     volumes:
       - ./custom_conf:/bitnami/postgresql/custom_conf
-      - ./scripts/initdb:/.docker-entrypoint-initdb.d
-      - ./scripts/preinitdb:/.docker-entrypoint-preinitdb.d
+      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
       - postgresql_replica_02:/bitnami/postgresql
     restart: always
 
@@ -99,7 +97,6 @@ services:
     environment:
       - STAGE=${STAGE:-dev}
       - POSTGRESQL_HOST=auth_service_postgresql_replica_02
-      - PGBOUNCER_POOL_MODE=session
     env_file:
       - .env
     restart: always

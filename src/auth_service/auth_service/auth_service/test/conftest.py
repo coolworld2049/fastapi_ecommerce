@@ -6,7 +6,7 @@ import pytest_asyncio
 from httpx import AsyncClient
 
 from auth_service.core.config import get_app_settings
-from auth_service.db.session import scoped_session
+from auth_service.db.session import scoped_session_tr
 from auth_service.main import app
 from auth_service.test.utils.user import (
     authentication_token_from_email,
@@ -34,8 +34,9 @@ async def client() -> AsyncGenerator:
 
 @pytest_asyncio.fixture(scope="session")
 async def db() -> AsyncGenerator:
-    async with scoped_session() as s:
+    async with scoped_session_tr() as s:
         yield s
+        await s.commit()
 
 
 # noinspection PyShadowingNames

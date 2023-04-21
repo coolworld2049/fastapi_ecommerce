@@ -7,7 +7,7 @@ STAGE=${STAGE:-dev}
 if [ "$STAGE" == prod ]; then
   part=""
 else
-  part=."$STAGE"
+  part=.dev
 fi
 
 conf_path=/opt/bitnami/postgresql/conf

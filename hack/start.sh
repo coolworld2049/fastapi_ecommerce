@@ -45,6 +45,6 @@ done
 
 log "$(docker stats --no-stream)"
 
-. netcat.sh
+. health.sh
 
 log "✔️✔️✔️ Successfully started in $(((stop - start))) sec ✔️✔️✔️ "

@@ -2,7 +2,7 @@
 
 python ./auth_service/pre_start.py
 
-alembic upgrade head
+#alembic upgrade head
 
 python ./auth_service/initial_data.py
 

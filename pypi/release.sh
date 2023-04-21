@@ -16,13 +16,13 @@ rm_dist
 
 python setup.py sdist
 
-pip list | grep twine
+python -m pip list | grep twine
 
 if [ $? -eq 1 ]; then
-  pip install twine
+  python -m pip install twine
 fi
 
-twine upload dist/* -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD"
+python -m twine upload dist/* -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD"
 
 rm_dist
 

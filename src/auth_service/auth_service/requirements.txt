@@ -28,3 +28,4 @@ fastapi-mail
 asgi-correlation-id
 locust
 fastapi_ecommerce_ext
+fastapi-cache2[redis]

@@ -168,5 +168,5 @@ cython_debug/
 /.volumes/
 /databases/auth_service_postgresql/.volumes/
 /databases/store_service_mongodb/.volumes/
-/benchmark/databases/auth_service_postgresql/pgbench/.logs/
+/benchmarks/databases/auth_service_postgresql/pgbench/.logs/
 /.generated/

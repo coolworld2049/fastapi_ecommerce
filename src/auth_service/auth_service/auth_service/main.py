@@ -7,18 +7,16 @@ from fastapi_ecommerce_ext.logger.configure import configure_logging
 from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.core.config import get_app_settings
 from auth_service.core.settings.base import StageType
 from auth_service.db.init_db import init_db
-from auth_service.db.session import async_engines, scoped_session
+from auth_service.db.session import async_engines
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
     access_log_path=get_app_settings().logs_path / "access.log",
-    error_log_path=get_app_settings().logs_path / "error.log",
 )
 
 if get_app_settings().stage_not_prod:
@@ -41,7 +39,8 @@ def get_application() -> FastAPI:
     application.include_router(
         api_router, prefix=get_app_settings().api_prefix
     )
-    application.middleware("http")(LoguruLoggingMiddleware())
+    if get_app_settings().STAGE != StageType.prod:
+        application.middleware("http")(LoguruLoggingMiddleware())
     application.add_middleware(
         CorrelationIdMiddleware,
         header_name="X-Request-ID",
@@ -58,16 +57,8 @@ app = get_application()
 
 @app.on_event("startup")
 async def startup():
-    if get_app_settings().STAGE == StageType.dev:
+    if get_app_settings().STAGE != StageType.prod:
         await init_db()
-
-
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    async with scoped_session() as s:
-        request.state.db = s
-        response = await call_next(request)
-    return response
 
 
 @app.on_event("shutdown")
