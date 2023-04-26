@@ -111,8 +111,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
         db.add(db_obj)
-        await db.refresh(db_obj)
         await db.commit()
+        await db.refresh(db_obj)
         return db_obj
 
     async def remove(self, db: AsyncSession, *, id: Any) -> ModelType:

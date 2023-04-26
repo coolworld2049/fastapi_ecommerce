@@ -16,10 +16,14 @@ Base: DeclarativeBase = declarative_base()
 async_engines = MasterReplicas(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_replicas,
-    poolclass=QueuePool if get_app_settings().SQLALCHEMY_POOL_SIZE else NullPool,
-    pool_size=get_app_settings().SQLALCHEMY_POOL_SIZE if get_app_settings().SQLALCHEMY_POOL_SIZE else None,
+    poolclass=QueuePool
+    if get_app_settings().SQLALCHEMY_POOL_SIZE
+    else NullPool,
+    pool_size=get_app_settings().SQLALCHEMY_POOL_SIZE
+    if get_app_settings().SQLALCHEMY_POOL_SIZE
+    else None,
     isolation_level="READ COMMITTED",
-    echo=True if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE else False
+    echo=True
 )
 
 
@@ -37,17 +41,16 @@ class RoutingSession(Session):
 
 
 async_session = async_sessionmaker(
-    sync_session_class=RoutingSession,
-    expire_on_commit=False
+    sync_session_class=RoutingSession, expire_on_commit=False
 )
 
 if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:
+
     def before_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
     ):
         conn.info.setdefault("query_start_time", []).append(time.time())
         logger.debug(f"Start Query: {statement}")
-
 
     def after_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
@@ -56,14 +59,15 @@ if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:
         logger.debug("Query Complete!")
         logger.debug("Total Time: %f" % total)
 
-
     event.listen(
         async_engines.get_master().sync_engine,
         "before_cursor_execute",
         before_cursor_execute,
     )
     event.listen(
-        async_engines.get_master().sync_engine, "after_cursor_execute", after_cursor_execute
+        async_engines.get_master().sync_engine,
+        "after_cursor_execute",
+        after_cursor_execute,
     )
 
 
