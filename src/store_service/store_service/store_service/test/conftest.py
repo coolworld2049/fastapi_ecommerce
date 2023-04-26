@@ -4,9 +4,9 @@ import aiohttp
 import pytest
 import pytest_asyncio
 from loguru import logger
+from prisma import Prisma
 
 from store_service.core.config import get_app_settings
-from store_service.main import prisma
 
 
 @pytest.fixture(scope="session")
@@ -32,4 +32,5 @@ async def auth_service_client():
 
 @pytest_asyncio.fixture(scope="module")
 async def prisma_client():
-    return prisma
+    test_prisma = Prisma(auto_register=True)
+    return test_prisma

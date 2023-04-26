@@ -13,6 +13,7 @@ def rnd_str(n=24):
         for _ in range(n)
     )
 
+
 class Base(FastHttpUser):
     @task
     def read_users(self):

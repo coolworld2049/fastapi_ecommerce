@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service import crud, schemas
 from auth_service.api.deps.auth import get_active_current_user
-from auth_service.api.deps.db import get_db
+from auth_service.db.session import get_session
 from auth_service.api.exceptions import (
     CouldNotValidateCredentialsException,
 )
@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.post("/login/access-token", response_model=schemas.Token)
 async def login_access_token(
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_session),
     form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
 ) -> Any:
     user = await crud.user.authenticate(

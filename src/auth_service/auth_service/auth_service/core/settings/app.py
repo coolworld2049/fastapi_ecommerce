@@ -49,7 +49,7 @@ class AppSettings(BaseAppSettings):
     POSTGRESQL_USERNAME: str
     POSTGRESQL_PASSWORD: str
 
-    REDIS_URL: Optional[str]
+    PROFILE_QUERY_MODE: Optional[bool] = False
 
     LOGGING_LEVEL: int = logging.INFO
 

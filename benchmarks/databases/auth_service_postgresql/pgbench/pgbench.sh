@@ -18,12 +18,6 @@ function pgbench_WRITE() {
 
 function pgbench_READ() {
   set +e
-  log "vacuum and truncate pgbench tables before errors"
-  psql -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_MASTER_HOST" \
-    -p "$POSTGRESQL_MASTER_PORT" -d "$POSTGRESQL_DATABASE" \
-    -c "vacuum pgbench_branches" \
-    -c "vacuum pgbench_tellers" \
-    -c "truncate pgbench_history"
   pgbench -j "$threads" -c "$clients" -t "$transactions" \
     -b select-only -U "$POSTGRESQL_USERNAME" -h "$POSTGRESQL_REPLICA_HOST" \
     -p "$POSTGRESQL_REPLICA_PORT" "$POSTGRESQL_DATABASE"
@@ -48,14 +42,8 @@ function main() {
 
   export PGPASSWORD="$POSTGRESQL_PASSWORD"
 
-  WRITE_TX_MULTIPLIER=${WRITE_TX_MULTIPLIER:-1}
-  WRITE_CLIENT_MULTIPLIER=${WRITE_CLIENT_MULTIPLIER:-1}
-
-  READ_TX_MULTIPLIER=${READ_TX_MULTIPLIER:-1}
-  READ_CLIENT_MULTIPLIER=${READ_CLIENT_MULTIPLIER:-1}
-
   proc_num="$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')"
-  threads="$proc_num"
+  threads="$((proc_num))"
 
   env >>"$LOG_PATH"
 
@@ -73,10 +61,10 @@ function main() {
   pgbench_init
 
   counter=1
-  for i in $(seq 1000 1000 10000); do
+  for i in $(seq 1000 1000 5000); do
     for action in WRITE READ; do
-      clients=$(((i / 10) * $"${action}_CLIENT_MULTIPLIER"))
-      transactions=$((i * $"${action}_TX_MULTIPLIER"))
+      clients=$((i / 10))
+      transactions=$((clients * 10))
       log_options
       pgbench_$action
     done >>"$LOG_PATH"

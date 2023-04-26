@@ -3,12 +3,13 @@ from fastapi.security import OAuth2PasswordBearer
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth_service.api.deps.db import get_db
+from auth_service.db.session import get_session
 from auth_service import crud, models
 from auth_service.api.exceptions import (
     PermissionDeniedException,
     CouldNotValidateCredentialsException,
-    AccountNotVerifiedException, )
+    AccountNotVerifiedException,
+)
 from auth_service.core.config import get_app_settings
 from auth_service.services.jwt import decode_access_token
 
@@ -18,7 +19,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 
 async def get_current_user(
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_session),
     token: str = Depends(oauth2_scheme),
 ) -> models.User:
     token_data = decode_access_token(token)

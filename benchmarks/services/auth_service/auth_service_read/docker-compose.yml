@@ -13,8 +13,6 @@ services:
     extends:
       file: ../../docker-compose.locust.yml
       service: master
-    environment:
-      - API_TOKEN=
     volumes:
       - ./:/mnt/locust
     networks:
@@ -26,8 +24,6 @@ services:
     extends:
       file: ../../docker-compose.locust.yml
       service: worker
-    environment:
-      - API_TOKEN=
     volumes:
       - ./:/mnt/locust
     networks:

@@ -87,7 +87,7 @@
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://127.0.0.1:5432/app</jdbc-url>
+      <jdbc-url>jdbc:postgresql://127.0.0.1:5432/</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="auth_service_pgbouncer_replica_01" uuid="2770a55b-dd1a-492d-ba76-4673dc91815e">

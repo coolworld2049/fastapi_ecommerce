@@ -1,5 +1,9 @@
 version: '3.9'
 
+networks:
+  fastapi-ecommerce_default:
+    external: true
+
 services:
 
   monitoring_portainer:
@@ -14,6 +18,10 @@ services:
     ports:
       - "9000:9000"
       - "9443:9443"
+    networks:
+      - fastapi-ecommerce_default
+    restart: always
+
 
 volumes:
   monitoring_portainer:

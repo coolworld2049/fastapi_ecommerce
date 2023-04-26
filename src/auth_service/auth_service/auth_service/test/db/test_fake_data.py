@@ -2,6 +2,7 @@ import json
 import pathlib
 import random
 import string
+from typing import Any
 
 import pytest
 from faker import Faker
@@ -15,6 +16,7 @@ from auth_service.core.settings.base import StageType
 from auth_service.db.init_db import (
     init_db,
 )
+from auth_service.db.session import async_session
 from auth_service.models.user_role import UserRoleEnum
 from auth_service.test.utils.random_data import (
     gen_random_password,
@@ -31,7 +33,7 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
         UserRoleEnum.client: count,
         UserRoleEnum.guest: count // 15,
     }
-    users: list[schemas.User] = []
+    users: list[dict[str, Any]] = [{}]
     test_users: dict[str, dict] = {}
     for r, c in roles.items():
         for i in range(c):
@@ -69,7 +71,7 @@ async def create_users(db: AsyncSession, count=100, out_user_creds=None):
 
 @pytest.mark.asyncio
 async def test_fake_data(db: AsyncSession):
-    await init_db()
+    await init_db(db)
     if get_app_settings().STAGE != StageType.prod:
         count = 20
         out_user_creds = "test_users_creds.json"

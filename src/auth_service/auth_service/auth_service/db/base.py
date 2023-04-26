@@ -11,17 +11,17 @@ class ReplType(str, Enum):
     slave = "slave"
 
 
-class MasterReplica:
-    __slots__ = ("engine",)
+class MasterReplicas:
+    __slots__ = ("engines",)
 
     def __init__(
         self, master_url: str, slaves_url: list[str], *args, **kwargs
     ):
-        self.engine: dict[ReplType, AsyncEngine | tuple[AsyncEngine]] = {}
-        self.engine.update(
+        self.engines: dict[ReplType, AsyncEngine | tuple[AsyncEngine]] = {}
+        self.engines.update(
             {ReplType.master: (create_async_engine(master_url, **kwargs),)}
         )
-        self.engine.update(
+        self.engines.update(
             {
                 ReplType.slave: tuple(
                     create_async_engine(url, **kwargs) for url in slaves_url
@@ -34,20 +34,20 @@ class MasterReplica:
     @property
     def get_all(self) -> tuple[Any, Any]:
         return (
-            *self.engine[ReplType.master],
-            *self.engine[ReplType.slave],
+            *self.engines[ReplType.master],
+            *self.engines[ReplType.slave],
         )
 
     def get_master(self):
-        eng = self.engine.get(ReplType.master)[0]
+        eng = self.engines.get(ReplType.master)[0]
         return eng if eng else None
 
     def get_slaves(self):
-        eng = self.engine.get(ReplType.slave)
+        eng = self.engines.get(ReplType.slave)
         return eng if eng else None
 
     async def check_engines(self):
-        for _type, _eng in self.engine.items():
+        for _type, _eng in self.engines.items():
             for i, eng in enumerate(_eng):
                 try:
                     async with eng.begin() as conn:

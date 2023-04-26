@@ -4,12 +4,12 @@ from asyncpg import Connection
 from loguru import logger
 from pydantic import EmailStr
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 
 from auth_service import crud, schemas
 from auth_service.core.config import get_app_settings
 from auth_service.db.base import ReplType
-from auth_service.db.session import Base, MasterReplica, scoped_session_tr
+from auth_service.db.session import Base
 from auth_service.db.session import async_engines
 from auth_service.models import UserRole
 from auth_service.models.user_role import UserRoleEnum
@@ -30,28 +30,25 @@ async def execute_sql_file(
 
 
 async def base_metadata(
-    ms: MasterReplica, create: bool = False, drop: bool = False
+    eng: AsyncEngine, create: bool = False, drop: bool = False
 ):
-    for _type, _eng in ms.engine.items():
-        if _type == ReplType.master:
-            for eng in _eng:
-                msg = f"repl_type: {_type.name}, url: {eng.url}"
-                action = ""
-                try:
-                    async with eng.begin() as conn:
-                        if drop:
-                            action = "dropped"
-                            await conn.run_sync(Base.metadata.drop_all)
-                        elif create:
-                            action = "created"
-                            await conn.run_sync(Base.metadata.create_all)
-                        else:
-                            raise ValueError(
-                                "'drop' or 'create' must be True", drop, create
-                            )
-                        logger.info(action)
-                except ConnectionRefusedError as ex:
-                    logger.error(f"{action}- {msg}, {ex.__class__.__name__} {ex}")
+    msg = f"repl_type: {ReplType.master.name}, url: {eng.url}"
+    action = ""
+    try:
+        async with eng.begin() as conn:
+            if drop:
+                action = "dropped"
+                await conn.run_sync(Base.metadata.drop_all)
+            elif create:
+                action = "created"
+                await conn.run_sync(Base.metadata.create_all)
+            else:
+                raise ValueError(
+                    "'drop' or 'create' must be True", drop, create
+                )
+            logger.info(action)
+    except ConnectionRefusedError as ex:
+        logger.error(f"{action}- {msg}, {ex.__class__.__name__} {ex}")
 
 
 async def create_roles(db: AsyncSession):
@@ -86,13 +83,11 @@ async def create_first_superuser(db: AsyncSession):
     return super_user
 
 
-async def init_db():
+async def init_db(db: AsyncSession):
     try:
         await async_engines.check_engines()
-        await base_metadata(async_engines, create=True)
-        async with scoped_session_tr() as db:
-            await create_roles(db)
-            await create_first_superuser(db)
-            await db.commit()
+        await base_metadata(async_engines.get_master(), create=True)
+        await create_roles(db)
+        await create_first_superuser(db)
     except Exception as e:
         logger.exception(e)

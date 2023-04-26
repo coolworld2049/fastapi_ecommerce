@@ -148,18 +148,15 @@ async def test_fake_data(
         count=10**degree, auth_service_client=auth_service_client
     )
     if get_app_settings().STAGE != StageType.prod:
-        categories = await create_category(count=10 * degree)
+        categories = await create_category(count=5 * degree)
         now = datetime.now()
         created_at = RandomDateTime(
             [now.year - 1, now.year],
             [1, datetime.now().month],
         )
         products = await create_product(
-            categories, multiplier=4**degree, created_at=created_at
+            categories, multiplier=2**degree, created_at=created_at
         )
-        orders_count = 0
-        for _ in range(degree):
-            orders = await create_orders(users, created_at=created_at)
-            orders_count += len(orders)
-            await update_orders(orders, products, created_at=created_at)
-        logger.info(f"orders_count - {orders_count}")
+        orders = await create_orders(users, created_at=created_at)
+        await update_orders(orders, products, created_at=created_at)
+        logger.info(f"orders_count - {len(orders)}")

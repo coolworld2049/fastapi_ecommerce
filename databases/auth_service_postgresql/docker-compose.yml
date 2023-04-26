@@ -17,9 +17,10 @@ services:
       - .env
     volumes:
       - ./custom_conf:/bitnami/postgresql/custom_conf
-      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - ./scripts:/bitnami/postgresql/scripts
       - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
-      - postgresql_master:/bitnami/postgresql
+      - auth_service_postgresql_master:/bitnami/postgresql
+      - ${POSTGRESQL_ARCHIVE_PATH:-./.volumes/auth_service_postgresql_master}:/mnt/server/archive/backup
     restart: always
 
   auth_service_pgbouncer_master:
@@ -48,9 +49,9 @@ services:
       - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
     volumes:
       - ./custom_conf:/bitnami/postgresql/custom_conf
-      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - ./scripts:/bitnami/postgresql/scripts
       - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
-      - postgresql_replica_01:/bitnami/postgresql
+      - auth_service_postgresql_replica_01:/bitnami/postgresql
     env_file:
       - .env
     restart: always
@@ -83,9 +84,9 @@ services:
       - .env
     volumes:
       - ./custom_conf:/bitnami/postgresql/custom_conf
-      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - ./scripts:/bitnami/postgresql/scripts
       - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
-      - postgresql_replica_02:/bitnami/postgresql
+      - auth_service_postgresql_replica_02:/bitnami/postgresql
     restart: always
 
   auth_service_pgbouncer_replica_02:
@@ -101,12 +102,12 @@ services:
     restart: always
 
 volumes:
-  postgresql_master:
+  auth_service_postgresql_master:
     labels:
       keep:
-  postgresql_replica_01:
+  auth_service_postgresql_replica_01:
     labels:
       keep:
-  postgresql_replica_02:
+  auth_service_postgresql_replica_02:
     labels:
       keep:

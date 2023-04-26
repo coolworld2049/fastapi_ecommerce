@@ -170,3 +170,5 @@ cython_debug/
 /databases/store_service_mongodb/.volumes/
 /benchmarks/databases/auth_service_postgresql/pgbench/.logs/
 /.generated/
+!/databases/auth_service_postgresql/dumps/tmp/.s.PGSQL.5432.lock
+/monitoring/pmm_server/.volumes/

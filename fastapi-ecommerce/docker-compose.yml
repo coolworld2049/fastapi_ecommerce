@@ -19,8 +19,6 @@ services:
       file: ../src/auth_service/docker-compose.yml
     env_file:
       - ../.env
-    deploy:
-      replicas: 2
 
   store_service:
     image: coolworldocker/store_service:latest
@@ -29,8 +27,6 @@ services:
       file: ../src/store_service/docker-compose.yml
     env_file:
       - ../.env
-    deploy:
-      replicas: 2
 
   auth_service_postgresql_master:
     extends:
@@ -134,13 +130,13 @@ services:
       file: ../databases/store_service_mongodb/docker-compose.yml
 
 volumes:
-  postgresql_master:
+  auth_service_postgresql_master:
     labels:
       keep:
-  postgresql_replica_01:
+  auth_service_postgresql_replica_01:
     labels:
       keep:
-  postgresql_replica_02:
+  auth_service_postgresql_replica_02:
     labels:
       keep:
 
