@@ -61,7 +61,7 @@ function main() {
   pgbench_init
 
   counter=1
-  for i in $(seq 1000 1000 5000); do
+  for i in $(seq 1000 1000 4000); do
     for action in WRITE READ; do
       clients=$((i / 10))
       transactions=$((clients * 10))

@@ -20,14 +20,14 @@ class LoguruLoggingMiddleware:
             elapsed = f"{time.time() - st:0.10f} sec"
             response.headers.append("X-Response-Time", elapsed)
         except Exception as e:
-            if request.app.debug:
-                logger.exception(e)
             response = JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content={"detail": f"{e.__class__.__name__} - {e.args}"},
                 media_type="application/json",
             )
-            return await self.log_after_response(request, response)
+            if request.app.debug:
+                logger.exception(e)
+                return await self.log_after_response(request, response)
         return response
 
     @staticmethod

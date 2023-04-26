@@ -43,7 +43,7 @@ async def read_users(
     """
     Retrieve users.
     """
-    users = await crud.user.get_multi(response, db, request_params)
+    users = await crud.user.get_multi(db, request_params)
     return users
 
 

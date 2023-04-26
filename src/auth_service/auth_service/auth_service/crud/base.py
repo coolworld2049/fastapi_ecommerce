@@ -7,14 +7,12 @@ from typing import TypeVar
 from typing import Union
 
 from fastapi.encoders import jsonable_encoder
-from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.engine import Result, RowMapping, Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
-from starlette.responses import Response
 
 from auth_service.db.session import Base
 from auth_service.schemas import RequestParams
@@ -37,7 +35,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
         q: Select = select(self.model).where(self.model.id == id)  # noqa
         result: Result = await db.execute(q)
-        await db.commit()
         return result.scalar()
 
     async def get_by_attr(
@@ -45,7 +42,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> Optional[Result]:
         q: Select = select(self.model).where(where_clause)
         result: Result = await db.execute(q)
-        await db.commit()
         return result.scalar()
 
     async def constr_query_filter(
@@ -74,7 +70,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def get_multi(
         self,
-        response: Response,
         db: AsyncSession,
         request_params: RequestParams = None,
         filters: Any = None,
@@ -89,23 +84,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         total: Result = await db.execute(query_count)
         result: Result = await db.execute(query)
         r = result.scalars().all()
-        response.headers[
-            "Content-Range"
-        ] = f"{request_params.skip}-{request_params.skip + len(r)}/{total.fetchone().count}"
-        await db.commit()
         return r
 
     async def create(
         self, db: AsyncSession, *, obj_in: CreateSchemaType
     ) -> ModelType:
         db_obj = self.model(**obj_in.dict(exclude_none=True))
-        try:
-            db.add(db_obj)
-            await db.commit()
-            await db.refresh(db_obj)
-        except Exception as e:
-            logger.error(e.args)
-            raise
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
         return db_obj
 
     @staticmethod
@@ -123,21 +110,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        try:
-            db.add(db_obj)
-            await db.refresh(db_obj)
-            await db.commit()
-        except Exception as e:
-            logger.error(e.args)
-            raise
+        db.add(db_obj)
+        await db.refresh(db_obj)
+        await db.commit()
         return db_obj
 
     async def remove(self, db: AsyncSession, *, id: Any) -> ModelType:
         obj = await self.get(db, id)
-        try:
-            await db.delete(obj)
-            await db.commit()
-        except Exception as e:
-            logger.error(e.args)
-            raise
+        await db.delete(obj)
+        await db.commit()
         return obj

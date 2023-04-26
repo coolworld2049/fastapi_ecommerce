@@ -49,7 +49,8 @@ class AppSettings(BaseAppSettings):
     POSTGRESQL_USERNAME: str
     POSTGRESQL_PASSWORD: str
 
-    PROFILE_QUERY_MODE: Optional[bool] = False
+    SQLALCHEMY_POOL_SIZE: Optional[int] | None = None
+    SQLALCHEMY_PROFILE_QUERY_MODE: Optional[bool] = False
 
     LOGGING_LEVEL: int = logging.INFO
 

@@ -23,7 +23,7 @@ logger.warning(
     f"USE_RBAC={get_app_settings().USE_RBAC},"
     f" USE_USER_CHECKS={get_app_settings().USE_USER_CHECKS},"
     f" USE_EMAILS={get_app_settings().USE_EMAILS}"
-    f" PROFILE_QUERY_MODE={get_app_settings().PROFILE_QUERY_MODE}"
+    f" PROFILE_QUERY_MODE={get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE}"
 )
 
 

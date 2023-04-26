@@ -43,4 +43,4 @@ async def signup_client(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="There was an error sending email",
             )
-    return {"detail": "The confirmation code has been sent to your email"}
+    return {"msg": "The confirmation code has been sent to your email"}

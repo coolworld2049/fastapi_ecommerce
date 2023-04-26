@@ -3,7 +3,7 @@ import time
 from typing import Any
 
 from loguru import logger
-from sqlalchemy import Update, Delete, Insert, NullPool, event, text
+from sqlalchemy import Update, Delete, Insert, event, QueuePool, NullPool
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
@@ -16,8 +16,10 @@ Base: DeclarativeBase = declarative_base()
 async_engines = MasterReplicas(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_replicas,
-    poolclass=NullPool,
-    isolation_level="AUTOCOMMIT"
+    poolclass=QueuePool if get_app_settings().SQLALCHEMY_POOL_SIZE else NullPool,
+    pool_size=get_app_settings().SQLALCHEMY_POOL_SIZE if get_app_settings().SQLALCHEMY_POOL_SIZE else None,
+    isolation_level="READ COMMITTED",
+    echo=True if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE else False
 )
 
 
@@ -31,16 +33,15 @@ class RoutingSession(Session):
         if self._flushing or isinstance(clause, (Insert, Update, Delete)):
             return async_engines.engines[ReplType.master][0].sync_engine
         else:
-            return random.choice(async_engines.get_all).sync_engine
+            return random.choice(async_engines.get_replicas()).sync_engine
 
 
 async_session = async_sessionmaker(
     sync_session_class=RoutingSession,
-    autoflush=False,
-    expire_on_commit=False,
+    expire_on_commit=False
 )
 
-if get_app_settings().PROFILE_QUERY_MODE:
+if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:
     def before_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
     ):
@@ -67,12 +68,13 @@ if get_app_settings().PROFILE_QUERY_MODE:
 
 
 async def get_session():
+    s = async_session()
     try:
-        async with async_session() as s:
-            await s.execute(text("BEGIN"))
-            yield s
-            await s.execute(text("COMMIT"))
-    except:  # noqa
-        await s.execute(text("ROLLBACK"))
+        await s.begin()
+        yield s
+        await s.commit()
+    except Exception as e:  # noqa
+        await s.rollback()
+        logger.warning(f"{e.__class__} {e} - ROLLBACK")
     finally:
         await s.close()

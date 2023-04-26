@@ -9,5 +9,3 @@ class TestAppSettings(AppSettings):
     USE_RBAC = False
     USE_USER_CHECKS = False
     USE_EMAILS = False
-
-    PROFILE_QUERY_MODE = True

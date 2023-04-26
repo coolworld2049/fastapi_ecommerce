@@ -20,7 +20,7 @@ services:
       - ./scripts:/bitnami/postgresql/scripts
       - ./scripts/preinitdb:/docker-entrypoint-preinitdb.d
       - auth_service_postgresql_master:/bitnami/postgresql
-      - ${POSTGRESQL_ARCHIVE_PATH:-./.volumes/auth_service_postgresql_master}:/mnt/server/archive/backup
+      - ${POSTGRESQL_ARCHIVE_PATH:-./.volumes/auth_service_postgresql_master/backup}:/mnt/server/archive/backup
     restart: always
 
   auth_service_pgbouncer_master:

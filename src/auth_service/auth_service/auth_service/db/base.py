@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 class ReplType(str, Enum):
     master = "master"
-    slave = "slave"
+    replica = "replica"
 
 
 class MasterReplicas:
@@ -23,7 +23,7 @@ class MasterReplicas:
         )
         self.engines.update(
             {
-                ReplType.slave: tuple(
+                ReplType.replica: tuple(
                     create_async_engine(url, **kwargs) for url in slaves_url
                 )
                 if slaves_url
@@ -35,15 +35,15 @@ class MasterReplicas:
     def get_all(self) -> tuple[Any, Any]:
         return (
             *self.engines[ReplType.master],
-            *self.engines[ReplType.slave],
+            *self.engines[ReplType.replica],
         )
 
     def get_master(self):
         eng = self.engines.get(ReplType.master)[0]
         return eng if eng else None
 
-    def get_slaves(self):
-        eng = self.engines.get(ReplType.slave)
+    def get_replicas(self):
+        eng = self.engines.get(ReplType.replica)
         return eng if eng else None
 
     async def check_engines(self):
