@@ -39,7 +39,7 @@ docker_container_names="$(docker ps --format '{{.Names}},')"
 # shellcheck disable=SC2207
 array=($(echo "$docker_container_names" | tr ',' "\n"))
 for container in "${array[@]}"; do
-  log "$(printf '\e[1;34m%-6s\e[m' "$container")"
+  log "$(printf '\e[source_db;34m%-6s\e[m' "$container")"
   docker logs "$container" -n 5
 done
 

@@ -51,7 +51,7 @@ class MasterReplicas:
             for i, eng in enumerate(_eng):
                 try:
                     async with eng.begin() as conn:
-                        await conn.execute(text("select 1"))
+                        await conn.execute(text("select source_db"))
                     logger.info(f"repl_type: {_type.name}, url: {eng.url}")
                 except ConnectionRefusedError as ex:
                     logger.error(

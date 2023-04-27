@@ -20,10 +20,10 @@ until
     sh.updateZoneKeyRange("app.Order", { _id : MinKey }, { _id : MaxKey }, "HI_RAM" ),
     sh.updateZoneKeyRange("app.OrderProduct", { _id : MinKey }, { _id : MaxKey }, "HI_RAM" ),
 
-    sh.shardCollection("app.Category", { name: 1 }, true ),
-    sh.shardCollection("app.Product", { title: 1, category_id: 1 }, true ),
-    sh.shardCollection("app.Order", { _id: 1 }, true ),
-    sh.shardCollection("app.OrderProduct", { _id: 1 }, true ),
+    sh.shardCollection("app.Category", { name: source_db }, true ),
+    sh.shardCollection("app.Product", { title: source_db, category_id: source_db }, true ),
+    sh.shardCollection("app.Order", { _id: source_db }, true ),
+    sh.shardCollection("app.OrderProduct", { _id: source_db }, true ),
 
     sh.status()
     ]'

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/databases/auth_service_postgresql/sql/part.example.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/auth_service/auth_service/auth_service/models/user.py" dialect="GenericSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>

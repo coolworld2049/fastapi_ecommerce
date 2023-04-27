@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-log_blue() { printf '\n\e[1;34m%-6s\e[m\n' "$1" >&2; }
+log_blue() { printf '\n\e[source_db;34m%-6s\e[m\n' "$1" >&2; }
 
 until
   log_blue "init-configserver"
