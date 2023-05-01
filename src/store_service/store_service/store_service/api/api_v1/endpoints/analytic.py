@@ -9,7 +9,7 @@ from prisma.models import Order, OrderProduct, Category
 from store_service.api.api_v1.deps import params
 from store_service.api.api_v1.deps.auth import RoleChecker
 from store_service.core.config import get_app_settings
-from store_service.core.settings.base import AppEnvTypes
+from store_service.core.settings.base import StageType
 from store_service.schemas.request_params import RequestParams
 from store_service.schemas.analytic import (
     AnalyticResponse,
@@ -50,7 +50,7 @@ async def get_orders_for_period(
     "/sales",
     response_model=SalesRevenue,
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin"]))],
 )
 async def sales_analytics(
@@ -127,7 +127,7 @@ async def sales_analytics(
     "/sales/category",
     response_model=dict[str, AnalyticResponse | list[QuantitySoldCategory]],
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin"]))],
 )
 async def categories_sales_analytic(

@@ -15,7 +15,7 @@ class UserOptional(BaseModel):
 
 
 class UserSpec(BaseModel):
-    role: UserRoleEnum = UserRoleEnum.guest
+    role: UserRoleEnum = UserRoleEnum.guest.name
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = False

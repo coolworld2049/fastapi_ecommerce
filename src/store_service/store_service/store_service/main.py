@@ -4,13 +4,14 @@ from starlette.middleware.cors import CORSMiddleware
 
 from store_service.api.api_v1.api import api_router
 from store_service.core.config import get_app_settings
-from store_service.core.logger import configure_logging
-from store_service.core.logging import LoguruLoggingMiddleware
+from fastapi_ecommerce_ext.logger.configure import configure_logging
+from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
+
+from store_service.core.settings.base import StageType
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
-    access_log_path=get_app_settings().logs_path / "access/access.log",
-    error_log_path=get_app_settings().logs_path / "errors/error.log",
+    access_log_path=get_app_settings().logs_path / "access.log",
 )
 
 
@@ -21,19 +22,16 @@ def get_application() -> FastAPI:
         allow_origins=get_app_settings().APP_BACKEND_CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
-        expose_headers=["*", "Content-Range"],
-        allow_headers=[
-            "*",
-            "Authorization",
-            "Content-Range",
-        ],
+        expose_headers=["*"],
+        allow_headers=["*"],
     )
     application.include_router(
         api_router,
-        prefix=get_app_settings().api_perfix,
+        prefix=get_app_settings().api_prefix,
     )
 
-    application.middleware("http")(LoguruLoggingMiddleware())
+    if get_app_settings().STAGE != StageType.prod:
+        application.middleware("http")(LoguruLoggingMiddleware())
 
     @application.on_event("startup")
     async def startup() -> None:

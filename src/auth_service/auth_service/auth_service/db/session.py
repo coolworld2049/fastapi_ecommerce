@@ -1,64 +1,84 @@
 import random
+import time
 from typing import Any
 
-from sqlalchemy import Update, Delete, Insert, text
-from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
+from loguru import logger
+from sqlalchemy import Update, Delete, Insert, event, QueuePool, NullPool
+from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.orm import declarative_base
 
 from auth_service.core.config import get_app_settings
-from auth_service.db.base import MasterSlaves, ReplicaType
+from auth_service.db.base import MasterReplicas, ReplType
 
 Base: DeclarativeBase = declarative_base()
 
-engines = MasterSlaves(
+async_engines = MasterReplicas(
     master_url=get_app_settings().postgres_asyncpg_master,
-    slaves_url=get_app_settings().postgres_asyncpg_slaves,
-    pool_size=20,
-    max_overflow=0,
-    pool_pre_ping=True
+    slaves_url=get_app_settings().postgres_asyncpg_replicas,
+    poolclass=QueuePool
+    if get_app_settings().SQLALCHEMY_POOL_SIZE
+    else NullPool,
+    pool_size=get_app_settings().SQLALCHEMY_POOL_SIZE
+    if get_app_settings().SQLALCHEMY_POOL_SIZE
+    else None,
+    isolation_level="READ COMMITTED",
+    echo=True
 )
-
-
-def ping_connection(engine):
-    c = engine.connect()
-    try:
-        c.execute(text("select 1"))
-        c.close()
-    except DBAPIError as e:
-        if e.connection_invalidated:
-            pass
 
 
 class RoutingSession(Session):
     def get_bind(
         self,
         mapper=None,
-        *,
         clause=None,
-        bind=None,
-        _sa_skip_events=None,
-        _sa_skip_for_implicit_returning=False,
-        **kw: Any,
+        **kwargs: Any,
     ):
         if self._flushing or isinstance(clause, (Insert, Update, Delete)):
-            return random.choice(
-                engines.engine[ReplicaType.master]
-            ).sync_engine
+            return async_engines.engines[ReplType.master][0].sync_engine
         else:
-            try:
-                slave: AsyncEngine = random.choice(
-                    engines.engine[ReplicaType.slave]
-                ).sync_engine
-                with slave.sync_engine.engine.begin() as c:
-                    c.execute(text("select 1"))
-            except Exception:
-                return random.choice(
-                    engines.engine[ReplicaType.master]
-                ).sync_engine
+            return random.choice(async_engines.get_replicas()).sync_engine
 
 
-SessionLocal = async_sessionmaker(
-    sync_session_class=RoutingSession, autoflush=False, expire_on_commit=False
+async_session = async_sessionmaker(
+    sync_session_class=RoutingSession, expire_on_commit=False
 )
+
+if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:
+
+    def before_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
+        conn.info.setdefault("query_start_time", []).append(time.time())
+        logger.debug(f"Start Query: {statement}")
+
+    def after_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
+        total = time.time() - conn.info["query_start_time"].pop(-1)
+        logger.debug("Query Complete!")
+        logger.debug("Total Time: %f" % total)
+
+    event.listen(
+        async_engines.get_master().sync_engine,
+        "before_cursor_execute",
+        before_cursor_execute,
+    )
+    event.listen(
+        async_engines.get_master().sync_engine,
+        "after_cursor_execute",
+        after_cursor_execute,
+    )
+
+
+async def get_session():
+    s = async_session()
+    try:
+        await s.begin()
+        yield s
+        await s.commit()
+    except Exception as e:  # noqa
+        await s.rollback()
+        logger.warning(f"{e.__class__} {e} - ROLLBACK")
+    finally:
+        await s.close()

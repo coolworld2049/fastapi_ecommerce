@@ -7,8 +7,8 @@ from fastapi import HTTPException
 from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+from starlette.requests import Request
 
-import auth_service.api.deps.db
 from auth_service import crud
 from auth_service import models
 from auth_service import schemas
@@ -17,8 +17,8 @@ from auth_service.api.deps import params
 from auth_service.api.deps.auth import RoleChecker
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
-from auth_service.core.settings.base import AppEnvTypes
-from auth_service.db import session
+from auth_service.core.settings.base import StageType
+from auth_service.db.session import get_session
 from auth_service.models.user import User
 from auth_service.schemas import RequestParams
 
@@ -29,12 +29,13 @@ router = APIRouter()
     "/",
     response_model=List[schemas.User],
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin"]))],
 )
 async def read_users(
+    request: Request,
     response: Response,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     request_params: RequestParams = Depends(
         params.parse_react_admin_params(User),
     ),
@@ -42,7 +43,7 @@ async def read_users(
     """
     Retrieve users.
     """
-    users = await crud.user.get_multi(response, db, request_params)
+    users = await crud.user.get_multi(db, request_params)
     return users
 
 
@@ -53,7 +54,7 @@ async def read_users(
 )
 async def create_user(
     *,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     user_in: schemas.UserCreate,
 ) -> Any:
     """
@@ -77,15 +78,13 @@ async def create_user(
 )
 async def update_user_me(
     user_in: schemas.UserUpdateMe,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
     Update own user.
     """
     user = await crud.user.update(db, db_obj=current_user, obj_in=user_in)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     return user
 
 
@@ -97,7 +96,7 @@ async def update_user_me(
     ],
 )
 async def read_user_me(
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
@@ -114,7 +113,7 @@ async def read_user_me(
 )
 async def read_user_by_id(
     id: int,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
 ) -> Any:
     """
     Get a specific user.
@@ -133,7 +132,7 @@ async def read_user_by_id(
 async def update_user(
     *,
     id: int,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     user_in: schemas.UserUpdate,
 ) -> Any:
     """
@@ -141,7 +140,7 @@ async def update_user(
     """
     user = await crud.user.get(db, id)
     if not user:
-        raise DuplicateUserException
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
 
@@ -154,12 +153,22 @@ async def update_user(
 async def delete_user(
     *,
     id: int,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
+    current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
     Delete user
     """
-    user = await crud.user.remove(db=db, id=id)
+    user = await crud.user.get(db, id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if (
+        id == current_user.id
+        or user.email == get_app_settings().FIRST_SUPERUSER_EMAIL
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Forbidden to delete",
+        )
+    user = await crud.user.remove(db=db, id=id)
     return user

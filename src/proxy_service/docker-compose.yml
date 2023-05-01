@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+
+  proxy_service:
+    image: nginx:latest
+    volumes:
+      - ./config/includes:/etc/nginx/includes/
+      - ./config:/etc/nginx/
+      - ./certs:/etc/ssl/certs/nginx/
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always

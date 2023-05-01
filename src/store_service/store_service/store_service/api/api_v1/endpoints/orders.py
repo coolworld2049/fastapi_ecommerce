@@ -15,8 +15,11 @@ from store_service.api.api_v1.deps.auth import (
     RoleChecker,
     get_current_active_user,
 )
+from store_service.api.api_v1.deps.custom_exception import (
+    PendingOrderException,
+)
 from store_service.core.config import get_app_settings
-from store_service.core.settings.base import AppEnvTypes
+from store_service.core.settings.base import StageType
 from store_service.schemas.request_params import RequestParams
 from store_service.schemas.user import User
 
@@ -47,7 +50,7 @@ async def get_current_user_order(
     "/",
     response_model=list[Order | OrderWithoutRelations],
     dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
+    if get_app_settings().STAGE == StageType.test
     else [Depends(RoleChecker(["admin"]))],
 )
 async def read_all_orders(
@@ -80,27 +83,6 @@ async def read_order_me(
 
 
 @router.post(
-    "/test",
-    response_model=OrderWithoutRelations,
-    dependencies=None
-    if get_app_settings().APP_ENV == AppEnvTypes.test
-    else [Depends(RoleChecker(["admin", "customer"]))],
-)
-async def create_order_test(
-    user_id: str = Param(..., description="ObjectId"),
-) -> Optional[Order]:
-    order = await Order.prisma().create(
-        data={
-            "status": OrderStatus.pending,
-            "cost": 0.0,
-            "user_id": user_id,
-        },
-        include={"order_products": True},
-    )
-    return order
-
-
-@router.post(
     "/",
     response_model=OrderWithoutRelations,
     dependencies=[Depends(RoleChecker(["admin", "customer"]))],
@@ -108,6 +90,9 @@ async def create_order_test(
 async def create_order(
     current_user: User = Depends(get_current_active_user),
 ) -> Optional[Order]:
+    order = await get_current_user_order(current_user)
+    if order:
+        raise PendingOrderException
     order = await Order.prisma().create(
         data={
             "status": OrderStatus.pending,
@@ -186,7 +171,7 @@ async def delete_product_from_order(
         data={
             "cost": {
                 "decrement": float(product.price)
-                             * len(order_products_where_product_id)
+                * len(order_products_where_product_id)
             },
             "order_products": {
                 "delete": [

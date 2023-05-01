@@ -24,16 +24,18 @@ enum OrderStatus {
 
 model Category {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String    @unique
+  name        String
   description String?
   created_at  DateTime? @default(now())
   updated_at  DateTime? @updatedAt
   products    Product[]
+
+  @@unique([name], map: "name_1")
 }
 
 model Product {
   id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  title          String         @unique
+  title          String
   stock          Int
   price          Float
   description    String?
@@ -42,6 +44,8 @@ model Product {
   category       Category       @relation(fields: [category_id], references: [id])
   category_id    String         @db.ObjectId
   order_products OrderProduct[]
+
+  @@unique([title, category_id], map: "title_1_category_id_1")
 }
 
 model Order {
@@ -55,9 +59,11 @@ model Order {
 }
 
 model OrderProduct {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  order      Order    @relation(fields: [order_id], references: [id])
-  order_id   String   @db.ObjectId
-  product    Product? @relation(fields: [product_id], references: [id])
-  product_id String?  @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  order      Order     @relation(fields: [order_id], references: [id])
+  order_id   String    @db.ObjectId
+  product    Product?  @relation(fields: [product_id], references: [id])
+  product_id String?   @db.ObjectId
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
 }

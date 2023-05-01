@@ -5,7 +5,7 @@ class DuplicateUserException(HTTPException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this username already exists",
+            detail="User with this username or email already exists",
         )
 
 
@@ -30,6 +30,15 @@ class InvalidVerificationTokenException(HTTPException):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid verification token or account already verified",
+        )
+
+
+class CouldNotValidateApiKeyException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate api key",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 

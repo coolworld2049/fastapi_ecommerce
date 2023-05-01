@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 from typing import Optional
 
 from loguru import logger
@@ -47,7 +48,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         *,
         db_obj: User,
         email: Email,
-        url_verify_token: str,
     ):
         try:
             db_obj.verification_token = random.randbytes(24).hex()
@@ -58,9 +58,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await email.send_verification_code(
                 subject="Verification",
                 recipients=[EmailStr(db_obj.email)],
-                url_verify_token=url_verify_token,
                 data=email_data,
-                token=db_obj.verification_token,
             )
         except Exception as e:
             await super().remove(db, id=db_obj.id)
@@ -80,6 +78,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if not db_obj.verification_token == token:
             return None
         db_obj.is_verified = True
+        db_obj.verified_at = datetime.now()
         db_obj = await super().update(
             db, db_obj=db_obj, obj_in=UserUpdate(**db_obj.__dict__)
         )

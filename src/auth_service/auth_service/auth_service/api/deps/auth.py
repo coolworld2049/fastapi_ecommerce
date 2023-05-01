@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import auth_service.api.deps.db
+from auth_service.db.session import get_session
 from auth_service import crud, models
 from auth_service.api.exceptions import (
     PermissionDeniedException,
@@ -13,14 +13,14 @@ from auth_service.api.exceptions import (
 from auth_service.core.config import get_app_settings
 from auth_service.services.jwt import decode_access_token
 
-oauth2Scheme = OAuth2PasswordBearer(
+oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{get_app_settings().api_prefix}/login/access-token"
 )
 
 
 async def get_current_user(
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
-    token: str = Depends(oauth2Scheme),
+    db: AsyncSession = Depends(get_session),
+    token: str = Depends(oauth2_scheme),
 ) -> models.User:
     token_data = decode_access_token(token)
     user = await crud.user.get(db=db, id=int(token_data.sub))
@@ -29,14 +29,20 @@ async def get_current_user(
     return user
 
 
-async def get_active_current_user(
-    user: models.User = Depends(get_current_user),
-) -> models.User:
-    if get_app_settings().TEST_USE_USER_CHECKS:
+async def get_verified_current_user(
+    user=Depends(get_current_user),
+):
+    if get_app_settings().USE_EMAILS:
         if not user.is_verified:
             raise AccountNotVerifiedException
-        if not user.is_active:
-            raise AccountNotVerifiedException
+    return user
+
+
+async def get_active_current_user(
+    user=Depends(get_verified_current_user),
+):
+    if not user.is_active:
+        raise AccountNotVerifiedException
     return user
 
 
@@ -55,6 +61,6 @@ class RoleChecker:
                 current_user.role
             except AttributeError as e:
                 logger.error(e)
-            if get_app_settings().TEST_USE_RBAC:
+            if get_app_settings().USE_RBAC:
                 if current_user.role not in self.roles:
                     raise PermissionDeniedException

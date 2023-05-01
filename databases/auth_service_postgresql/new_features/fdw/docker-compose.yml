@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+
+  auth_service_postgresql_source_db:
+    image: postgres:latest
+    user: root
+    container_name: auth_service_postgresql_source_db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./scripts/initdb/source_db:/docker-entrypoint-initdb.d
+    restart: always
+
+  auth_service_postgresql_target_db:
+    image: postgres:latest
+    user: root
+    container_name: auth_service_postgresql_target_db
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./scripts/initdb/target_db:/docker-entrypoint-initdb.d
+    restart: always

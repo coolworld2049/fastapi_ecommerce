@@ -1,0 +1,55 @@
+worker_processes auto;
+worker_rlimit_nofile 100000;
+
+error_log /var/log/nginx/error.log crit;
+
+events {
+    worker_connections 4000;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/includes/log_format.conf;
+    access_log /dev/stdout;
+
+    include /etc/nginx/includes/http.conf;
+
+    upstream auth_service {
+        server auth_service:80;
+    }
+    upstream store_service {
+        server store_service:80;
+    }
+    server {
+        server_name www.fastapi-ecommerce.com;
+        include /etc/nginx/includes/listen.conf;
+        include /etc/nginx/includes/ssl.conf;
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
+    }
+    server {
+        server_name auth-service.fastapi-ecommerce.com;
+        include /etc/nginx/includes/listen.conf;
+        include /etc/nginx/includes/ssl.conf;
+
+        location / {
+            include /etc/nginx/includes/proxy.conf;
+            proxy_pass         http://auth_service;
+            proxy_redirect     off;
+        }
+    }
+    server {
+        server_name store-service.fastapi-ecommerce.com;
+        include /etc/nginx/includes/listen.conf;
+        include /etc/nginx/includes/ssl.conf;
+
+        location / {
+            include /etc/nginx/includes/proxy.conf;
+            proxy_pass         http://store_service;
+            proxy_redirect     off;
+        }
+    }
+}

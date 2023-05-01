@@ -1,13 +1,15 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 set -e
 
 python ./store_service/pre_start.py
 
-prisma generate
+python -m prisma_cleanup
 
-prisma db push
+prisma generate
 
 prisma --version
 
-pytest ./store_service/test -v  --cov ./store_service --cov-report=html
+prisma db push
+
+pytest ./store_service/test -v --tb=native --cov ./store_service --cov-report=html

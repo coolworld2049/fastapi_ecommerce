@@ -5,6 +5,9 @@
       <sourceFolder url="file://$MODULE_DIR$/gateway_service/gateway_service" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/auth_service/auth_service" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/store_service/store_service" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/auth_service/auth_service/auth_service/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/store_service/store_service/store_service/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/pypi/fastapi_ecommerce_ext/ext" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (fastapi-ecommerce)" jdkType="Python SDK" />

@@ -6,23 +6,26 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 
-class ReplicaType(str, Enum):
+class ReplType(str, Enum):
     master = "master"
-    slave = "slave"
+    replica = "replica"
 
 
-# noinspection PyUnusedLocal
-class MasterSlaves:
-    __slots__ = "engine",
+class MasterReplicas:
+    __slots__ = ("engines",)
 
-    def __init__(self, master_url: str, slaves_url: str, *args, **kwargs):
-        self.engine: dict[ReplicaType, AsyncEngine | tuple[AsyncEngine]] = {}
-        self.engine.update(
-            {ReplicaType.master: (create_async_engine(master_url, **kwargs), )}
+    def __init__(
+        self, master_url: str, slaves_url: list[str], *args, **kwargs
+    ):
+        self.engines: dict[ReplType, AsyncEngine | tuple[AsyncEngine]] = {}
+        self.engines.update(
+            {ReplType.master: (create_async_engine(master_url, **kwargs),)}
         )
-        self.engine.update(
+        self.engines.update(
             {
-                ReplicaType.slave: (create_async_engine(slaves_url, **kwargs), )
+                ReplType.replica: tuple(
+                    create_async_engine(url, **kwargs) for url in slaves_url
+                )
                 if slaves_url
                 else []
             }
@@ -31,18 +34,26 @@ class MasterSlaves:
     @property
     def get_all(self) -> tuple[Any, Any]:
         return (
-            *self.engine[ReplicaType.master],
-            *self.engine[ReplicaType.slave],
+            *self.engines[ReplType.master],
+            *self.engines[ReplType.replica],
         )
 
+    def get_master(self):
+        eng = self.engines.get(ReplType.master)[0]
+        return eng if eng else None
+
+    def get_replicas(self):
+        eng = self.engines.get(ReplType.replica)
+        return eng if eng else None
+
     async def check_engines(self):
-        for _type, _eng in self.engine.items():
+        for _type, _eng in self.engines.items():
             for i, eng in enumerate(_eng):
                 try:
                     async with eng.begin() as conn:
-                        await conn.execute(text("select 1"))
-                    logger.info(f"engine_type: {_type.name}, url: {eng.url}")
+                        await conn.execute(text("select source_db"))
+                    logger.info(f"repl_type: {_type.name}, url: {eng.url}")
                 except ConnectionRefusedError as ex:
                     logger.error(
-                        f"engine_type: {_type.name}, url: {eng.url}, {ex.__class__.__name__} {ex}"
+                        f"repl_type: {_type.name}, url: {eng.url}, {ex.__class__.__name__} {ex}"
                     )

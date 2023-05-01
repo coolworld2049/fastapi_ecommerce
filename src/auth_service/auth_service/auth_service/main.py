@@ -3,21 +3,27 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
+from fastapi_ecommerce_ext.logger.configure import configure_logging
+from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
+from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.requests import Request
 
 from auth_service.api.api_v1.api import api_router
 from auth_service.core.config import get_app_settings
-from auth_service.core.logger import configure_logging
-from auth_service.core.logging import LoguruLoggingMiddleware
+from auth_service.core.settings.base import StageType
 from auth_service.db.init_db import init_db
-from auth_service.db.session import engines, SessionLocal
+from auth_service.db.session import async_engines, async_session
 
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
-    access_log_path=get_app_settings().logs_path / "access/access.log",
-    error_log_path=get_app_settings().logs_path / "errors/error.log",
+    access_log_path=get_app_settings().logs_path / "access.log",
+)
+
+logger.warning(
+    f"USE_RBAC={get_app_settings().USE_RBAC},"
+    f" USE_USER_CHECKS={get_app_settings().USE_USER_CHECKS},"
+    f" USE_EMAILS={get_app_settings().USE_EMAILS}"
+    f" PROFILE_QUERY_MODE={get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE}"
 )
 
 
@@ -28,28 +34,13 @@ def get_application() -> FastAPI:
         allow_origins=get_app_settings().APP_BACKEND_CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=[
-            "*"
-            "Content-Range",
-            "X-Requested-With",
-            "X-Request-ID",
-            "X-Response-Time"
-        ],
-        expose_headers=[
-            "*"
-            "Content-Range",
-            "Authorization",
-            "X-Request-ID",
-            "X-Response-Time"
-        ],
-    )
-    application.add_middleware(
-        SessionMiddleware, secret_key=get_app_settings().JWT_SECRET_KEY
+        expose_headers=["*"],
     )
     application.include_router(
         api_router, prefix=get_app_settings().api_prefix
     )
-    application.middleware("http")(LoguruLoggingMiddleware())
+    if get_app_settings().STAGE != StageType.prod:
+        application.middleware("http")(LoguruLoggingMiddleware())
     application.add_middleware(
         CorrelationIdMiddleware,
         header_name="X-Request-ID",
@@ -66,17 +57,11 @@ app = get_application()
 
 @app.on_event("startup")
 async def startup():
-    await init_db()
-
-
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    request.state.db = SessionLocal()
-    response = await call_next(request)
-    await request.state.db.close()
-    return response
+    if get_app_settings().STAGE != StageType.prod:
+        async with async_session() as db:
+            await init_db(db)
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    [await x.dispose() for x in engines.get_all]
+    [await x.dispose() for x in async_engines.get_all]
