@@ -7,10 +7,11 @@ from store_service.core.config import get_app_settings
 from fastapi_ecommerce_ext.logger.configure import configure_logging
 from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
 
+from store_service.core.settings.base import StageType
+
 configure_logging(
     get_app_settings().LOGGING_LEVEL,
     access_log_path=get_app_settings().logs_path / "access.log",
-    error_log_path=get_app_settings().logs_path / "error.log",
 )
 
 
@@ -29,7 +30,8 @@ def get_application() -> FastAPI:
         prefix=get_app_settings().api_prefix,
     )
 
-    application.middleware("http")(LoguruLoggingMiddleware())
+    if get_app_settings().STAGE != StageType.prod:
+        application.middleware("http")(LoguruLoggingMiddleware())
 
     @application.on_event("startup")
     async def startup() -> None:

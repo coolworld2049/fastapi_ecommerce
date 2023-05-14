@@ -4,7 +4,6 @@ services:
 
   proxy_service:
     image: nginx:latest
-    container_name: proxy_service
     volumes:
       - ./config/includes:/etc/nginx/includes/
       - ./config:/etc/nginx/

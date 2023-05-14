@@ -6,7 +6,7 @@ try:
     from pip._internal.req import parse_requirements  # noqa
 except ImportError:
     try:
-        # 10.0.0 <= pip <= 19.3.1
+        # 10.0.0 <= pip <= 19.3.source_db
         from pip._internal.download import PipSession  # noqa
         from pip._internal.req import parse_requirements  # noqa
     except ImportError:
@@ -14,7 +14,7 @@ except ImportError:
         from pip.download import PipSession  # noqa
         from pip.req import parse_requirements  # noqa
 
-version = "v0.2.7"
+version = "0.3.4"
 package_name = "fastapi_ecommerce_ext"
 url = f"https://github.com/coolworld2049/fastapi-ecommerce/pypi/{package_name}"
 

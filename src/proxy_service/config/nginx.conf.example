@@ -1,29 +1,28 @@
 worker_processes auto;
+worker_rlimit_nofile 100000;
+
+error_log /var/log/nginx/error.log crit;
 
 events {
-    worker_connections 4096;
+    worker_connections 4000;
+    use epoll;
+    multi_accept on;
 }
-
-error_log /dev/stdout info;
 
 http {
     include /etc/nginx/includes/log_format.conf;
     access_log /dev/stdout;
 
-    server_names_hash_bucket_size 128;
-    server_tokens off;
-    sendfile off;
+    include /etc/nginx/includes/http.conf;
 
     upstream auth_service {
-        zone auth_service 64k;
         server auth_service:80;
     }
     upstream store_service {
-        zone store_service 64k;
         server store_service:80;
     }
     server {
-        server_name www.fastapi-ecommerce.com fastapi-ecommerce.com;
+        server_name www.fastapi-ecommerce.com;
         include /etc/nginx/includes/listen.conf;
         include /etc/nginx/includes/ssl.conf;
 

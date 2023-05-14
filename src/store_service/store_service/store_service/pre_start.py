@@ -8,7 +8,7 @@ from tenacity import stop_after_attempt
 from tenacity import wait_fixed
 from loguru import logger
 
-max_tries = 60 * 2  # 2 minute
+max_tries = 60 * 2  # target_db minute
 wait_seconds = 1
 
 

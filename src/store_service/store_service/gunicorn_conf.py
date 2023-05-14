@@ -2,7 +2,7 @@ import json
 import multiprocessing
 import os
 
-workers_per_core_str = os.getenv("WORKERS_PER_CORE", "1")
+workers_per_core_str = os.getenv("WORKERS_PER_CORE", "source_db")
 max_workers_str = os.getenv("MAX_WORKERS")
 use_max_workers = None
 if max_workers_str:
@@ -43,6 +43,22 @@ bind = use_bind
 errorlog = use_errorlog
 worker_tmp_dir = "/dev/shm"
 accesslog = use_accesslog
+access_log_format = json.dumps(
+    {
+        "remote_address": r"%(h)s",
+        "user_name": r"%(u)s",
+        "date": r"%(t)s",
+        "status": r"%(s)s",
+        "method": r"%(m)s",
+        "url_path": r"%(U)s",
+        "query_string": r"%(q)s",
+        "protocol": r"%(H)s",
+        "response_length": r"%(B)s",
+        "referer": r"%(f)s",
+        "user_agent": r"%(a)s",
+        "request_time_seconds": r"%(L)s",
+    }
+)
 graceful_timeout = int(graceful_timeout_str)
 timeout = int(timeout_str)
 keepalive = int(keepalive_str)
@@ -58,6 +74,7 @@ log_data = {
     "keepalive": keepalive,
     "errorlog": errorlog,
     "accesslog": accesslog,
+    "access_log_format": access_log_format,
     # Additional, non-gunicorn variables
     "workers_per_core": workers_per_core,
     "use_max_workers": use_max_workers,

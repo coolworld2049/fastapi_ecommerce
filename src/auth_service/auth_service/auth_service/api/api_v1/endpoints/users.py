@@ -7,8 +7,8 @@ from fastapi import HTTPException
 from fastapi import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+from starlette.requests import Request
 
-import auth_service.api.deps.db
 from auth_service import crud
 from auth_service import models
 from auth_service import schemas
@@ -18,6 +18,7 @@ from auth_service.api.deps.auth import RoleChecker
 from auth_service.api.exceptions import DuplicateUserException
 from auth_service.core.config import get_app_settings
 from auth_service.core.settings.base import StageType
+from auth_service.db.session import get_session
 from auth_service.models.user import User
 from auth_service.schemas import RequestParams
 
@@ -32,8 +33,9 @@ router = APIRouter()
     else [Depends(RoleChecker(["admin"]))],
 )
 async def read_users(
+    request: Request,
     response: Response,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     request_params: RequestParams = Depends(
         params.parse_react_admin_params(User),
     ),
@@ -41,7 +43,7 @@ async def read_users(
     """
     Retrieve users.
     """
-    users = await crud.user.get_multi(response, db, request_params)
+    users = await crud.user.get_multi(db, request_params)
     return users
 
 
@@ -52,7 +54,7 @@ async def read_users(
 )
 async def create_user(
     *,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     user_in: schemas.UserCreate,
 ) -> Any:
     """
@@ -76,7 +78,7 @@ async def create_user(
 )
 async def update_user_me(
     user_in: schemas.UserUpdateMe,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
@@ -94,7 +96,7 @@ async def update_user_me(
     ],
 )
 async def read_user_me(
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """
@@ -111,7 +113,7 @@ async def read_user_me(
 )
 async def read_user_by_id(
     id: int,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
 ) -> Any:
     """
     Get a specific user.
@@ -130,7 +132,7 @@ async def read_user_by_id(
 async def update_user(
     *,
     id: int,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     user_in: schemas.UserUpdate,
 ) -> Any:
     """
@@ -151,7 +153,7 @@ async def update_user(
 async def delete_user(
     *,
     id: int,
-    db: AsyncSession = Depends(auth_service.api.deps.db.get_db),
+    db: AsyncSession = Depends(get_session),
     current_user: models.User = Depends(auth.get_active_current_user),
 ) -> Any:
     """

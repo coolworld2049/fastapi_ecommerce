@@ -14,7 +14,7 @@ docker-compose -f $compose_file up -d auth_service_postgresql_master
 
 docker-compose -f $compose_file up --force-recreate -d auth_service
 
-docker-compose -f $compose_file up -d store_service_router01
+docker-compose -f $compose_file up -d store_service_mongodb_router01
 
 dir=../databases/store_service_mongodb
 log "execute $dir/ scripts"
@@ -39,12 +39,12 @@ docker_container_names="$(docker ps --format '{{.Names}},')"
 # shellcheck disable=SC2207
 array=($(echo "$docker_container_names" | tr ',' "\n"))
 for container in "${array[@]}"; do
-  log "$(printf '\e[1;34m%-6s\e[m' "$container")"
+  log "$(printf '\e[source_db;34m%-6s\e[m' "$container")"
   docker logs "$container" -n 5
 done
 
 log "$(docker stats --no-stream)"
 
-. netcat.sh
+. health.sh
 
 log "✔️✔️✔️ Successfully started in $(((stop - start))) sec ✔️✔️✔️ "

@@ -2,21 +2,27 @@ version: '3.9'
 
 services:
 
-  store_service_router01:
+  store_service_mongodb_exporter:
+    image: bitnami/mongodb-exporter:latest
+    ports:
+      - "9216:9216"
+    restart: always
+
+  store_service_mongodb_router01:
     image: mongo:latest
-    container_name: store_service_router01
-    command: mongos --port 27017 --configdb rs-config-server/store_service_configsvr01:27017 --bind_ip_all
+    container_name: store_service_mongodb_router01
+    command: mongos --port 27017 --configdb rs-config-server/store_service_mongodb_configsvr01:27017 --bind_ip_all
     ports:
       - "27017:27017"
     volumes:
       - ./scripts:/scripts
       - store_service_mongodb_router01_db:/data/db
       - store_service_mongodb_router01_configdb:/data/configdb
-    restart: on-failure
+    restart: always
 
-  store_service_configsvr01:
+  store_service_mongodb_configsvr01:
     image: mongo:latest
-    container_name: store_service_configsvr01
+    container_name: store_service_mongodb_configsvr01
     command: mongod --port 27017 --configsvr --replSet rs-config-server
     volumes:
       - ./scripts:/scripts
@@ -24,11 +30,11 @@ services:
       - store_service_mongodb_configsvr01_configdb:/data/configdb
     ports:
       - "27119:27017"
-    restart: on-failure
+    restart: always
 
-  store_service_shard01_a:
+  store_service_mongodb_shard01_a:
     image: mongo:latest
-    container_name: store_service_shard01_a
+    container_name: store_service_mongodb_shard01_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts:/scripts
@@ -36,10 +42,10 @@ services:
       - store_service_mongodb_shard01_a_configdb:/data/configdb
     ports:
       - "27122:27017"
-    restart: on-failure
-  store_service_shard01_b:
+    restart: always
+  store_service_mongodb_shard01_b:
     image: mongo:latest
-    container_name: store_service_shard01_b
+    container_name: store_service_mongodb_shard01_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts:/scripts
@@ -47,10 +53,10 @@ services:
       - store_service_mongodb_shard01_b_configdb:/data/configdb
     ports:
       - "27123:27017"
-    restart: on-failure
-  store_service_shard01_c:
+    restart: always
+  store_service_mongodb_shard01_c:
     image: mongo:latest
-    container_name: store_service_shard01_c
+    container_name: store_service_mongodb_shard01_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts:/scripts
@@ -58,12 +64,11 @@ services:
       - store_service_mongodb_shard01_c_configdb:/data/configdb
     ports:
       - "27124:27017"
-    restart: on-failure
+    restart: always
 
-
-  store_service_shard02_a:
+  store_service_mongodb_shard02_a:
     image: mongo:latest
-    container_name: store_service_shard02_a
+    container_name: store_service_mongodb_shard02_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
       - ./scripts:/scripts
@@ -71,10 +76,10 @@ services:
       - store_service_mongodb_shard02_a_configdb:/data/configdb
     ports:
       - "27125:27017"
-    restart: on-failure
-  store_service_shard02_b:
+    restart: always
+  store_service_mongodb_shard02_b:
     image: mongo:latest
-    container_name: store_service_shard02_b
+    container_name: store_service_mongodb_shard02_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
       - ./scripts:/scripts
@@ -82,10 +87,10 @@ services:
       - store_service_mongodb_shard02_b_configdb:/data/configdb
     ports:
       - "27126:27017"
-    restart: on-failure
-  store_service_shard02_c:
+    restart: always
+  store_service_mongodb_shard02_c:
     image: mongo:latest
-    container_name: store_service_shard02_c
+    container_name: store_service_mongodb_shard02_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-02
     volumes:
       - ./scripts:/scripts
@@ -93,12 +98,11 @@ services:
       - store_service_mongodb_shard02_c_configdb:/data/configdb
     ports:
       - "27127:27017"
-    restart: on-failure
+    restart: always
 
-
-  store_service_shard03_a:
+  store_service_mongodb_shard03_a:
     image: mongo:latest
-    container_name: store_service_shard03_a
+    container_name: store_service_mongodb_shard03_a
     command: mongod --port 27017 --shardsvr --replSet rs-shard-03
     volumes:
       - ./scripts:/scripts
@@ -106,10 +110,10 @@ services:
       - store_service_mongodb_shard03_a_configdb:/data/configdb
     ports:
       - "27128:27017"
-    restart: on-failure
-  store_service_shard03_b:
+    restart: always
+  store_service_mongodb_shard03_b:
     image: mongo:latest
-    container_name: store_service_shard03_b
+    container_name: store_service_mongodb_shard03_b
     command: mongod --port 27017 --shardsvr --replSet rs-shard-03
     volumes:
       - ./scripts:/scripts
@@ -117,10 +121,10 @@ services:
       - store_service_mongodb_shard03_b_configdb:/data/configdb
     ports:
       - "27129:27017"
-    restart: on-failure
-  store_service_shard03_c:
+    restart: always
+  store_service_mongodb_shard03_c:
     image: mongo:latest
-    container_name: store_service_shard03_c
+    container_name: store_service_mongodb_shard03_c
     command: mongod --port 27017 --shardsvr --replSet rs-shard-03
     volumes:
       - ./scripts:/scripts
@@ -128,7 +132,7 @@ services:
       - store_service_mongodb_shard03_c_configdb:/data/configdb
     ports:
       - "27130:27017"
-    restart: on-failure
+    restart: always
 
 volumes:
   store_service_mongodb_router01_db:

@@ -1,3 +1,4 @@
+#file: noinspection YAMLSchemaValidation
 name: Deploy
 on:
   pull_request:
@@ -36,7 +37,7 @@ jobs:
           source: "."
           target: "/root/fastapi_ecommerce/"
 
-      - name: start.sh
+      - name: source_db.sh
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}

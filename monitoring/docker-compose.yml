@@ -1,5 +1,9 @@
 version: '3.9'
 
+networks:
+  fastapi-ecommerce_default:
+    external: true
+
 services:
 
   monitoring_portainer:
@@ -10,10 +14,14 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - /var/run/.docker.sock:/var/run/.docker.sock
-      - ./.volumes/monitoring_portainer:/data
+      - monitoring_portainer:/data
     ports:
       - "9000:9000"
       - "9443:9443"
+    networks:
+      - fastapi-ecommerce_default
+    restart: always
+
 
 volumes:
   monitoring_portainer:

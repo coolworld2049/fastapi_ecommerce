@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 from typing import Optional
 
 from loguru import logger
@@ -77,6 +78,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if not db_obj.verification_token == token:
             return None
         db_obj.is_verified = True
+        db_obj.verified_at = datetime.now()
         db_obj = await super().update(
             db, db_obj=db_obj, obj_in=UserUpdate(**db_obj.__dict__)
         )
