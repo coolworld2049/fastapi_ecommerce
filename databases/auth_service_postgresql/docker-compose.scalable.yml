@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+
+  auth_service_postgresql_master:
+    image: bitnami/postgresql:latest
+    user: root
+    ports:
+      - "5432"
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repluser
+      - POSTGRESQL_REPLICATION_PASSWORD=replpassword
+    env_file:
+      - .env
+    volumes:
+      - ./custom_conf:/bitnami/postgresql/custom_conf
+      - ./scripts:/bitnami/postgresql/scripts
+      - ./scripts/initdb:/docker-entrypoint-initdb.d
+      - auth_service_postgresql_master:/bitnami/postgresql
+      - ./.volumes/auth_service_postgresql_master/backup:/mnt/server/archive/backup
+    restart: always
+
+  auth_service_pgbouncer_master:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - "6432"
+    environment:
+      - POSTGRESQL_HOST=auth_service_postgresql_master
+    env_file:
+      - .env
+    restart: always
+
+  auth_service_postgresql_replica:
+    image: bitnami/postgresql:latest
+    user: root
+    ports:
+      - "5432"
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repluser
+      - POSTGRESQL_REPLICATION_PASSWORD=replpassword
+      - POSTGRESQL_MASTER_HOST=auth_service_postgresql_master
+    volumes:
+      - ./custom_conf:/bitnami/postgresql/custom_conf
+      - ./scripts:/bitnami/postgresql/scripts
+      - ./scripts/initdb:/docker-entrypoint-initdb.d
+    env_file:
+      - .env
+    restart: always
+
+  auth_service_pgbouncer_replica:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - "6432"
+    environment:
+      - POSTGRESQL_HOST=auth_service_postgresql_replica
+    env_file:
+      - .env
+    restart: always
+
+volumes:
+  auth_service_postgresql_master:
+    labels:
+      keep:

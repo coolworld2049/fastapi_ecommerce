@@ -2,34 +2,46 @@
 
 set -euo pipefail
 
-start=$SECONDS
-pushed_images=()
-
 log() { printf '\n%s\n' "$1" >&2; }
 
-source ../.env
+function login() {
+  echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
+}
 
-echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
+function build_push() {
+  # $1 - microservice dir
+  log "Building: ${image}"
+  docker build -t "${image}" "$SRC_PATH"/"$1"
 
+  log "Pushing: ${image}"
+  docker push "${image}"
+}
 
-for dir in ../src/*; do
-  if [[ -f "$dir/Dockerfile" ]]; then
-    dir_name="$(basename "${dir}")"
-    image="${DOCKER_USER}"/"$dir_name":${APP_VERSION:-latest}
-    log "Building: ${image}"
-    docker build -t "${image}" ../src/"$dir"
-    log "Pushing: ${image}"
-    docker push "${image}"
-    declare info
-    if [ $? -eq 0 ]; then
-      info="✅ $image"
-    else
-      info="❌ $image"
+function main() {
+  start=$SECONDS
+  SRC_PATH=../src
+
+  source ../.env
+
+  login
+
+  for dir in "$SRC_PATH"/*; do
+    if [ -f "$dir/Dockerfile" ]; then
+      image="${DOCKER_USER}"/"$(basename "${dir}")":${APP_VERSION:-latest}
+      build_push "$dir"
+      declare info
+      if [ $? -eq 0 ]; then
+        info="✅ $image"
+      else
+        info="❌ $image"
+      fi
+      log "$info"
     fi
-    pushed_images+=("$info")
-  fi
-done
+  done
 
-log "$(printf '%s\n' "${pushed_images[@]}")"
+  stop=$((SECONDS - start))
 
-log "✔️✔️✔️ Successfully built and pushed all images in $(((SECONDS - start))) sec ✔️✔️✔️ "
+  log "✔️ Successfully built and pushed all images in $stop sec "
+}
+
+main

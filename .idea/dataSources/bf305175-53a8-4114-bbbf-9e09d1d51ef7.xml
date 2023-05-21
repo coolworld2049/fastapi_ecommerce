@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="store_service_router01">
   <database-model serializer="dbm" dbms="MONGO" family-id="MONGO" format-version="4.48">
-    <root id="1">
-      <ServerVersion>6.0.5</ServerVersion>
-    </root>
+    <root id="1"/>
     <schema id="2" parent="1" name="app">
       <Current>1</Current>
     </schema>

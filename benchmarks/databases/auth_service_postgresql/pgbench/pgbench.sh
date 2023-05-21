@@ -32,7 +32,7 @@ function log_options() {
 function main() {
   log() { printf '\n%s\n' "$1" >&2; }
 
-  LOG_DIR=./.logs/"$(date '+%d-%m-%Y')"_"$(date +%s)"
+  LOG_DIR=./.logs/"$(date +%s)"_"$(date '+%d-%m-%Y')"
 
   [ -d "$LOG_DIR" ] || mkdir -p "$LOG_DIR"
 
@@ -61,7 +61,7 @@ function main() {
   pgbench_init
 
   counter=1
-  for i in $(seq 1000 1000 4000); do
+  for i in $(seq 1000 1000 5000); do
     for action in WRITE READ; do
       clients=$((i / 10))
       transactions=$((clients * 10))

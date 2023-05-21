@@ -10,6 +10,10 @@ function rm_dist() {
 
 source ../.env
 
+msg='env PYPI_USERNAME and PYPI_PASSWORD required'
+PYPI_USERNAME=${PYPI_USERNAME? $msg}
+PYPI_PASSWORD=${PYPI_PASSWORD? $msg}
+
 cd fastapi_ecommerce_ext
 
 rm_dist

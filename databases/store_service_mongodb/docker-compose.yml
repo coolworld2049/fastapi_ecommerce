@@ -2,12 +2,6 @@ version: '3.9'
 
 services:
 
-  store_service_mongodb_exporter:
-    image: bitnami/mongodb-exporter:latest
-    ports:
-      - "9216:9216"
-    restart: always
-
   store_service_mongodb_router01:
     image: mongo:latest
     container_name: store_service_mongodb_router01

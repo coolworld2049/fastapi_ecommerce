@@ -10,27 +10,5 @@
     <schema id="5" parent="1" name="app">
       <Current>1</Current>
     </schema>
-    <table id="6" parent="5" name="Category"/>
-    <table id="7" parent="5" name="Product"/>
-    <column id="8" parent="6" name="_id">
-      <DasType>ObjectId|12s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="9" parent="6" name="created_at">
-      <DasType>ISODate|91s</DasType>
-      <Position>2</Position>
-    </column>
-    <column id="10" parent="6" name="description">
-      <DasType>String|12s</DasType>
-      <Position>3</Position>
-    </column>
-    <column id="11" parent="6" name="name">
-      <DasType>String|12s</DasType>
-      <Position>4</Position>
-    </column>
-    <column id="12" parent="6" name="updated_at">
-      <DasType>ISODate|91s</DasType>
-      <Position>5</Position>
-    </column>
   </database-model>
 </dataSource>

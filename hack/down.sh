@@ -4,8 +4,11 @@ set +e
 
 log() { printf '\n%s\n' "$1" >&2; }
 
-compose_file=../fastapi-ecommerce/docker-compose.yml
+source ../.env
 
-docker-compose -f $compose_file down --rmi local --remove-orphans
+project_name=${PROJECT_NAME?env PROJECT_NAME required}
+compose_file=../deployement/compose/docker-compose.yml
 
-log "✔️✔️✔️ Successfully down all containers ✔️✔️✔️ "
+docker-compose -p "$project_name" -f "$compose_file" down --rmi local --remove-orphans
+
+log "✔️ Successfully down all containers "

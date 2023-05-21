@@ -17,10 +17,15 @@ function cpenv() {
   fi
 }
 
-for dir in ../databases/*; do
-  cpenv "$dir"
-done
+function main() {
+  for dir in ../databases/*; do
+    cpenv "$dir"
+  done
 
-for dir in ../src/*; do
-  cpenv "$dir"
-done
+  for dir in ../src/*; do
+    cpenv "$dir"
+  done
+
+}
+
+main

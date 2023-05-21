@@ -18,8 +18,8 @@ services:
     ports:
       - "9000:9000"
       - "9443:9443"
-    networks:
-      - fastapi-ecommerce_default
+#    networks:
+#      - fastapi-ecommerce_default
     restart: always
 
 

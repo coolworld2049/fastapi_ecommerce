@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-log_blue() { printf '\n\e[source_db;34m%-6s\e[m\n' "$1" >&2; }
+log_blue() { printf '\e[1;34m%-6s\e[m' "$1" >&2; }
 
 until
   log_blue "init-configserver"
@@ -15,6 +15,8 @@ until
   docker exec store_service_mongodb_shard03_a sh -c "mongosh < /scripts/init-shard03.js"
   log_blue "init-router"
   docker exec store_service_mongodb_router01 sh -c "mongosh < /scripts/init-router.js"
+  log_blue "init-router-sharding"
+  docker exec store_service_mongodb_router01 sh -c "mongosh < /scripts/init-router-sharding.js"
 do
   log_blue "sleep 5 sec and try again"
   sleep 5

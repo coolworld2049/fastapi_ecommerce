@@ -52,15 +52,15 @@ class LoguruLoggingMiddleware:
         return request
 
     @staticmethod
-    async def log_after_response(request: Request, response: Response | StreamingResponse):
+    async def log_after_response(
+        request: Request, response: Response | StreamingResponse
+    ):
         msg = "response to prev request: "
         if isinstance(response, StreamingResponse):
             response_body = [
                 section async for section in response.body_iterator
             ]
-            response.body_iterator = iterate_in_threadpool(
-                iter(response_body)
-            )
+            response.body_iterator = iterate_in_threadpool(iter(response_body))
             msg += f"{response_body[0].decode()}"
         elif isinstance(response, Response):
             msg += f"{json.loads(response.body)}"

@@ -55,9 +55,11 @@ async def create_roles(db: AsyncSession):
     for r in UserRoleEnum:
         q = select(UserRole).where(UserRole.name == r.name)
         res = await db.execute(q)
-        if not res.fetchone():
+        res = res.fetchone()
+        if not res:
             db_obj = UserRole(name=r.name)  # noqa
             db.add(db_obj)
+    await db.commit()
 
 
 async def create_first_superuser(db: AsyncSession):

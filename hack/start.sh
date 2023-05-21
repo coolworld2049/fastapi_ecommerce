@@ -2,49 +2,61 @@
 
 set -euo pipefail
 
-start=$SECONDS
-
 log() { printf '\n%s\n' "$1" >&2; }
 
-compose_file=../fastapi-ecommerce/docker-compose.yml
+function auth_service() {
+  docker-compose -p "$project_name" -f "$compose_file" up -d auth_service_postgresql_master
+  docker-compose -p "$project_name" -f "$compose_file" up --force-recreate -d auth_service
+}
 
-source ../.env
+function store_service() {
+  docker-compose -p "$project_name" -f "$compose_file" up -d store_service_mongodb_router01
+  dir=../databases/store_service_mongodb
+  log "execute $dir/ scripts"
+  bash $dir/init.sh
+  docker-compose -p "$project_name" -f "$compose_file" up --force-recreate -d store_service
+}
 
-docker-compose -f $compose_file up -d auth_service_postgresql_master
+function proxy_service() {
+  dir=../src/proxy_service/
+  log "execute $dir/ scripts"
+  bash $dir/init.sh
+  docker-compose -p "$project_name" -f "$compose_file" up -d proxy_service
+}
 
-docker-compose -f $compose_file up --force-recreate -d auth_service
+function containers_logs() {
+  docker_container_names="$(docker ps --format '{{.Names}},')"
+  # shellcheck disable=SC2207
+  array=($(echo "$docker_container_names" | tr ',' "\n"))
+  for container in "${array[@]}"; do
+    log "$(printf '\e[1;34m%-6s\e[m' "$container")"
+    docker logs "$container" -n 5
+  done
+}
 
-docker-compose -f $compose_file up -d store_service_mongodb_router01
+function info() {
+  docker volume prune -f --filter "label!=keep"
+  log "$(docker ps)"
+  log "$(docker stats --no-stream)"
+}
 
-dir=../databases/store_service_mongodb
-log "execute $dir/ scripts"
-bash $dir/init.sh
-bash $dir/shard.sh
+function main() {
+  source ../.env
 
-docker-compose -f $compose_file up --force-recreate -d store_service
+  project_name=${PROJECT_NAME?env PROJECT_NAME required}
+  compose_file=../deployement/compose/docker-compose.yml
 
-dir=../src/proxy_service/
-log "execute $dir/ scripts"
-bash $dir/init.sh
+  start=$SECONDS
+  auth_service
+  store_service
+  proxy_service
+  containers_logs
+  stop=$SECONDS
 
-docker-compose -f $compose_file up -d proxy_service
+  info
+  bash health.sh
 
-docker volume prune -f --filter "label!=keep"
+  log "✔️ Successfully started in $((stop - start)) sec "
+}
 
-stop=$SECONDS
-
-log "$(docker ps)"
-
-docker_container_names="$(docker ps --format '{{.Names}},')"
-# shellcheck disable=SC2207
-array=($(echo "$docker_container_names" | tr ',' "\n"))
-for container in "${array[@]}"; do
-  log "$(printf '\e[source_db;34m%-6s\e[m' "$container")"
-  docker logs "$container" -n 5
-done
-
-log "$(docker stats --no-stream)"
-
-. health.sh
-
-log "✔️✔️✔️ Successfully started in $(((stop - start))) sec ✔️✔️✔️ "
+main

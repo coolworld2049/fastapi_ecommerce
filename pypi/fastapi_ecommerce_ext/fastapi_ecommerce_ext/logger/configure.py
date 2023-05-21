@@ -19,9 +19,7 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def configure_logging(
-    logging_level: int, access_log_path: str
-) -> None:
+def configure_logging(logging_level: int, access_log_path: str) -> None:
     loggers = [
         logging.getLogger(name)
         for name in logging.root.manager.loggerDict

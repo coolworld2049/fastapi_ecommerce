@@ -49,7 +49,16 @@ class AppSettings(BaseAppSettings):
     POSTGRESQL_USERNAME: str
     POSTGRESQL_PASSWORD: str
 
-    SQLALCHEMY_POOL_SIZE: Optional[int] | None = None
+    SQLALCHEMY_POOL_SIZE: int = (
+        os.getenv("SQLALCHEMY_POOL_SIZE")
+        if os.getenv("SQLALCHEMY_POOL_SIZE")
+        else 100
+    )
+    SQLALCHEMY_MAX_OVERFLOW: int = (
+        int(SQLALCHEMY_POOL_SIZE * 0.2)
+        if os.getenv("SQLALCHEMY_MAX_OVERFLOW")
+        else 20
+    )
     SQLALCHEMY_PROFILE_QUERY_MODE: Optional[bool] = False
 
     LOGGING_LEVEL: int = logging.INFO

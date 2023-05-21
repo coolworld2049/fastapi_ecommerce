@@ -6,7 +6,7 @@ try:
     from pip._internal.req import parse_requirements  # noqa
 except ImportError:
     try:
-        # 10.0.0 <= pip <= 19.3.source_db
+        # 10.0.0 <= pip <= 19.3
         from pip._internal.download import PipSession  # noqa
         from pip._internal.req import parse_requirements  # noqa
     except ImportError:
