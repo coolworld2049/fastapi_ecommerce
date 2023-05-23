@@ -44,7 +44,7 @@ function main() {
   source ../.env
 
   project_name=${PROJECT_NAME?env PROJECT_NAME required}
-  compose_file=../deployement/compose/docker-compose.yml
+  compose_file=../deployment/compose/docker-compose.yml
 
   start=$SECONDS
   auth_service

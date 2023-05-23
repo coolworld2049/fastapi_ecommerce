@@ -7,7 +7,7 @@ log() { printf '\n%s\n' "$1" >&2; }
 source ../.env
 
 project_name=${PROJECT_NAME?env PROJECT_NAME required}
-compose_file=../deployement/compose/docker-compose.yml
+compose_file=../deployment/compose/docker-compose.yml
 
 docker-compose -p "$project_name" -f "$compose_file" down --rmi local --remove-orphans
 

@@ -48,7 +48,6 @@ services:
       - ./custom_conf:/bitnami/postgresql/custom_conf
       - ./scripts:/bitnami/postgresql/scripts
       - ./scripts/initdb:/docker-entrypoint-initdb.d
-      - auth_service_postgresql_replica_01:/bitnami/postgresql
     env_file:
       - .env
     restart: always
@@ -81,7 +80,6 @@ services:
       - ./custom_conf:/bitnami/postgresql/custom_conf
       - ./scripts:/bitnami/postgresql/scripts
       - ./scripts/initdb:/docker-entrypoint-initdb.d
-      - auth_service_postgresql_replica_02:/bitnami/postgresql
     restart: always
 
   auth_service_pgbouncer_replica_02:
@@ -99,9 +97,4 @@ volumes:
   auth_service_postgresql_master:
     labels:
       keep:
-  auth_service_postgresql_replica_01:
-    labels:
-      keep:
-  auth_service_postgresql_replica_02:
-    labels:
-      keep:
+    driver: local
