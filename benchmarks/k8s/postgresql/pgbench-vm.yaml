@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app-deployment
+  namespace: fastapi-ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-app
+  template:
+    metadata:
+      labels:
+        app: python-app
+    spec:
+      containers:
+        - name: python-app-container
+          image: python:3.11
+          command: ["/bin/bash"]
+          args:
+            - "-c"
+            - |
+              apt-get update && \
+              apt-get install -y postgresql-contrib && \
+              bash /scripts/pgbench.sh && \
+              sleep infinity
+          ports:
+            - containerPort: 8000  # Adjust the port according to your service
+          volumeMounts:
+            - name: pgbench-script
+              mountPath: /scripts/pgbench.sh
+              subPath: pgbench.sh
+      volumes:
+        - name: pgbench-script
+          configMap:
+            name: pgbench-config

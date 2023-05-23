@@ -193,7 +193,7 @@ audit:
   pgAuditLogCatalog: "off"
   clientMinMessages: error
   logLinePrefix: ""
-  logTimezone: ""
+  logTimezone: "Europe/Moscow"
 ## LDAP configuration
 ## @param ldap.enabled Enable LDAP support
 ## DEPRECATED ldap.url It will removed in a future, please use 'ldap.uri' instead
@@ -310,11 +310,11 @@ primary:
   ## @param primary.extendedConfiguration Extended PostgreSQL Primary configuration (appended to main or default configuration)
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
   ##
-  extendedConfiguration: "postgresql-primary-configmap"
+  extendedConfiguration: ""
   ## @param primary.existingExtendedConfigmap Name of an existing ConfigMap with PostgreSQL Primary extended configuration
   ## NOTE: `primary.extendedConfiguration` will be ignored
   ##
-  existingExtendedConfigmap: "postgresql-primary-configmap"
+  existingExtendedConfigmap: "postgresql-configmap"
   ## Initdb configuration
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#specifying-initdb-arguments
   ##
@@ -377,7 +377,7 @@ primary:
   command: []
   ## @param primary.args Override default container args (useful when using custom images)
   ##
-  args: []
+  args: [] # "sh","-c","cp -L /bitnami/postgresql/conf/conf.d/extended.conf /opt/bitnami/postgresql/conf/conf.d/ && /opt/bitnami/scripts/postgresql/run.sh"
   ## Configure extra options for PostgreSQL Primary containers' liveness, readiness and startup probes
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
   ## @param primary.livenessProbe.enabled Enable livenessProbe on PostgreSQL Primary containers
@@ -443,8 +443,8 @@ primary:
   resources:
     limits: {}
     requests:
-      memory: 256Mi
-      cpu: 250m
+      memory: 4096Mi
+      cpu: 2m
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param primary.podSecurityContext.enabled Enable security context
@@ -666,7 +666,7 @@ primary:
       - ReadWriteOnce
     ## @param primary.persistence.size PVC Storage Request for PostgreSQL volume
     ##
-    size: 8Gi
+    size: 10Gi
     ## @param primary.persistence.annotations Annotations for the PVC
     ##
     annotations: {}
@@ -691,11 +691,12 @@ readReplicas:
   name: slave
   ## @param readReplicas.replicaCount Number of PostgreSQL read only replicas
   ##
-  replicaCount: 3
+  replicaCount: 2
   ## @param readReplicas.extendedConfiguration Extended PostgreSQL read only replicas configuration (appended to main or default configuration)
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
   ##
-  extendedConfiguration: ""
+  extendedConfiguration: |-
+    max_connections = 9999
   ## @param readReplicas.extraEnvVars Array with extra environment variables to add to PostgreSQL read only nodes
   ## e.g:
   ## extraEnvVars:
@@ -780,8 +781,8 @@ readReplicas:
   resources:
     limits: {}
     requests:
-      memory: 256Mi
-      cpu: 250m
+      memory: 1024Mi
+      cpu: 500m
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param readReplicas.podSecurityContext.enabled Enable security context
@@ -1003,7 +1004,7 @@ readReplicas:
       - ReadWriteOnce
     ## @param readReplicas.persistence.size PVC Storage Request for PostgreSQL volume
     ##
-    size: 8Gi
+    size: 10Gi
     ## @param readReplicas.persistence.annotations Annotations for the PVC
     ##
     annotations: {}
