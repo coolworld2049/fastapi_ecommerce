@@ -18,8 +18,8 @@ wait_seconds = 1
 @retry(
     stop=stop_after_attempt(max_tries),
     wait=wait_fixed(wait_seconds),
-    before=before_log(logger, logging.ERROR),
-    after=after_log(logger, logging.WARNING),
+    before=before_log(logger, logging.INFO),
+    after=after_log(logger, logging.INFO),
 )
 async def init() -> None:
     eng = async_engines.get_master()

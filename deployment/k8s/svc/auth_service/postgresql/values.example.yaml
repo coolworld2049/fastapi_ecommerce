@@ -169,7 +169,7 @@ replication:
   numSynchronousReplicas: 2
   ## @param replication.applicationName Cluster application name. Useful for advanced replication settings
   ##
-  applicationName: auth-svc-pg
+  applicationName: auth-service-postgresql
 ## @param containerPorts.postgresql PostgreSQL container port
 ##
 containerPorts:

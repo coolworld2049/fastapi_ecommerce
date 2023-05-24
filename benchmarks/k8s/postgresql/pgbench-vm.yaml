@@ -22,8 +22,7 @@ spec:
             - |
               apt-get update && \
               apt-get install -y postgresql-contrib && \
-              bash /scripts/pgbench.sh && \
-              sleep infinity
+              python -m http.server 8000
           ports:
             - containerPort: 8000  # Adjust the port according to your service
           volumeMounts:

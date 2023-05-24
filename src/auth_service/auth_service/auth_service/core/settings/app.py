@@ -2,7 +2,6 @@ import logging
 import os
 import pathlib
 from typing import Any, Optional
-from urllib.parse import urlparse
 
 from pydantic import validator
 from pydantic.networks import PostgresDsn
@@ -123,16 +122,13 @@ class AppSettings(BaseAppSettings):
         path_arr = path.replace(" ", "").split(",")
         assert len(path_arr) > 0
         separated_str = [x.split(":") for x in path_arr if ":" in x]
-        assert len(separated_str) > 0 and len(separated_str) == len(path_arr)
+        assert len(separated_str) > 0
         return separated_str
 
     @property
     def postgres_replica(self) -> list[str]:
         dsn_list = []
-        path = urlparse(
-            self.POSTGRESQL_REPLICA_HOSTS, allow_fragments=True
-        ).path
-        for repl in self.split_netloc(path):
+        for repl in self.split_netloc(self.POSTGRESQL_REPLICA_HOSTS):
             dsn = PostgresDsn.build(
                 scheme="postgresql",
                 user=self.POSTGRESQL_USERNAME,
@@ -146,11 +142,11 @@ class AppSettings(BaseAppSettings):
 
     @property
     def postgres_asyncpg_master(self) -> str:
-        return self.postgres_master.replace("postgresql", "postgresql+asyncpg")
+        return self.postgres_master.replace("://", "+asyncpg://")
 
     @property
     def postgres_asyncpg_replicas(self):
         return [
-            x.replace("postgresql", "postgresql+asyncpg")
+            x.replace("://", "+asyncpg://")
             for x in self.postgres_replica
         ]

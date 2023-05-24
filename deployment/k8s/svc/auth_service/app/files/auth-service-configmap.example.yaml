@@ -1,0 +1,31 @@
+apiVersion: v1
+data:
+  APP_NAME: "auth-service"
+  APP_HOST: "localhost"
+  APP_PORT: "8001"
+  APP_VERSION: "latest"
+  STAGE: "test"
+  APP_MODULE: "auth_service.main:app"
+  APP_BACKEND_CORS_ORIGINS: '["*"]'
+  JWT_ALGORITHM: "HS256"
+  JWT_SECRET_KEY: "supersecret"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+  FIRST_SUPERUSER_EMAIL: "fastapi.ecommerce@gmail.com"
+  FIRST_SUPERUSER_PASSWORD: "AdminTestPass000?"
+  SMTP_HOST: "smtp.gmail.com"
+  SMTP_PORT: "587"
+  SMTP_USERNAME: "fastapi.ecommerce@gmail.com"
+  SMTP_PASSWORD: ""
+  SMTP_FROM: "fastapi.ecommerce@gmail.com"
+  POSTGRESQL_MASTER_HOST: "auth-service-postgresql-primary"
+  POSTGRESQL_MASTER_PORT: "5432"
+  POSTGRESQL_REPLICA_HOSTS: "auth-service-postgresql-slave:5433"
+  POSTGRESQL_USERNAME: "postgres"
+  POSTGRESQL_PASSWORD: "postgres"
+  POSTGRESQL_DATABASE: "app"
+  SQLALCHEMY_PROFILE_QUERY_MODE: "False"
+  SQLALCHEMY_POOL_SIZE: "1000"
+kind: ConfigMap
+metadata:
+  name: auth-service-configmap
+  namespace: fastapi-ecommerce
