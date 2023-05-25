@@ -20,8 +20,8 @@ spec:
           args:
             - "-c"
             - |
-              apt-get update && \
-              apt-get install -y postgresql-contrib nano && \
+              apt update && \
+              apt install -y postgresql-contrib nano && \
               python -m http.server 8000
           ports:
             - containerPort: 8000  # Adjust the port according to your service

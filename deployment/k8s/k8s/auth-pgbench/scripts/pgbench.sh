@@ -28,6 +28,9 @@ show_help() {
   echo "  --tpcb     Run TPC_B test"
   echo "  --select   Run select_only test"
   echo "  --help     Show help information"
+  echo "Examples:"
+  echo "  bash pgbench.sh --host auth-postgresql-slave --port 5433 --select"
+  echo "  bash pgbench.sh --host auth-postgresql-primary --port 5432 --tpcb"
 }
 
 # Parse command line arguments
@@ -74,27 +77,31 @@ function init() {
   pgbench -i -s "$SCALE" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
 }
 
+function result_msg() {
+  echo -e "${GREEN}test_type=$TEST, clients=$1, transactions=$2${NC}"
+}
+
 function TPC_B() {
+  result_msg "$1" "$2"
   pgbench -j "$THREADS" -c "$1" -t "$2" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
 }
 
 function select_only() {
+  result_msg "$1" "$2"
   pgbench -b select-only -j "$THREADS" -c "$1" -t "$2" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
 }
 
 init
 for i in $(seq 100 100 "$CLIENTS"); do
-  for j in $(seq 500 500 "$TX"); do
-    # Run the selected test
-    echo -e "${GREEN}test_type=$TEST, client=$i, transactions=$j${NC}"
-    if [ "$TEST" == "TPC_B" ]; then
-      TPC_B "$i" "$j"
-    elif [ "$TEST" == "select_only" ]; then
-      select_only "$(("$i" * 2))" "$(("$j" * 2))"
-    else
-      show_help
-    fi
-    printf "\n"
-  done
+  j="$(("$i" * 5))"
+  # Run the selected test
+  if [ "$TEST" == "TPC_B" ]; then
+    TPC_B "$i" "$j"
+  elif [ "$TEST" == "select_only" ]; then
+    select_only "$(("$i" * 2))" "$(("$j" * 2))"
+  else
+    break
+    show_help
+  fi
   printf "\n"
 done
