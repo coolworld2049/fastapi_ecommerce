@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 # Default values
-DOCKER_USERNAME=""
-DOCKER_PASSWORD=""
+USERNAME=""
+PASSWORD=""
 SRC_DIR="../src"
 MAX_VERSIONS=1 # Maximum number of versions to keep
+PYPI_UPLOAD=false
+DOCKER_BUILD=false
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/k8s
 
 # RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -44,12 +47,14 @@ log() {
 # Function to display usage instructions
 show_help() {
   echo "Usage: ./script.sh [OPTIONS]"
-  echo "Builds and pushes Docker images to Docker Hub for each folder in the source directory that contains a Dockerfile."
+  echo "Docker builds and pushes Docker images to Docker Hub for each folder in the source directory that contains a Dockerfile."
   echo
   echo "Options:"
-  echo "  -u, --username   Docker Hub username (required)"
-  echo "  -p, --password   Docker Hub password (required)"
+  echo "  -u, --username   Docker Hub or PyPI username (required)"
+  echo "  -p, --password   Docker Hub or PyPI password (required)"
   echo "  -d, --directory  Source directory path (default: ../src)"
+  echo "  --pypi           Upload package to PyPI"
+  echo "  --docker         Docker builds Docker images"
   echo "  -h, --help       Show help information"
 }
 
@@ -59,12 +64,12 @@ while [[ $# -gt 0 ]]; do
 
   case $key in
   -u | --username)
-    DOCKER_USERNAME="$2"
+    USERNAME="$2"
     shift # past argument
     shift # past value
     ;;
   -p | --password)
-    DOCKER_PASSWORD="$2"
+    PASSWORD="$2"
     shift # past argument
     shift # past value
     ;;
@@ -72,6 +77,14 @@ while [[ $# -gt 0 ]]; do
     SRC_DIR="$2"
     shift # past argument
     shift # past value
+    ;;
+  --pypi)
+    PYPI_UPLOAD=true
+    shift # past argument
+    ;;
+  --docker)
+    DOCKER_BUILD=true
+    shift # past argument
     ;;
   -h | --help)
     show_help
@@ -86,53 +99,58 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Check if required flags are provided
-if [[ -z "$DOCKER_USERNAME" || -z "$DOCKER_PASSWORD" ]]; then
+if [[ -z "$USERNAME" || -z "$PASSWORD" ]]; then
   echo "ERROR: Docker username and password are required."
   exit 1
+fi
+
+# Upload package to PyPI if --pypi flag is provided
+if [[ -d "$SRC_DIR"/core && "$PYPI_UPLOAD" == true ]]; then
+  path="$SRC_DIR"/core/fastapi_ecommerce_core
+  FILE_PATH="$path"/setup.py
+  CURRENT_VERSION=0.3.6
+  NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$NF++;print}')
+  sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$FILE_PATH"
+  sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$PWD"/artifact.sh
+  log "${GREEN}Version updated from $CURRENT_VERSION to $NEW_VERSION in $FILE_PATH ${NC}"
+  log "${GREEN}" "Uploading package to PyPI...${NC}"
+  # shellcheck disable=SC2164
+  cd "$SRC_DIR"/core
+  bash publish.sh "$USERNAME" "$PASSWORD"
+  # shellcheck disable=SC2164
+  cd "$SCRIPT_DIR"
 fi
 
 # Iterate through each folder in the source directory
 for folder in "$SRC_DIR"/*/; do
   # Check if the folder contains a Dockerfile
-  if [ -f "$folder/Dockerfile" ]; then
+  if [[ -f "$folder/Dockerfile" && "$DOCKER_BUILD" == true ]]; then
     # Extract the folder name
     folder_name=$(basename "$folder")
 
     # Login to Docker Hub
     log "${GREEN}" "Logging in to Docker Hub...${NC}"
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
 
-    # Build the Docker image
-    log "${GREEN}" "Building Docker image for $folder_name...${NC}"
+    # Docker build the Docker image
+    log "${GREEN}" "Docker building Docker image for $folder_name...${NC}"
     docker build -t "$folder_name" "$folder"
 
-    ## Set initial version if it doesn't exist
-    #latest_tag=$(curl -s "https://registry.hub.docker.com/v2/repositories/$DOCKER_USERNAME/$folder_name/tags/" |
-    #  grep -o '"name":"[^"]*' | grep -o '[^"]*$' | sort -V | tail -n1)
-    #log "${YELLOW}latest_tag=$latest_tag${NC}"
-    #if [ -z "$latest_tag" ]; then
-    #  current_version="1.0.0"
-    #else
-    #  current_version="$latest_tag"
-    #fi
-    #log "${YELLOW}current_version=$current_version${NC}"
-
     # Increment the Docker tag version
-    # next_version=$(increment_version "$current_version" 2)
     next_version=latest
     log "${YELLOW}next_version=$next_version${NC}"
 
     # Tag the Docker image with the Docker Hub repository and version
-    docker_tag="${DOCKER_USERNAME}/${folder_name}:${next_version}"
-    docker tag "$folder_name" "$docker_tag"
+    tag="${USERNAME}/${folder_name}:${next_version}"
+    docker tag "$folder_name" "$tag"
 
     # Push the Docker image to Docker Hub
     log "${GREEN}" "Pushing Docker image to Docker Hub...${NC}"
-    docker push "$docker_tag"
+    docker push "$tag"
 
     # Delete old versions of the Docker image
     log "${GREEN}" "Deleting old versions of the Docker image...${NC}"
-    docker images "${DOCKER_USERNAME}/${folder_name}" --format '{{.ID}} {{.Tag}}' |
+    docker images "${USERNAME}/${folder_name}" --format '{{.ID}} {{.Tag}}' |
       sort -rn | awk -v max_versions="$MAX_VERSIONS" 'NR > max_versions {print $1}' |
       xargs -r docker rmi -f
 

@@ -53,7 +53,6 @@ delete_auth_postgresql() {
 
 install_store_mongo() {
   log "${GREEN}Deploy store-mongo..."
-  kubectl apply -f "${SCRIPT_DIR}"/store-mongo/store-mongo-configmap.yaml -n "${NAMESPACE}"
   helm install "$MONGO_SERVICE_NAME" -f "${SCRIPT_DIR}/store-mongo/store-mongo-values.yaml" \
     oci://registry-1.docker.io/bitnamicharts/mongodb -n "${NAMESPACE}"
 }

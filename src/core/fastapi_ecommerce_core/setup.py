@@ -16,7 +16,7 @@ except ImportError:
         from pip.download import PipSession  # noqa
         from pip.req import parse_requirements  # noqa
 
-version = "0.3.5"
+version = "0.3.11"
 package_name = "fastapi_ecommerce_core"
 url = f"https://github.com/coolworld2049/fastapi-ecommerce/pypi/{package_name}"
 
