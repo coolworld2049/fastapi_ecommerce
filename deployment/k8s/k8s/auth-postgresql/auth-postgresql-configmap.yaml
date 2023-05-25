@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: auth-service-postgresql-configmap
+  name: auth-postgresql-configmap
 data:
   postgresql.conf: |-
     # hot_standby_feedback = on

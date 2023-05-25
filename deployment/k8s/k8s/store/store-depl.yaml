@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: store-depl
+  name: store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: store
+  template:
+    metadata:
+      labels:
+        app: store
+    spec:
+      containers:
+        - env:
+            - name: APP_BACKEND_CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_BACKEND_CORS_ORIGINS
+                  name: store-configmap
+            - name: APP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_HOST
+                  name: store-configmap
+            - name: APP_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_MODULE
+                  name: store-configmap
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_NAME
+                  name: store-configmap
+            - name: APP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_PORT
+                  name: store-configmap
+            - name: APP_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_VERSION
+                  name: store-configmap
+            - name: AUTH_SERVICE_LOGIN_PATH
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTH_SERVICE_LOGIN_PATH
+                  name: store-configmap
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTH_SERVICE_URL
+                  name: store-configmap
+            - name: FIRST_SUPERUSER_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  key: FIRST_SUPERUSER_EMAIL
+                  name: store-configmap
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: FIRST_SUPERUSER_PASSWORD
+                  name: store-configmap
+            - name: JWT_ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_ALGORITHM
+                  name: store-configmap
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_SECRET_KEY
+                  name: store-configmap
+            - name: MONGODB_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGODB_URL
+                  name: store-configmap
+            - name: STAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: STAGE
+                  name: store-configmap
+          image: coolworldocker/store_service:latest
+          imagePullPolicy: Always
+          name: store
+          ports:
+            - containerPort: 80
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: store
+spec:
+  selector:
+    app: store
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8082
+      targetPort: 80

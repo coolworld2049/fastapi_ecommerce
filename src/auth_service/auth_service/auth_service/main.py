@@ -3,8 +3,8 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
-from fastapi_ecommerce_ext.logger.configure import configure_logging
-from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
+from fastapi_ecommerce_core.logger.configure import configure_logging
+from fastapi_ecommerce_core.logger.middleware import LoguruLoggingMiddleware
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 

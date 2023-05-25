@@ -19,4 +19,4 @@ aiohttp
 loguru
 pre-commit
 pytest-cov
-fastapi_ecommerce_ext
+fastapi_ecommerce_core

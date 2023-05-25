@@ -2,6 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/deployment/k8s/svc/auth_service/app/helm/fastapi-helm-chart" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/FastAPI_EKS_Kubernetes" vcs="Git" />
   </component>
 </project>

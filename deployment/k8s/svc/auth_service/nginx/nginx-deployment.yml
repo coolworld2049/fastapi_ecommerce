@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service-nginx
+  namespace: fastapi-ecommerce
+  labels:
+    app: auth-service-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-service-nginx
+  template:
+    metadata:
+      labels:
+        app: auth-service-nginx
+    spec:
+      containers:
+        - image: nginx:latest
+          name: nginx
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              port: 80
+              path: /api/v1/docs
+            initialDelaySeconds: 15
+          livenessProbe:
+            httpGet:
+              port: 80
+              path: /api/v1/docs
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config

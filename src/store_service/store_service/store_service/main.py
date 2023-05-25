@@ -4,8 +4,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from store_service.api.api_v1.api import api_router
 from store_service.core.config import get_app_settings
-from fastapi_ecommerce_ext.logger.configure import configure_logging
-from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
+from fastapi_ecommerce_core.logger.configure import configure_logging
+from fastapi_ecommerce_core.logger.middleware import LoguruLoggingMiddleware
 
 from store_service.core.settings.base import StageType
 

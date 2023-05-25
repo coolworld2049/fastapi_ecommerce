@@ -4,17 +4,12 @@ set -euo pipefail
 
 function rm_dist() {
   set +e
-  rm -R dist fastapi_ecommerce_ext.egg-info
+  rm -R dist
+  rm -R fastapi_ecommerce_core.egg-info
   set -e
 }
 
-source ../.env
-
-msg='env PYPI_USERNAME and PYPI_PASSWORD required'
-PYPI_USERNAME=${PYPI_USERNAME? $msg}
-PYPI_PASSWORD=${PYPI_PASSWORD? $msg}
-
-cd fastapi_ecommerce_ext
+cd fastapi_ecommerce_core
 
 rm_dist
 
@@ -25,6 +20,9 @@ python -m pip list | grep twine
 if [ $? -eq 1 ]; then
   python -m pip install twine
 fi
+
+PYPI_USERNAME="$1"
+PYPI_PASSWORD="$2"
 
 python -m twine upload dist/* -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD"
 

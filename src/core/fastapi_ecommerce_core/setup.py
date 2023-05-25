@@ -1,3 +1,5 @@
+import os
+
 from setuptools import setup
 
 try:
@@ -14,18 +16,19 @@ except ImportError:
         from pip.download import PipSession  # noqa
         from pip.req import parse_requirements  # noqa
 
-version = "0.3.4"
-package_name = "fastapi_ecommerce_ext"
+version = "0.3.5"
+package_name = "fastapi_ecommerce_core"
 url = f"https://github.com/coolworld2049/fastapi-ecommerce/pypi/{package_name}"
+
 
 setup(
     name=package_name,
     version=version,
-    packages=["fastapi_ecommerce_ext.logger"],
+    packages=["fastapi_ecommerce_core.logger"],
     install_requires=["starlette", "loguru"],
     url=url,
     download_url=f"{url}-{version}.tar.gz",
     license="MIT",
     author="coolworld2049",
-    description="logging extension for fastapi-microservices",
+    description="",
 )

@@ -10,7 +10,6 @@ COPY store_service /app
 
 RUN chmod +x /app/prestart.sh && chmod +x /app/start.sh
 
-
 COPY prisma /app/prisma
 
 ENV PYTHONPATH=/app

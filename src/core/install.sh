@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-cd fastapi_ecommerce_ext
+cd fastapi_ecommerce_core
 
 python setup.py sdist
 

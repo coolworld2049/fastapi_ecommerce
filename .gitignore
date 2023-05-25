@@ -172,3 +172,4 @@ cython_debug/
 /.generated/
 !/databases/auth_service_postgresql/dumps/tmp/.s.PGSQL.5432.lock
 /monitoring/pmm_server/.volumes/
+!/deployment/k8s/k8s/values.yaml
