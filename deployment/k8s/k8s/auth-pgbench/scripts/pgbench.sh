@@ -2,20 +2,25 @@
 
 GREEN='\033[0;32m'
 NC='\033[0m'
+LOG_FILE=bench_results.log
 
 # Set the default PostgresSQL connection parameters
-DEFAULT_PGHOST="auth-postgresql-primary"
-DEFAULT_PGPORT="5432"
-PGUSER="postgres"
-PGDATABASE="app"
-POSTGRES_PASSWORD="postgres"
+DEFAULT_PGHOST=${DEFAULT_PGHOST:-"auth-postgresql-primary"}
+DEFAULT_PGPORT=${DEFAULT_PGPORT:-"5432"}
+PGUSER=${PGUSER:-"postgres"}
+PGDATABASE=${PGDATABASE:-"app"}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-"postgres"}
+export PGPASSWORD="$POSTGRES_PASSWORD"
 
 # Set the number of threads and duration for the test
 THREADS="$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')"
-THREADS="$(("$THREADS" / 2))"
 SCALE=${SCALE:-50}
-CLIENTS=${CLIENTS:-1000}
-TX=${TX:-5000} # in seconds
+CLIENTS=${CLIENTS:-300}
+TX_MUL=${TX_MUL:-5}
+START="${START:-50}"
+STEP="${STEP:-50}"
+REVERT=false
+FIXED_TRANSACTION_SIZE=""
 
 # Function to display usage instructions
 show_help() {
@@ -23,11 +28,13 @@ show_help() {
   echo "Run pgbench test with configurable PostgresSQL connection parameters."
   echo
   echo "Options:"
-  echo "  --host     PostgresSQL server hostname (default: $DEFAULT_PGHOST)"
-  echo "  --port     PostgresSQL server port (default: $DEFAULT_PGPORT)"
-  echo "  --tpcb     Run TPC_B test"
-  echo "  --select   Run select_only test"
-  echo "  --help     Show help information"
+  echo "  --tpcb        Run TPC_B test"
+  echo "  --select      Run select_only test"
+  echo "  -h,--host        PostgresSQL server hostname (default: $DEFAULT_PGHOST)"
+  echo "  -p,--port        PostgresSQL server port (default: $DEFAULT_PGPORT)"
+  echo "  -r,--revert  Swap clients(default: ${CLIENTS}) and transactions(default: clients * <TX_MUL>${TX_MUL}) size"
+  echo "  -ft,--fixed-transaction-size  <number>"
+  echo "  --help    Show help information"
   echo "Examples:"
   echo "  bash pgbench.sh --host auth-postgresql-slave --port 5433 --select"
   echo "  bash pgbench.sh --host auth-postgresql-primary --port 5432 --tpcb"
@@ -38,12 +45,12 @@ while [[ $# -gt 0 ]]; do
   key="$1"
 
   case $key in
-  --host)
+  -h | --host)
     PGHOST="$2"
     shift # past argument
     shift # past value
     ;;
-  --port)
+  -p | --port)
     PGPORT="$2"
     shift # past argument
     shift # past value
@@ -54,6 +61,15 @@ while [[ $# -gt 0 ]]; do
     ;;
   --select)
     TEST="select_only"
+    shift # past argument
+    ;;
+  -r | --revert)
+    REVERT=true
+    shift # past argument
+    ;;
+  -ft | --fixed-transaction-size)
+    FIXED_TRANSACTION_SIZE="$2"
+    shift
     shift # past argument
     ;;
   --help)
@@ -71,10 +87,8 @@ done
 PGHOST="${PGHOST:-$DEFAULT_PGHOST}"
 PGPORT="${PGPORT:-$DEFAULT_PGPORT}"
 
-export PGPASSWORD="$POSTGRES_PASSWORD"
-
 function init() {
-  pgbench -i -s "$SCALE" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
+  pgbench -i -s "$SCALE" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE" | tee $LOG_FILE
 }
 
 function result_msg() {
@@ -83,22 +97,32 @@ function result_msg() {
 
 function TPC_B() {
   result_msg "$1" "$2"
-  pgbench -j "$THREADS" -c "$1" -t "$2" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
+  pgbench -j "$THREADS" -c "$1" -t "$2" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE" | tee $LOG_FILE
 }
 
 function select_only() {
   result_msg "$1" "$2"
-  pgbench -b select-only -j "$THREADS" -c "$1" -t "$2" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
+  pgbench -b select-only -j "$THREADS" -c "$1" -t "$2" -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE" | tee $LOG_FILE
 }
 
 init
-for i in $(seq 100 100 "$CLIENTS"); do
-  j="$(("$i" * 5))"
+for i in $(seq "$START" "$STEP" "$CLIENTS"); do
+  sleep 1
+  if [[ "$FIXED_TRANSACTION_SIZE" ]]; then
+    j="$FIXED_TRANSACTION_SIZE"
+  else
+    j="$(("$i" * "$TX_MUL"))"
+  fi
   # Run the selected test
+  if [ "$REVERT" = true ]; then
+    _tmp="$i"
+    i="$j"
+    j="$_tmp"
+  fi
   if [ "$TEST" == "TPC_B" ]; then
     TPC_B "$i" "$j"
   elif [ "$TEST" == "select_only" ]; then
-    select_only "$(("$i" * 2))" "$(("$j" * 2))"
+    select_only "$(("$i" * 2))" "$(("$j" * 10))"
   else
     break
     show_help

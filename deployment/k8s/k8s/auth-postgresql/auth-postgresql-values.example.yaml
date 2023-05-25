@@ -165,7 +165,7 @@ replication:
   ## @param replication.numSynchronousReplicas Number of replicas that will have synchronous replication. Note: Cannot be greater than `readReplicas.replicaCount`.
   ## ref: https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-SYNCHRONOUS-COMMIT
   ##
-  synchronousCommit: "on"
+  synchronousCommit: "remote_write"
   numSynchronousReplicas: 2
   ## @param replication.applicationName Cluster application name. Useful for advanced replication settings
   ##
@@ -441,10 +441,12 @@ primary:
   ## @param primary.resources.requests.cpu The requested cpu for the PostgreSQL Primary containers
   ##
   resources:
-    limits: { }
-    requests:
+    limits:
       memory: 4Gi
       cpu: 4
+    requests:
+      memory: 2Gi
+      cpu: 2
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param primary.podSecurityContext.enabled Enable security context
@@ -696,30 +698,33 @@ readReplicas:
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
   ##
   extendedConfiguration: |-
+    #--------------------------------
+    
     # DB Version: 15
     # OS Type: linux
-    # DB Type: oltp
+    # DB Type: mixed
     # Total Memory (RAM): 4 GB
     # CPUs num: 4
-    # Connections num: 9999
+    # Connections num: 5555
     # Data Storage: ssd
     
-    max_connections = 9999
+    max_connections = 444
     shared_buffers = 1GB
     effective_cache_size = 3GB
     maintenance_work_mem = 256MB
     checkpoint_completion_target = 0.9
-    wal_buffers = 16MB
+    wal_buffers = 24MB
     default_statistics_target = 100
     random_page_cost = 1.1
     effective_io_concurrency = 200
     work_mem = 64kB
-    min_wal_size = 2GB
-    max_wal_size = 8GB
+    min_wal_size = 1GB
+    max_wal_size = 2GB
     max_worker_processes = 4
     max_parallel_workers_per_gather = 2
     max_parallel_workers = 4
     max_parallel_maintenance_workers = 2
+
   ## @param readReplicas.extraEnvVars Array with extra environment variables to add to PostgreSQL read only nodes
   ## e.g:
   ## extraEnvVars:
@@ -802,10 +807,12 @@ readReplicas:
   ## @param readReplicas.resources.requests.cpu The requested cpu for the PostgreSQL read only containers
   ##
   resources:
-    limits: { }
+    limits:
+      memory: 4Gi
+      cpu: 4
     requests:
-      memory: 2Gi
-      cpu: 2
+      memory: 1Gi
+      cpu: 1
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param readReplicas.podSecurityContext.enabled Enable security context
@@ -908,7 +915,7 @@ readReplicas:
     rollingUpdate: { }
   ## @param readReplicas.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the PostgreSQL read only container(s)
   ##
-  extraVolumeMounts: []
+  extraVolumeMounts: [ ]
   ## @param readReplicas.extraVolumes Optionally specify extra list of additional volumes for the PostgreSQL read only pod(s)
   ##
   extraVolumes: [ ]

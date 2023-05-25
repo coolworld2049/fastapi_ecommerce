@@ -24,10 +24,10 @@ data:
     # DB Type: web
     # Total Memory (RAM): 4 GB
     # CPUs num: 2
-    # Connections num: 9999
+    # Connections num: 5555
     # Data Storage: ssd
     
-    max_connections = 9999
+    max_connections = 444
     shared_buffers = 1GB
     effective_cache_size = 3GB
     maintenance_work_mem = 256MB

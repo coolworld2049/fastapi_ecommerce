@@ -4,39 +4,41 @@ metadata:
   name: auth-postgresql-configmap
 data:
   postgresql.conf: |-
-    hot_standby_feedback = on
-    
-    #-----------------------
-    
-    logging_collector = off
-    log_destination = 'stderr,csvlog'
-    log_directory = pg_log
-    log_file_mode = 0600
-    log_filename = 'postgresql_%A-%d-%B_%H%M'
-    log_line_prefix = 'time=%t, pid=%p %q db=%d, usr=%u, client=%h , app=%a, line=%l '
-    log_rotation_age = 1d
-    log_rotation_size = 0
+    # hot_standby_feedback = on
+    # 
+    # #-----------------------
+    # 
+    # logging_collector = off
+    # log_destination = 'stderr,csvlog'
+    # log_directory = pg_log
+    # log_file_mode = 0600
+    # log_filename = 'postgresql_%A-%d-%B_%H%M'
+    # log_line_prefix = 'time=%t, pid=%p %q db=%d, usr=%u, client=%h , app=%a, line=%l '
+    # log_rotation_age = 1d
+    # log_rotation_size = 0
+        
+    #--------------------------------
     
     # DB Version: 15
     # OS Type: linux
-    # DB Type: oltp
-    # Total Memory (RAM): 8 GB
+    # DB Type: mixed
+    # Total Memory (RAM): 4 GB
     # CPUs num: 4
-    # Connections num: 9999
+    # Connections num: 5555
     # Data Storage: ssd
     
-    max_connections = 9999
-    shared_buffers = 2GB
-    effective_cache_size = 6GB
-    maintenance_work_mem = 512MB
+    max_connections = 444
+    shared_buffers = 1GB
+    effective_cache_size = 3GB
+    maintenance_work_mem = 256MB
     checkpoint_completion_target = 0.9
-    wal_buffers = 16MB
+    wal_buffers = 24MB
     default_statistics_target = 100
     random_page_cost = 1.1
     effective_io_concurrency = 200
-    work_mem = 104kB
-    min_wal_size = 2GB
-    max_wal_size = 8GB
+    work_mem = 64kB
+    min_wal_size = 1GB
+    max_wal_size = 2GB
     max_worker_processes = 4
     max_parallel_workers_per_gather = 2
     max_parallel_workers = 4

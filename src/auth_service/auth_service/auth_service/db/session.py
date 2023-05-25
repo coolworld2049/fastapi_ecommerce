@@ -17,8 +17,8 @@ async_engines = MasterReplicas(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_replicas,
     pool_size=get_app_settings().SQLALCHEMY_POOL_SIZE,
+    isolation_level="READ COMMITTED",
 )
-
 
 class RoutingSession(Session):
     def get_bind(
@@ -38,12 +38,12 @@ async_session = async_sessionmaker(
 )
 
 if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:
-
     def before_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
     ):
         conn.info.setdefault("query_start_time", []).append(time.time())
         logger.debug(f"Start Query: {statement}")
+
 
     def after_cursor_execute(
         conn, cursor, statement, parameters, context, executemany
@@ -51,6 +51,7 @@ if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:
         total = time.time() - conn.info["query_start_time"].pop(-1)
         logger.debug("Query Complete!")
         logger.debug("Total Time: %f" % total)
+
 
     event.listen(
         async_engines.get_master().sync_engine,

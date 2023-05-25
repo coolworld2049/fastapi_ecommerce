@@ -39,52 +39,52 @@ process_files_in_folder() {
 }
 
 install_auth_postgresql() {
-  log "${GREEN}Deploy auth-postgresql..."
+  log "\n${GREEN}Deploy auth-postgresql..."
   kubectl apply -f "${SCRIPT_DIR}"/auth-postgresql/auth-postgresql-configmap.yaml -n "${NAMESPACE}"
   helm install "$PG_SERVICE_NAME" -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-values.yaml" \
     oci://registry-1.docker.io/bitnamicharts/postgresql -n "${NAMESPACE}"
 }
 
 delete_auth_postgresql() {
-  log "${GREEN}Delete auth-postgresql..."
+  log "\n${GREEN}Delete auth-postgresql..."
   helm delete "$PG_SERVICE_NAME" -n "${NAMESPACE}"
   process_files_in_folder delete "${SCRIPT_DIR}"/auth-postgresql
 }
 
 install_store_mongo() {
-  log "${GREEN}Deploy store-mongo..."
+  log "\n${GREEN}Deploy store-mongo..."
   helm install "$MONGO_SERVICE_NAME" -f "${SCRIPT_DIR}/store-mongo/store-mongo-values.yaml" \
     oci://registry-1.docker.io/bitnamicharts/mongodb -n "${NAMESPACE}"
 }
 
 delete_store_mongo() {
-  log "${GREEN}Delete store-mongo..."
+  log "\n${GREEN}Delete store-mongo..."
   helm delete "$MONGO_SERVICE_NAME" -n "${NAMESPACE}"
   process_files_in_folder delete "${SCRIPT_DIR}"/store-mongo
 }
 
 install_auth() {
-  log "${GREEN}Deploy auth..."
+  log "\n${GREEN}Deploy auth..."
   process_files_in_folder apply "${SCRIPT_DIR}"/auth
 }
 
 delete_auth() {
-  log "${GREEN}Delete auth..."
+  log "\n${GREEN}Delete auth..."
   process_files_in_folder delete "${SCRIPT_DIR}"/auth
 }
 
 install_store() {
-  log "${GREEN}Deploy store..."
+  log "\n${GREEN}Deploy store..."
   process_files_in_folder apply "${SCRIPT_DIR}"/store
 }
 
 delete_store() {
-  log "${GREEN}Delete store..."
+  log "\n${GREEN}Delete store..."
   process_files_in_folder delete "${SCRIPT_DIR}"/store
 }
 
 install_pgbench() {
-  log "${GREEN}Deploy pgbench..."
+  log "\n${GREEN}Deploy pgbench..."
   kubectl create configmap auth-pgbench-configmap \
     --from-file="${SCRIPT_DIR}"/auth-pgbench/scripts/pgbench.sh -n "${NAMESPACE}"
   process_files_in_folder apply "${SCRIPT_DIR}"/auth-pgbench
@@ -92,10 +92,9 @@ install_pgbench() {
 }
 
 delete_pgbench() {
-  log "${GREEN}Delete pgbench..."
+  log "\n${GREEN}Delete pgbench..."
   kubectl delete configmap auth-pgbench-configmap -n "${NAMESPACE}"
   process_files_in_folder delete "${SCRIPT_DIR}"/auth-pgbench
-
 }
 
 install() {
