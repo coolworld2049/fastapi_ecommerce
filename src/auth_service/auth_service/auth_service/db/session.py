@@ -17,7 +17,6 @@ async_engines = MasterReplicas(
     master_url=get_app_settings().postgres_asyncpg_master,
     slaves_url=get_app_settings().postgres_asyncpg_replicas,
     pool_size=get_app_settings().SQLALCHEMY_POOL_SIZE,
-    isolation_level="READ COMMITTED",
 )
 
 
@@ -35,7 +34,7 @@ class RoutingSession(Session):
 
 
 async_session = async_sessionmaker(
-    sync_session_class=RoutingSession, expire_on_commit=False, autoflush=False
+    sync_session_class=RoutingSession
 )
 
 if get_app_settings().SQLALCHEMY_PROFILE_QUERY_MODE:

@@ -15,7 +15,7 @@ data:
   SMTP_HOST: "smtp.gmail.com"
   SMTP_PORT: "587"
   SMTP_USERNAME: "fastapi.ecommerce@gmail.com"
-  SMTP_PASSWORD: ""
+  SMTP_PASSWORD: "mlmupnmescdjyatg"
   SMTP_FROM: "fastapi.ecommerce@gmail.com"
   POSTGRESQL_MASTER_HOST: "auth-postgresql-primary"
   POSTGRESQL_MASTER_PORT: "5432"
@@ -23,8 +23,8 @@ data:
   POSTGRESQL_USERNAME: "postgres"
   POSTGRESQL_PASSWORD: "postgres"
   POSTGRESQL_DATABASE: "app"
-  SQLALCHEMY_PROFILE_QUERY_MODE: "False"
-  SQLALCHEMY_POOL_SIZE: "1000"
+  SQLALCHEMY_PROFILE_QUERY_MODE: "True"
+  # SQLALCHEMY_POOL_SIZE: "1000"
 kind: ConfigMap
 metadata:
   name: auth-configmap

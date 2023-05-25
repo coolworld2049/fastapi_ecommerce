@@ -12,7 +12,7 @@ data:
   FIRST_SUPERUSER_PASSWORD: "AdminTestPass000?"
   JWT_ALGORITHM: "HS256"
   JWT_SECRET_KEY: "supersecret"
-  MONGODB_URL: "mongodb://admin:admin@store-mongo-headless:27017/app?maxPoolSize=1000"
+  MONGODB_URL: "mongodb://root:root@store-mongo-headless:27017/app?maxPoolSize=1000"
   STAGE: "prod"
 kind: ConfigMap
 metadata:

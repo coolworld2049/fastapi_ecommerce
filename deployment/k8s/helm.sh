@@ -83,10 +83,25 @@ delete_store() {
   process_files_in_folder delete "${SCRIPT_DIR}"/store
 }
 
+install_cnp_bench() {
+  log "${GREEN}Deploy cnp-bench..."
+  #  path=k8s/auth-pgbench/cnp-bench
+  #  [ ! -d "$path" ] || mkdir "$path" &&
+  #    git clone https://github.com/EnterpriseDB/cnp-bench.git "$path"
+  #  helm install cnp-bench "$path" -n "${NAMESPACE}"
+  #  kubectl port-forward v deployment/cnp-bench 8000
+}
+
+delete_cnp_bench() {
+  log "${GREEN}Delete cnp-bench..."
+  #helm delete cnp-bench -n "${NAMESPACE}"
+}
+
 install() {
   helm repo add bitnami https://charts.bitnami.com/bitnami
   install_auth_postgresql
   install_auth
+  install_pg_bench
 
   install_store_mongo
   install_store
@@ -95,6 +110,7 @@ install() {
 delete() {
   delete_auth_postgresql
   delete_auth
+  delete_pg_bench
 
   delete_store_mongo
   delete_store

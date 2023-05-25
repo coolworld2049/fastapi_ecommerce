@@ -15,18 +15,18 @@ spec:
     - host: www.fastapi-ecommerce.com
       http:
         paths:
-          - path: /api/v1/auth-service/?(.*)
+          - path: /api/v1/auth/?(.*)
             pathType: Prefix
             backend:
               service:
-                name: auth-srv
+                name: auth
                 port:
                   number: 80
-          - path: /api/store-service/?(.*)
+          - path: /api/store/?(.*)
             pathType: Prefix
             backend:
               service:
-                name: store-srv
+                name: store
                 port:
                   number: 80
 ---

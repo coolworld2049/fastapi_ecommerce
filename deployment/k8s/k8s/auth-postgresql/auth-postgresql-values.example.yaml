@@ -10,7 +10,7 @@ global:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
   ##
-  imagePullSecrets: []
+  imagePullSecrets: [ ]
   ## @param global.storageClass Global StorageClass for Persistent Volume(s)
   ##
   storageClass: ""
@@ -57,13 +57,13 @@ fullnameOverride: ""
 clusterDomain: cluster.local
 ## @param extraDeploy Array of extra objects to deploy with the release (evaluated as a template)
 ##
-extraDeploy: []
+extraDeploy: [ ]
 ## @param commonLabels Add labels to all the deployed resources
 ##
-commonLabels: {}
+commonLabels: { }
 ## @param commonAnnotations Add annotations to all the deployed resources
 ##
-commonAnnotations: {}
+commonAnnotations: { }
 ## Enable diagnostic mode in the statefulset
 ##
 diagnosticMode:
@@ -109,7 +109,7 @@ image:
   ## pullSecrets:
   ##   - myRegistryKeySecretName
   ##
-  pullSecrets: []
+  pullSecrets: [ ]
   ## Set to true if you would like to see extra information on logs
   ##
   debug: false
@@ -169,7 +169,7 @@ replication:
   numSynchronousReplicas: 2
   ## @param replication.applicationName Cluster application name. Useful for advanced replication settings
   ##
-  applicationName: auth-service-postgresql
+  applicationName: auth-postgresql
 ## @param containerPorts.postgresql PostgreSQL container port
 ##
 containerPorts:
@@ -314,7 +314,7 @@ primary:
   ## @param primary.existingExtendedConfigmap Name of an existing ConfigMap with PostgreSQL Primary extended configuration
   ## NOTE: `primary.extendedConfiguration` will be ignored
   ##
-  existingExtendedConfigmap: "auth-service-postgresql-configmap"
+  existingExtendedConfigmap: "auth-postgresql-configmap"
   ## Initdb configuration
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#specifying-initdb-arguments
   ##
@@ -333,7 +333,7 @@ primary:
     ##      #!/bin/sh
     ##      echo "Do something."
     ##
-    scripts: {}
+    scripts: { }
     ## @param primary.initdb.scriptsConfigMap ConfigMap with scripts to be run at first boot
     ## NOTE: This will override `primary.initdb.scripts`
     ##
@@ -365,7 +365,7 @@ primary:
   ##   - name: FOO
   ##     value: "bar"
   ##
-  extraEnvVars: []
+  extraEnvVars: [ ]
   ## @param primary.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for PostgreSQL Primary nodes
   ##
   extraEnvVarsCM: ""
@@ -374,10 +374,10 @@ primary:
   extraEnvVarsSecret: ""
   ## @param primary.command Override default container command (useful when using custom images)
   ##
-  command: []
+  command: [ ]
   ## @param primary.args Override default container args (useful when using custom images)
   ##
-  args: [] # "sh","-c","cp -L /bitnami/postgresql/conf/conf.d/extended.conf /opt/bitnami/postgresql/conf/conf.d/ && /opt/bitnami/scripts/postgresql/run.sh"
+  args: [ ] # "sh","-c","cp -L /bitnami/postgresql/conf/conf.d/extended.conf /opt/bitnami/postgresql/conf/conf.d/ && /opt/bitnami/scripts/postgresql/run.sh"
   ## Configure extra options for PostgreSQL Primary containers' liveness, readiness and startup probes
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
   ## @param primary.livenessProbe.enabled Enable livenessProbe on PostgreSQL Primary containers
@@ -424,16 +424,16 @@ primary:
     successThreshold: 1
   ## @param primary.customLivenessProbe Custom livenessProbe that overrides the default one
   ##
-  customLivenessProbe: {}
+  customLivenessProbe: { }
   ## @param primary.customReadinessProbe Custom readinessProbe that overrides the default one
   ##
-  customReadinessProbe: {}
+  customReadinessProbe: { }
   ## @param primary.customStartupProbe Custom startupProbe that overrides the default one
   ##
-  customStartupProbe: {}
+  customStartupProbe: { }
   ## @param primary.lifecycleHooks for the PostgreSQL Primary container to automate configuration before or after startup
   ##
-  lifecycleHooks: {}
+  lifecycleHooks: { }
   ## PostgreSQL Primary resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param primary.resources.limits The resources limits for the PostgreSQL Primary containers
@@ -441,10 +441,10 @@ primary:
   ## @param primary.resources.requests.cpu The requested cpu for the PostgreSQL Primary containers
   ##
   resources:
-    limits: {}
+    limits: { }
     requests:
-      memory: 4096Mi
-      cpu: 2m
+      memory: 4Gi
+      cpu: 4
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param primary.podSecurityContext.enabled Enable security context
@@ -464,7 +464,7 @@ primary:
   ## @param primary.hostAliases PostgreSQL primary pods host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
-  hostAliases: []
+  hostAliases: [ ]
   ## @param primary.hostNetwork Specify if host network should be enabled for PostgreSQL pod (postgresql primary)
   ##
   hostNetwork: false
@@ -473,16 +473,16 @@ primary:
   hostIPC: false
   ## @param primary.labels Map of labels to add to the statefulset (postgresql primary)
   ##
-  labels: {}
+  labels: { }
   ## @param primary.annotations Annotations for PostgreSQL primary pods
   ##
-  annotations: {}
+  annotations: { }
   ## @param primary.podLabels Map of labels to add to the pods (postgresql primary)
   ##
-  podLabels: {}
+  podLabels: { }
   ## @param primary.podAnnotations Map of annotations to add to the pods (postgresql primary)
   ##
-  podAnnotations: {}
+  podAnnotations: { }
   ## @param primary.podAffinityPreset PostgreSQL primary pod affinity preset. Ignored if `primary.affinity` is set. Allowed values: `soft` or `hard`
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   ##
@@ -509,24 +509,24 @@ primary:
     ##   - e2e-az1
     ##   - e2e-az2
     ##
-    values: []
+    values: [ ]
   ## @param primary.affinity Affinity for PostgreSQL primary pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   ## Note: primary.podAffinityPreset, primary.podAntiAffinityPreset, and primary.nodeAffinityPreset will be ignored when it's set
   ##
-  affinity: {}
+  affinity: { }
   ## @param primary.nodeSelector Node labels for PostgreSQL primary pods assignment
   ## ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  nodeSelector: { }
   ## @param primary.tolerations Tolerations for PostgreSQL primary pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
-  tolerations: []
+  tolerations: [ ]
   ## @param primary.topologySpreadConstraints Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
   ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
   ##
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   ## @param primary.priorityClassName Priority Class to use for each pod (postgresql primary)
   ##
   priorityClassName: ""
@@ -544,13 +544,13 @@ primary:
   ##
   updateStrategy:
     type: RollingUpdate
-    rollingUpdate: {}
+    rollingUpdate: { }
   ## @param primary.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the PostgreSQL Primary container(s)
   ##
-  extraVolumeMounts: []
+  extraVolumeMounts: [ ]
   ## @param primary.extraVolumes Optionally specify extra list of additional volumes for the PostgreSQL Primary pod(s)
   ##
-  extraVolumes: []
+  extraVolumes: [ ]
   ## @param primary.sidecars Add additional sidecar containers to the PostgreSQL Primary pod(s)
   ## For example:
   ## sidecars:
@@ -561,7 +561,7 @@ primary:
   ##       - name: portname
   ##         containerPort: 1234
   ##
-  sidecars: []
+  sidecars: [ ]
   ## @param primary.initContainers Add additional init containers to the PostgreSQL Primary pod(s)
   ## Example
   ##
@@ -570,10 +570,10 @@ primary:
   ##     image: busybox
   ##     command: ['do', 'something']
   ##
-  initContainers: []
+  initContainers: [ ]
   ## @param primary.extraPodSpec Optionally specify extra PodSpec for the PostgreSQL Primary pod(s)
   ##
-  extraPodSpec: {}
+  extraPodSpec: { }
   ## PostgreSQL Primary service configuration
   ##
   service:
@@ -598,7 +598,7 @@ primary:
     clusterIP: ""
     ## @param primary.service.annotations Annotations for PostgreSQL primary service
     ##
-    annotations: {}
+    annotations: { }
     ## @param primary.service.loadBalancerIP Load balancer IP if service type is `LoadBalancer`
     ## Set the LoadBalancer service type to internal only
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
@@ -614,10 +614,10 @@ primary:
     ## loadBalancerSourceRanges:
     ## - 10.10.10.0/24
     ##
-    loadBalancerSourceRanges: []
+    loadBalancerSourceRanges: [ ]
     ## @param primary.service.extraPorts Extra ports to expose in the PostgreSQL primary service
     ##
-    extraPorts: []
+    extraPorts: [ ]
     ## @param primary.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
     ## If "ClientIP", consecutive client requests will be directed to the same Pod
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
@@ -628,13 +628,13 @@ primary:
     ##   clientIP:
     ##     timeoutSeconds: 300
     ##
-    sessionAffinityConfig: {}
+    sessionAffinityConfig: { }
     ## Headless service properties
     ##
     headless:
       ## @param primary.service.headless.annotations Additional custom annotations for headless PostgreSQL primary service
       ##
-      annotations: {}
+      annotations: { }
   ## PostgreSQL Primary persistence configuration
   ##
   persistence:
@@ -669,19 +669,19 @@ primary:
     size: 10Gi
     ## @param primary.persistence.annotations Annotations for the PVC
     ##
-    annotations: {}
+    annotations: { }
     ## @param primary.persistence.labels Labels for the PVC
     ##
-    labels: {}
+    labels: { }
     ## @param primary.persistence.selector Selector to match an existing Persistent Volume (this value is evaluated as a template)
     ## selector:
     ##   matchLabels:
     ##     app: my-app
     ##
-    selector: {}
+    selector: { }
     ## @param primary.persistence.dataSource Custom PVC data source
     ##
-    dataSource: {}
+    dataSource: { }
 
 ## @section PostgreSQL read only replica parameters (only used when `architecture` is set to `replication`)
 ##
@@ -696,14 +696,37 @@ readReplicas:
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
   ##
   extendedConfiguration: |-
+    # DB Version: 15
+    # OS Type: linux
+    # DB Type: oltp
+    # Total Memory (RAM): 4 GB
+    # CPUs num: 4
+    # Connections num: 9999
+    # Data Storage: ssd
+    
     max_connections = 9999
+    shared_buffers = 1GB
+    effective_cache_size = 3GB
+    maintenance_work_mem = 256MB
+    checkpoint_completion_target = 0.9
+    wal_buffers = 16MB
+    default_statistics_target = 100
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    work_mem = 64kB
+    min_wal_size = 2GB
+    max_wal_size = 8GB
+    max_worker_processes = 4
+    max_parallel_workers_per_gather = 2
+    max_parallel_workers = 4
+    max_parallel_maintenance_workers = 2
   ## @param readReplicas.extraEnvVars Array with extra environment variables to add to PostgreSQL read only nodes
   ## e.g:
   ## extraEnvVars:
   ##   - name: FOO
   ##     value: "bar"
   ##
-  extraEnvVars: []
+  extraEnvVars: [ ]
   ## @param readReplicas.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for PostgreSQL read only nodes
   ##
   extraEnvVarsCM: ""
@@ -712,10 +735,10 @@ readReplicas:
   extraEnvVarsSecret: ""
   ## @param readReplicas.command Override default container command (useful when using custom images)
   ##
-  command: []
+  command: [ ]
   ## @param readReplicas.args Override default container args (useful when using custom images)
   ##
-  args: []
+  args: [ ]
   ## Configure extra options for PostgreSQL read only containers' liveness, readiness and startup probes
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
   ## @param readReplicas.livenessProbe.enabled Enable livenessProbe on PostgreSQL read only containers
@@ -762,16 +785,16 @@ readReplicas:
     successThreshold: 1
   ## @param readReplicas.customLivenessProbe Custom livenessProbe that overrides the default one
   ##
-  customLivenessProbe: {}
+  customLivenessProbe: { }
   ## @param readReplicas.customReadinessProbe Custom readinessProbe that overrides the default one
   ##
-  customReadinessProbe: {}
+  customReadinessProbe: { }
   ## @param readReplicas.customStartupProbe Custom startupProbe that overrides the default one
   ##
-  customStartupProbe: {}
+  customStartupProbe: { }
   ## @param readReplicas.lifecycleHooks for the PostgreSQL read only container to automate configuration before or after startup
   ##
-  lifecycleHooks: {}
+  lifecycleHooks: { }
   ## PostgreSQL read only resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param readReplicas.resources.limits The resources limits for the PostgreSQL read only containers
@@ -779,10 +802,10 @@ readReplicas:
   ## @param readReplicas.resources.requests.cpu The requested cpu for the PostgreSQL read only containers
   ##
   resources:
-    limits: {}
+    limits: { }
     requests:
-      memory: 1024Mi
-      cpu: 500m
+      memory: 2Gi
+      cpu: 2
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param readReplicas.podSecurityContext.enabled Enable security context
@@ -802,7 +825,7 @@ readReplicas:
   ## @param readReplicas.hostAliases PostgreSQL read only pods host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
-  hostAliases: []
+  hostAliases: [ ]
   ## @param readReplicas.hostNetwork Specify if host network should be enabled for PostgreSQL pod (PostgreSQL read only)
   ##
   hostNetwork: false
@@ -811,16 +834,16 @@ readReplicas:
   hostIPC: false
   ## @param readReplicas.labels Map of labels to add to the statefulset (PostgreSQL read only)
   ##
-  labels: {}
+  labels: { }
   ## @param readReplicas.annotations Annotations for PostgreSQL read only pods
   ##
-  annotations: {}
+  annotations: { }
   ## @param readReplicas.podLabels Map of labels to add to the pods (PostgreSQL read only)
   ##
-  podLabels: {}
+  podLabels: { }
   ## @param readReplicas.podAnnotations Map of annotations to add to the pods (PostgreSQL read only)
   ##
-  podAnnotations: {}
+  podAnnotations: { }
   ## @param readReplicas.podAffinityPreset PostgreSQL read only pod affinity preset. Ignored if `primary.affinity` is set. Allowed values: `soft` or `hard`
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   ##
@@ -847,24 +870,24 @@ readReplicas:
     ##   - e2e-az1
     ##   - e2e-az2
     ##
-    values: []
+    values: [ ]
   ## @param readReplicas.affinity Affinity for PostgreSQL read only pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   ## Note: primary.podAffinityPreset, primary.podAntiAffinityPreset, and primary.nodeAffinityPreset will be ignored when it's set
   ##
-  affinity: {}
+  affinity: { }
   ## @param readReplicas.nodeSelector Node labels for PostgreSQL read only pods assignment
   ## ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  nodeSelector: { }
   ## @param readReplicas.tolerations Tolerations for PostgreSQL read only pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
-  tolerations: []
+  tolerations: [ ]
   ## @param readReplicas.topologySpreadConstraints Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
   ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
   ##
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   ## @param readReplicas.priorityClassName Priority Class to use for each pod (PostgreSQL read only)
   ##
   priorityClassName: ""
@@ -882,13 +905,13 @@ readReplicas:
   ##
   updateStrategy:
     type: RollingUpdate
-    rollingUpdate: {}
+    rollingUpdate: { }
   ## @param readReplicas.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the PostgreSQL read only container(s)
   ##
   extraVolumeMounts: []
   ## @param readReplicas.extraVolumes Optionally specify extra list of additional volumes for the PostgreSQL read only pod(s)
   ##
-  extraVolumes: []
+  extraVolumes: [ ]
   ## @param readReplicas.sidecars Add additional sidecar containers to the PostgreSQL read only pod(s)
   ## For example:
   ## sidecars:
@@ -899,7 +922,7 @@ readReplicas:
   ##       - name: portname
   ##         containerPort: 1234
   ##
-  sidecars: []
+  sidecars: [ ]
   ## @param readReplicas.initContainers Add additional init containers to the PostgreSQL read only pod(s)
   ## Example
   ##
@@ -908,10 +931,10 @@ readReplicas:
   ##     image: busybox
   ##     command: ['do', 'something']
   ##
-  initContainers: []
+  initContainers: [ ]
   ## @param readReplicas.extraPodSpec Optionally specify extra PodSpec for the PostgreSQL read only pod(s)
   ##
-  extraPodSpec: {}
+  extraPodSpec: { }
   ## PostgreSQL read only service configuration
   ##
   service:
@@ -936,7 +959,7 @@ readReplicas:
     clusterIP: ""
     ## @param readReplicas.service.annotations Annotations for PostgreSQL read only service
     ##
-    annotations: {}
+    annotations: { }
     ## @param readReplicas.service.loadBalancerIP Load balancer IP if service type is `LoadBalancer`
     ## Set the LoadBalancer service type to internal only
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
@@ -952,10 +975,10 @@ readReplicas:
     ## loadBalancerSourceRanges:
     ## - 10.10.10.0/24
     ##
-    loadBalancerSourceRanges: []
+    loadBalancerSourceRanges: [ ]
     ## @param readReplicas.service.extraPorts Extra ports to expose in the PostgreSQL read only service
     ##
-    extraPorts: []
+    extraPorts: [ ]
     ## @param readReplicas.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
     ## If "ClientIP", consecutive client requests will be directed to the same Pod
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
@@ -966,13 +989,13 @@ readReplicas:
     ##   clientIP:
     ##     timeoutSeconds: 300
     ##
-    sessionAffinityConfig: {}
+    sessionAffinityConfig: { }
     ## Headless service properties
     ##
     headless:
       ## @param readReplicas.service.headless.annotations Additional custom annotations for headless PostgreSQL read only service
       ##
-      annotations: {}
+      annotations: { }
   ## PostgreSQL read only persistence configuration
   ##
   persistence:
@@ -1007,19 +1030,19 @@ readReplicas:
     size: 10Gi
     ## @param readReplicas.persistence.annotations Annotations for the PVC
     ##
-    annotations: {}
+    annotations: { }
     ## @param readReplicas.persistence.labels Labels for the PVC
     ##
-    labels: {}
+    labels: { }
     ## @param readReplicas.persistence.selector Selector to match an existing Persistent Volume (this value is evaluated as a template)
     ## selector:
     ##   matchLabels:
     ##     app: my-app
     ##
-    selector: {}
+    selector: { }
     ## @param readReplicas.persistence.dataSource Custom PVC data source
     ##
-    dataSource: {}
+    dataSource: { }
 
 ## @section NetworkPolicy parameters
 ##
@@ -1040,12 +1063,12 @@ networkPolicy:
     ## namespaceSelector:
     ##   label: monitoring
     ##
-    namespaceSelector: {}
+    namespaceSelector: { }
     ## e.g:
     ## podSelector:
     ##   label: monitoring
     ##
-    podSelector: {}
+    podSelector: { }
   ## Ingress Rules
   ##
   ingressRules:
@@ -1060,12 +1083,12 @@ networkPolicy:
       ## namespaceSelector:
       ##   label: ingress
       ##
-      namespaceSelector: {}
+      namespaceSelector: { }
       ## e.g:
       ## podSelector:
       ##   label: access
       ##
-      podSelector: {}
+      podSelector: { }
       ## custom ingress rules
       ## e.g:
       ## customRules:
@@ -1074,7 +1097,7 @@ networkPolicy:
       ##           matchLabels:
       ##             label: example
       ##
-      customRules: []
+      customRules: [ ]
     ## @param networkPolicy.ingressRules.readReplicasAccessOnlyFrom.enabled Enable ingress rule that makes PostgreSQL read-only nodes only accessible from a particular origin.
     ## @param networkPolicy.ingressRules.readReplicasAccessOnlyFrom.namespaceSelector [object] Namespace selector label that is allowed to access the PostgreSQL read-only nodes. This label will be used to identified the allowed namespace(s).
     ## @param networkPolicy.ingressRules.readReplicasAccessOnlyFrom.podSelector [object] Pods selector label that is allowed to access the PostgreSQL read-only nodes. This label will be used to identified the allowed pod(s).
@@ -1086,12 +1109,12 @@ networkPolicy:
       ## namespaceSelector:
       ##   label: ingress
       ##
-      namespaceSelector: {}
+      namespaceSelector: { }
       ## e.g:
       ## podSelector:
       ##   label: access
       ##
-      podSelector: {}
+      podSelector: { }
       ## custom ingress rules
       ## e.g:
       ## CustomRules:
@@ -1100,7 +1123,7 @@ networkPolicy:
       ##           matchLabels:
       ##             label: example
       ##
-      customRules: []
+      customRules: [ ]
   ## @param networkPolicy.egressRules.denyConnectionsToExternal Enable egress rule that denies outgoing traffic outside the cluster, except for DNS (port 53).
   ## @param networkPolicy.egressRules.customRules Custom network policy rule
   ##
@@ -1115,7 +1138,7 @@ networkPolicy:
     ##           matchLabels:
     ##             label: example
     ##
-    customRules: []
+    customRules: [ ]
 
 ## @section Volume Permissions parameters
 ##
@@ -1147,15 +1170,15 @@ volumePermissions:
     ## pullSecrets:
     ##   - myRegistryKeySecretName
     ##
-    pullSecrets: []
+    pullSecrets: [ ]
   ## Init container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param volumePermissions.resources.limits Init container volume-permissions resource limits
   ## @param volumePermissions.resources.requests Init container volume-permissions resource requests
   ##
   resources:
-    limits: {}
-    requests: {}
+    limits: { }
+    requests: { }
   ## Init container' Security Context
   ## Note: the chown of the data folder is done to containerSecurityContext.runAsUser
   ## and not the below volumePermissions.containerSecurityContext.runAsUser
@@ -1190,7 +1213,7 @@ serviceAccount:
   automountServiceAccountToken: true
   ## @param serviceAccount.annotations Additional custom annotations for the ServiceAccount
   ##
-  annotations: {}
+  annotations: { }
 ## Creates role for ServiceAccount
 ## @param rbac.create Create Role and RoleBinding (required for PSP to work)
 ##
@@ -1207,7 +1230,7 @@ rbac:
   ##       - get
   ##       - list
   ##
-  rules: []
+  rules: [ ]
 ## Pod Security Policy
 ## ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
 ## @param psp.create Whether to create a PodSecurityPolicy. WARNING: PodSecurityPolicy is deprecated in Kubernetes v1.21 or later, unavailable in v1.25 or later
@@ -1242,7 +1265,7 @@ metrics:
     ## pullSecrets:
     ##   - myRegistryKeySecretName
     ##
-    pullSecrets: []
+    pullSecrets: [ ]
   ## @param metrics.customMetrics Define additional custom metrics
   ## ref: https://github.com/wrouesnel/postgres_exporter#adding-new-metrics-via-a-config-file
   ## customMetrics:
@@ -1256,7 +1279,7 @@ metrics:
   ##           usage: "GAUGE"
   ##           description: "Size of the database in bytes"
   ##
-  customMetrics: {}
+  customMetrics: { }
   ## @param metrics.extraEnvVars Extra environment variables to add to PostgreSQL Prometheus exporter
   ## see: https://github.com/wrouesnel/postgres_exporter#environment-variables
   ## For example:
@@ -1264,7 +1287,7 @@ metrics:
   ##  - name: PG_EXPORTER_DISABLE_DEFAULT_METRICS
   ##    value: "true"
   ##
-  extraEnvVars: []
+  extraEnvVars: [ ]
   ## PostgreSQL Prometheus exporter containers' Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   ## @param metrics.containerSecurityContext.enabled Enable PostgreSQL Prometheus exporter containers' Security Context
@@ -1321,13 +1344,13 @@ metrics:
     successThreshold: 1
   ## @param metrics.customLivenessProbe Custom livenessProbe that overrides the default one
   ##
-  customLivenessProbe: {}
+  customLivenessProbe: { }
   ## @param metrics.customReadinessProbe Custom readinessProbe that overrides the default one
   ##
-  customReadinessProbe: {}
+  customReadinessProbe: { }
   ## @param metrics.customStartupProbe Custom startupProbe that overrides the default one
   ##
-  customStartupProbe: {}
+  customStartupProbe: { }
   ## @param metrics.containerPorts.metrics PostgreSQL Prometheus exporter metrics container port
   ##
   containerPorts:
@@ -1338,8 +1361,8 @@ metrics:
   ## @param metrics.resources.requests The requested resources for the PostgreSQL Prometheus exporter container
   ##
   resources:
-    limits: {}
-    requests: {}
+    limits: { }
+    requests: { }
   ## Service configuration
   ##
   service:
@@ -1380,17 +1403,17 @@ metrics:
     scrapeTimeout: ""
     ## @param metrics.serviceMonitor.labels Additional labels that can be used so ServiceMonitor will be discovered by Prometheus
     ##
-    labels: {}
+    labels: { }
     ## @param metrics.serviceMonitor.selector Prometheus instance selector labels
     ## ref: https://github.com/bitnami/charts/tree/main/bitnami/prometheus-operator#prometheus-configuration
     ##
-    selector: {}
+    selector: { }
     ## @param metrics.serviceMonitor.relabelings RelabelConfigs to apply to samples before scraping
     ##
-    relabelings: []
+    relabelings: [ ]
     ## @param metrics.serviceMonitor.metricRelabelings MetricRelabelConfigs to apply to samples before ingestion
     ##
-    metricRelabelings: []
+    metricRelabelings: [ ]
     ## @param metrics.serviceMonitor.honorLabels Specify honorLabels parameter to add the scrape endpoint
     ##
     honorLabels: false
@@ -1410,7 +1433,7 @@ metrics:
     namespace: ""
     ## @param metrics.prometheusRule.labels Additional labels that can be used so PrometheusRule will be discovered by Prometheus
     ##
-    labels: {}
+    labels: { }
     ## @param metrics.prometheusRule.rules PrometheusRule definitions
     ## Make sure to constraint the rules to the current postgresql service.
     ## rules:
@@ -1423,4 +1446,4 @@ metrics:
     ##       description: replication for {{ include "common.names.fullname" . }} PostgreSQL is lagging by {{ "{{ $value }}" }} hour(s).
     ##       summary: PostgreSQL replication is lagging by {{ "{{ $value }}" }} hour(s).
     ##
-    rules: []
+    rules: [ ]

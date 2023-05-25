@@ -47,6 +47,8 @@ delete_cert_manager() {
   echo -e "${GREEN}cert-manager has been deleted successfully.${RESET}"
 }
 
+
+
 display_help() {
   echo "Usage: $0 [option]"
   echo "Options:"

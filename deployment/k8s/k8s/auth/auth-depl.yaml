@@ -129,27 +129,32 @@ spec:
                   configMapKeyRef:
                     key: SQLALCHEMY_POOL_SIZE
                     name: auth-configmap
+                    optional: true
               - name: SQLALCHEMY_PROFILE_QUERY_MODE
                 valueFrom:
                   configMapKeyRef:
                     key: SQLALCHEMY_PROFILE_QUERY_MODE
                     name: auth-configmap
+                    optional: true
               - name: STAGE
                 valueFrom:
                   configMapKeyRef:
                     key: STAGE
                     name: auth-configmap
             image: coolworldocker/auth_service:latest
-            # command: [ "/bin/sh", "-c", "env" ]
             imagePullPolicy: Always
-            name: auth-service
+            name: auth
+            ports:
+              - name: http
+                containerPort: 80
             resources:
               requests:
                 memory: 512Mi
                 cpu: 500m
               limits:
                 memory: 1Gi
-                cpu: 500m
+                cpu: "3"
+
 ---
 apiVersion: v1
 kind: Service
