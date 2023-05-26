@@ -3,7 +3,7 @@ name: Deploy
 on:
   pull_request:
     branches:
-      - master  
+      - master
 jobs:
   test:
     name: Test
@@ -18,9 +18,12 @@ jobs:
           export STAGE=test
           cd hack
           bash cpenv.sh
-          bash artifact.sh
+          source ../.env
+          bash artifact.sh -u $DOCKER_USER -p $DOCKER_PASSWORD --docker
+          bash artifact.sh -u $PYPI_USER -p $PYPI_PASSWORD --pypi
+          cd ../deployment/compose/
           bash start.sh
-          cd ..
+          cd ../../..
   build:
     name: Production Deployment
     needs: [ test ]
@@ -51,4 +54,6 @@ jobs:
             echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
             cd hack
             bash cpenv.sh
+            cd ../deployment/compose/
             bash restart.sh
+            cd ../../..

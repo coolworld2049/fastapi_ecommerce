@@ -41,10 +41,10 @@ function info() {
 }
 
 function main() {
-  source ../.env
+  source ../../.env
 
   project_name=${PROJECT_NAME?env PROJECT_NAME required}
-  compose_file=../deployment/compose/docker-compose.yml
+  compose_file=docker-compose.yml
 
   start=$SECONDS
   auth_service

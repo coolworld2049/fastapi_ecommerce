@@ -108,7 +108,7 @@ fi
 if [[ -d "$SRC_DIR"/core && "$PYPI_UPLOAD" == true ]]; then
   path="$SRC_DIR"/core/fastapi_ecommerce_core
   FILE_PATH="$path"/setup.py
-  CURRENT_VERSION=0.3.6
+  CURRENT_VERSION=0.3.11
   NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$NF++;print}')
   sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$FILE_PATH"
   sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$PWD"/artifact.sh
