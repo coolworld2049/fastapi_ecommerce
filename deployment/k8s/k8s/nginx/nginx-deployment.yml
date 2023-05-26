@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-service-nginx
+  name: fastapi-ecommerce-nginx
   namespace: fastapi-ecommerce
   labels:
-    app: auth-service-nginx
+    app: fastapi-ecommerce-nginx
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: auth-service-nginx
+      app: fastapi-ecommerce-nginx
   template:
     metadata:
       labels:
-        app: auth-service-nginx
+        app: fastapi-ecommerce-nginx
     spec:
       containers:
         - image: nginx:latest

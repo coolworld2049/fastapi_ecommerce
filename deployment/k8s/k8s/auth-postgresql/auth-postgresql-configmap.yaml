@@ -4,10 +4,6 @@ metadata:
   name: auth-postgresql-configmap
 data:
   postgresql.conf: |-
-    # hot_standby_feedback = on
-    # 
-    # #-----------------------
-    # 
     # logging_collector = off
     # log_destination = 'stderr,csvlog'
     # log_directory = pg_log

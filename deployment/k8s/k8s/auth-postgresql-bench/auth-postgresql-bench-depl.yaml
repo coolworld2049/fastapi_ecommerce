@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-pgbench
+  name: auth-postgresql-bench
   namespace: fastapi-ecommerce
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth-pgbench
+      app: auth-postgresql-bench
   template:
     metadata:
       labels:
-        app: auth-pgbench
+        app: auth-postgresql-bench
     spec:
       containers:
-        - name: auth-pgbench-python
+        - name: auth-postgresql-bench-python
           image: python:3.11-slim-buster
           command: [ "/bin/bash" ]
           args:
@@ -33,4 +33,4 @@ spec:
       volumes:
         - name: scripts
           configMap:
-            name: auth-pgbench-configmap
+            name: auth-postgresql-bench-configmap

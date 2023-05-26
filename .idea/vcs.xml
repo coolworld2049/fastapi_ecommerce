@@ -2,6 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/deployment/k8s/k8s/auth-pgbench/cnp-bench" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deployment/k8s/k8s/auth-postgresql/percona-postgresql-operator" vcs="Git" />
   </component>
 </project>

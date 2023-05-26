@@ -40,16 +40,65 @@ process_files_in_folder() {
 
 install_auth_postgresql() {
   log "\n${GREEN}Deploy auth-postgresql..."
+
+  # bitnami postgres
   kubectl apply -f "${SCRIPT_DIR}"/auth-postgresql/auth-postgresql-configmap.yaml -n "${NAMESPACE}"
   helm install "$PG_SERVICE_NAME" -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-values.yaml" \
     oci://registry-1.docker.io/bitnamicharts/postgresql -n "${NAMESPACE}"
+
+  #  # percona postgres operator
+  #  path="${SCRIPT_DIR}"/auth-postgresql/percona-postgresql-operator
+  #  [ -d "$path" ] || mkdir "$path"
+  #  git clone -b v2.1.0 https://github.com/percona/percona-postgresql-operator "$path"
+  #
+  #  cd "$path" || log "${RED} ERROR"
+  #  kubectl create namespace postgres-operator
+  #  kubectl config set-context "$(kubectl config current-context)" --namespace=postgres-operator
+  #  kubectl apply --server-side -f deploy/bundle.yaml
+  #  kubectl apply -f deploy/cr.yaml
+  #  cd "$(dirname "$path")" || log "${RED} ERROR"
+  #
+  #  log "${YELLOW}Get secrets..."
+  #  sleep 3
+  #  kubectl get secret cluster1-pguser-cluster1 --template='{{"user: "}}{{.data.user | base64decode}}{{"\npassword: "}}{{.data.password | base64decode}}'
+  #  log "\n"
 }
 
 delete_auth_postgresql() {
-  log "\n${GREEN}Delete auth-postgresql..."
-  helm delete "$PG_SERVICE_NAME" -n "${NAMESPACE}"
-  process_files_in_folder delete "${SCRIPT_DIR}"/auth-postgresql
+  log "\n${GREEN}Deleting auth-postgresql..."
+
+  # bitnami postgres
+  kubectl delete -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-configmap.yaml" -n "${NAMESPACE}"
+  helm uninstall "$PG_SERVICE_NAME" -n "${NAMESPACE}"
+
+  #  # percona postgres operator
+  kubectl delete all --all -n postgres-operator
 }
+
+install_auth_postgresql_bench() {
+  log "\n${GREEN}Deploy auth_postgresql_bench..."
+  kubectl create configmap auth-postgresql-bench-configmap \
+    --from-file="${SCRIPT_DIR}"/auth-postgresql-bench/scripts/pgbench.sh -n "${NAMESPACE}"
+  process_files_in_folder apply "${SCRIPT_DIR}"/auth-postgresql-bench
+}
+
+delete_auth_postgresql_bench() {
+  log "\n${GREEN}Delete auth_postgresql_bench..."
+  kubectl delete configmap auth-postgresql-bench-configmap -n "${NAMESPACE}"
+  process_files_in_folder delete "${SCRIPT_DIR}"/auth-postgresql-bench
+}
+
+install_auth() {
+  log "\n${GREEN}Deploy auth..."
+  process_files_in_folder apply "${SCRIPT_DIR}"/auth
+}
+
+delete_auth() {
+  log "\n${GREEN}Delete auth..."
+  process_files_in_folder delete "${SCRIPT_DIR}"/auth
+}
+
+#-----------------------------
 
 install_store_mongo() {
   log "\n${GREEN}Deploy store-mongo..."
@@ -63,16 +112,6 @@ delete_store_mongo() {
   process_files_in_folder delete "${SCRIPT_DIR}"/store-mongo
 }
 
-install_auth() {
-  log "\n${GREEN}Deploy auth..."
-  process_files_in_folder apply "${SCRIPT_DIR}"/auth
-}
-
-delete_auth() {
-  log "\n${GREEN}Delete auth..."
-  process_files_in_folder delete "${SCRIPT_DIR}"/auth
-}
-
 install_store() {
   log "\n${GREEN}Deploy store..."
   process_files_in_folder apply "${SCRIPT_DIR}"/store
@@ -83,25 +122,11 @@ delete_store() {
   process_files_in_folder delete "${SCRIPT_DIR}"/store
 }
 
-install_pgbench() {
-  log "\n${GREEN}Deploy pgbench..."
-  kubectl create configmap auth-pgbench-configmap \
-    --from-file="${SCRIPT_DIR}"/auth-pgbench/scripts/pgbench.sh -n "${NAMESPACE}"
-  process_files_in_folder apply "${SCRIPT_DIR}"/auth-pgbench
-
-}
-
-delete_pgbench() {
-  log "\n${GREEN}Delete pgbench..."
-  kubectl delete configmap auth-pgbench-configmap -n "${NAMESPACE}"
-  process_files_in_folder delete "${SCRIPT_DIR}"/auth-pgbench
-}
-
 install() {
   helm repo add bitnami https://charts.bitnami.com/bitnami
   install_auth_postgresql
+  install_auth_postgresql_bench
   install_auth
-  install_pgbench
 
   install_store_mongo
   install_store
@@ -109,8 +134,8 @@ install() {
 
 delete() {
   delete_auth_postgresql
+  delete_auth_postgresql_bench
   delete_auth
-  delete_pgbench
 
   delete_store_mongo
   delete_store
