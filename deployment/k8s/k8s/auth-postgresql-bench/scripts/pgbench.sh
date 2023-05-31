@@ -28,17 +28,25 @@ show_help() {
   echo "Run pgbench test with configurable PostgresSQL connection parameters."
   echo
   echo "Options:"
-  echo "  --tpcb        Run TPC_B test"
-  echo "  --select      Run select_only test"
-  echo "  -h,--host        PostgresSQL server hostname (default: $DEFAULT_PGHOST)"
-  echo "  -p,--port        PostgresSQL server port (default: $DEFAULT_PGPORT)"
-  echo "  -r,--revert  Swap clients(default: ${CLIENTS}) and transactions(default: clients * <TX_MUL>${TX_MUL}) size"
+  echo "  --tpcb              Run TPC_B test"
+  echo "  --select            Run select_only test"
+  echo "  -h,--host            PostgresSQL server hostname (default: $DEFAULT_PGHOST)"
+  echo "  -p,--port            PostgresSQL server port (default: $DEFAULT_PGPORT)"
+  echo "  -r,--revert          Swap clients(default: ${CLIENTS}) and transactions(default: clients * <TX_MUL>${TX_MUL}) size"
   echo "  -ft,--fixed-transaction-size  <number>"
-  echo "  --help    Show help information"
+  echo "  -u,--username        PostgresSQL username (default: $PGUSER)"
+  echo "  -P,--password        PostgresSQL password (default: $POSTGRES_PASSWORD)"
+  echo "  --help              Show help information"
   echo "Examples:"
-  echo "  bash pgbench.sh --host auth-postgresql-slave --port 5433 --select"
-  echo "  bash pgbench.sh --host auth-postgresql-primary --port 5432 --tpcb"
+  echo "  bash pgbench.sh --host auth-postgresql-slave --port 5433 --select -u myuser -P mypassword"
+  echo "  bash pgbench.sh --host auth-postgresql-primary --port 5432 --tpcb -u myuser -P mypassword"
 }
+
+# Check if running with sudo
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run this script with sudo."
+  exit 1
+fi
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -52,6 +60,17 @@ while [[ $# -gt 0 ]]; do
     ;;
   -p | --port)
     PGPORT="$2"
+    shift # past argument
+    shift # past value
+    ;;
+  -u | --username)
+    PGUSER="$2"
+    shift # past argument
+    shift # past value
+    ;;
+  -P | --password)
+    POSTGRES_PASSWORD="$2"
+    export PGPASSWORD="$POSTGRES_PASSWORD"
     shift # past argument
     shift # past value
     ;;

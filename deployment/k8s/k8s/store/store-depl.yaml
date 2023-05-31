@@ -2,17 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: store-depl
-  name: store
+    app: store-svc
+  name: store-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: store
+      app: store-svc
   template:
     metadata:
       labels:
-        app: store
+        app: store-svc
     spec:
       containers:
         - env:
@@ -104,10 +104,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: store
+  name: store-svc
 spec:
   selector:
-    app: store
+    app: store-svc
   type: ClusterIP
   ports:
     - name: http

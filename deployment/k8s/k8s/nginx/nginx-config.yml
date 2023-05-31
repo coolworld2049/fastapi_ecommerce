@@ -13,8 +13,14 @@ data:
 
         listen 80;
 
-        location /api/auth {
-            proxy_pass http://auth-svc;
+        location auth.fastapi-ecommerce {
+            proxy_pass http://auth-svc/api/v1;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $host;
+            proxy_redirect off;
+        }
+        location store.fastapi-ecommerce {
+            proxy_pass http://store-svc/api/v1;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $host;
             proxy_redirect off;

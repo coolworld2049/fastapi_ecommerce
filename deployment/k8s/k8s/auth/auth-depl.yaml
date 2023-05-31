@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth
+  name: auth-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth
+      app: auth-svc
   template:
     metadata:
       labels:
-        app: auth
+        app: auth-svc
     spec:
       containers:
           - env:
@@ -159,10 +159,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth
+  name: auth-svc
 spec:
   selector:
-    app: auth
+    app: auth-svc
   type: ClusterIP
   ports:
     - name: http

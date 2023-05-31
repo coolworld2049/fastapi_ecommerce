@@ -20,17 +20,6 @@ spec:
           name: nginx
           ports:
             - containerPort: 80
-          readinessProbe:
-            httpGet:
-              port: 80
-              path: /api/v1/docs
-            initialDelaySeconds: 15
-          livenessProbe:
-            httpGet:
-              port: 80
-              path: /api/v1/docs
-            initialDelaySeconds: 15
-            periodSeconds: 15
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d/default.conf
