@@ -15,13 +15,9 @@ rm_dist
 
 python setup.py sdist
 
-python -m pip list | grep twine
+python -m pip install twine --exists-action i &>/dev/null
 
-if [ $? -eq 1 ]; then
-  python -m pip install twine
-fi
-
-python -m twine upload dist/* -u "$1" -p "$2"
+python -m twine upload dist/* -u "$1" -p "$2" --verbose
 
 rm_dist
 

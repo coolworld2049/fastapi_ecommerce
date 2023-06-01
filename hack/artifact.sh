@@ -9,34 +9,12 @@ SRC_DIR="../src"
 MAX_VERSIONS=3 # Maximum number of versions to keep
 PYPI_UPLOAD=false
 DOCKER_BUILD=false
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/k8s
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
-
-# Function to increase the version
-increment_version() {
-  local version=$1
-  local part=$2
-  local next_version
-
-  IFS='.' read -ra version_parts <<<"$version"
-
-  # Increment the specified part
-  # shellcheck disable=SC2004
-  version_parts[$part]=$((version_parts[$part] + 1))
-
-  # Reset lower parts to 0
-  # shellcheck disable=SC2004
-  for ((i = $part + 1; i < 3; i++)); do
-    version_parts[$i]=0
-  done
-
-  next_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
-  echo "$next_version"
-}
 
 # Function for colorized logging
 log() {
@@ -99,77 +77,99 @@ while [[ $# -gt 0 ]]; do
     ;;
   esac
 done
+# Function to increase the version
+increment_version() {
+  local version=$1
+  local part=$2
+  local next_version
+
+  IFS='.' read -ra version_parts <<<"$version"
+
+  # Increment the specified part
+  # shellcheck disable=SC2004
+  version_parts[$part]=$((version_parts[$part] + 1))
+
+  # Reset lower parts to 0
+  # shellcheck disable=SC2004
+  for ((i = $part + 1; i < 3; i++)); do
+    version_parts[$i]=0
+  done
+
+  next_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
+  echo "$next_version"
+}
+
+publish_pypi_pkg() {
+  # Upload package to PyPI if --pypi flag is provided
+  if [[ -d "$SRC_DIR"/core && "$PYPI_UPLOAD" == true ]]; then
+    path="$SRC_DIR"/core/fastapi_ecommerce_core
+    FILE_PATH="$path"/setup.py
+    CURRENT_VERSION=0.3.9
+    NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$NF++;print}')
+    sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$FILE_PATH"
+    sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$PWD"/artifact.sh
+    log "${GREEN}Version updated from $CURRENT_VERSION to $NEW_VERSION in $FILE_PATH ${NC}"
+    log "${GREEN}" "Uploading package to PyPI...${NC}"
+    # shellcheck disable=SC2164
+    cd "$SRC_DIR"/core
+    bash publish.sh "$USERNAME" "$PASSWORD"
+    # shellcheck disable=SC2164
+    cd "$SCRIPT_DIR"
+  fi
+}
+
+create_docker_images() {
+  # Iterate through each folder in the source directory
+  for folder in "$SRC_DIR"/*/; do
+    # Check if the folder contains a Dockerfile
+    if [[ -f "$folder/Dockerfile" && "$DOCKER_BUILD" == true ]]; then
+      # Extract the folder name
+      folder_name=$(basename "$folder")
+
+      # Login to Docker Hub
+      log "${GREEN}" "Logging in to Docker Hub...${NC}"
+      echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
+
+      # Docker build the Docker image
+      log "${GREEN}" "Docker building Docker image for $folder_name...${NC}"
+      docker build -t "$folder_name" "$folder"
+
+      # Increment the Docker tag version
+      next_version=latest
+      log "${YELLOW}next_version=$next_version${NC}"
+
+      # Tag the Docker image with the Docker Hub repository and version
+      tag="${USERNAME}/${folder_name}:${next_version}"
+      docker tag "$folder_name" "$tag"
+
+      # Push the Docker image to Docker Hub
+      log "${GREEN}" "Pushing Docker image to Docker Hub...${NC}"
+      docker push "$tag"
+
+      # Delete old versions of the Docker image
+      log "${GREEN}" "Deleting old versions of the Docker image...${NC}"
+      docker images "${USERNAME}/${folder_name}" --format '{{.ID}} {{.Tag}}' |
+        sort -rn | awk -v max_versions="$MAX_VERSIONS" 'NR > max_versions {print $1}' |
+        xargs -r docker rmi -f
+
+      # Logout from Docker Hub
+      log "${GREEN}" "Logging out from Docker Hub...${NC}"
+      docker logout
+    fi
+  done
+}
 
 # Check if required flags are provided
 if [ "$PYPI_UPLOAD" == true ]; then
   USERNAME="${PYPI_USERNAME}"
   PASSWORD="${PYPI_PASSWORD}"
+  publish_pypi_pkg
 elif [ "$DOCKER_BUILD" == true ]; then
   USERNAME="${DOCKER_USER}"
   PASSWORD="${DOCKER_PASSWORD}"
+  create_docker_images
 else
+  echo "ERROR: username and password are required."
   echo "ERROR: select --docker or --pypi"
   exit 1
 fi
-
-# Check if required flags are provided
-if [[ -z "$USERNAME" || -z "$PASSWORD" ]]; then
-  echo "ERROR: username and password are required."
-  exit 1
-fi
-
-# Upload package to PyPI if --pypi flag is provided
-if [[ -d "$SRC_DIR"/core && "$PYPI_UPLOAD" == true ]]; then
-  path="$SRC_DIR"/core/fastapi_ecommerce_core
-  FILE_PATH="$path"/setup.py
-  CURRENT_VERSION=0.3.11
-  NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$NF++;print}')
-  sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$FILE_PATH"
-  sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" "$PWD"/artifact.sh
-  log "${GREEN}Version updated from $CURRENT_VERSION to $NEW_VERSION in $FILE_PATH ${NC}"
-  log "${GREEN}" "Uploading package to PyPI...${NC}"
-  # shellcheck disable=SC2164
-  cd "$SRC_DIR"/core
-  bash publish.sh "$USERNAME" "$PASSWORD"
-  # shellcheck disable=SC2164
-  cd "$SCRIPT_DIR"
-fi
-
-# Iterate through each folder in the source directory
-for folder in "$SRC_DIR"/*/; do
-  # Check if the folder contains a Dockerfile
-  if [[ -f "$folder/Dockerfile" && "$DOCKER_BUILD" == true ]]; then
-    # Extract the folder name
-    folder_name=$(basename "$folder")
-
-    # Login to Docker Hub
-    log "${GREEN}" "Logging in to Docker Hub...${NC}"
-    echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
-
-    # Docker build the Docker image
-    log "${GREEN}" "Docker building Docker image for $folder_name...${NC}"
-    docker build -t "$folder_name" "$folder"
-
-    # Increment the Docker tag version
-    next_version=latest
-    log "${YELLOW}next_version=$next_version${NC}"
-
-    # Tag the Docker image with the Docker Hub repository and version
-    tag="${USERNAME}/${folder_name}:${next_version}"
-    docker tag "$folder_name" "$tag"
-
-    # Push the Docker image to Docker Hub
-    log "${GREEN}" "Pushing Docker image to Docker Hub...${NC}"
-    docker push "$tag"
-
-    # Delete old versions of the Docker image
-    log "${GREEN}" "Deleting old versions of the Docker image...${NC}"
-    docker images "${USERNAME}/${folder_name}" --format '{{.ID}} {{.Tag}}' |
-      sort -rn | awk -v max_versions="$MAX_VERSIONS" 'NR > max_versions {print $1}' |
-      xargs -r docker rmi -f
-
-    # Logout from Docker Hub
-    log "${GREEN}" "Logging out from Docker Hub...${NC}"
-    docker logout
-  fi
-done
