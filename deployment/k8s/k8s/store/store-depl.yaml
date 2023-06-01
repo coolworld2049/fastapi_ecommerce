@@ -108,7 +108,7 @@ metadata:
 spec:
   selector:
     app: store-svc
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - name: http
       protocol: TCP

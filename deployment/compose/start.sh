@@ -1,25 +1,29 @@
 #! /usr/bin/env bash
 
-set -euo pipefail
+set -eo pipefail
+
+source ../../.env
 
 log() { printf '\n%s\n' "$1" >&2; }
 
 function auth_service() {
+  docker pull "${DOCKER_USER}"/auth_service:latest
   docker-compose -p "$project_name" -f "$compose_file" up -d auth_service_postgresql_master
   docker-compose -p "$project_name" -f "$compose_file" up --force-recreate -d auth_service
 }
 
 function store_service() {
+  docker pull "${DOCKER_USER}"/store_service:latest
   docker-compose -p "$project_name" -f "$compose_file" up -d store_service_mongodb_router01
-  dir=../databases/store_service_mongodb
+  dir=../../databases/store_service_mongodb
   log "execute $dir/ scripts"
   bash $dir/init.sh
   docker-compose -p "$project_name" -f "$compose_file" up --force-recreate -d store_service
 }
 
 function proxy_service() {
-  dir=../src/proxy_service/
-  log "execute $dir/ scripts"
+  dir=../../src/proxy_service
+  log "execute $dir scripts"
   bash $dir/init.sh
   docker-compose -p "$project_name" -f "$compose_file" up -d proxy_service
 }
@@ -41,7 +45,6 @@ function info() {
 }
 
 function main() {
-  source ../../.env
 
   project_name=${PROJECT_NAME?env PROJECT_NAME required}
   compose_file=docker-compose.yml

@@ -1,7 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-service
+  name: ingress-srv
+  namespace: fastapi-ecommerce
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -9,33 +10,39 @@ metadata:
 spec:
   tls:
     - hosts:
-        - www.fastapi-ecommerce.com
+        - auth.fastapi-ecommerce.com
+      secretName: echo-tls
+    - hosts:
+        - store.fastapi-ecommerce.com
       secretName: echo-tls
   rules:
-    - host: www.fastapi-ecommerce.com
+    - host: auth.fastapi-ecommerce.com
       http:
         paths:
-          - path: /api/v1/auth/?(.*)
-            pathType: Prefix
+          - pathType: Prefix
+            path: "/api/v1/"
             backend:
               service:
-                name: auth
+                name: auth-svc
                 port:
-                  number: 80
-          - path: /api/store/?(.*)
-            pathType: Prefix
+                  number: 8081
+    - host: store.fastapi-ecommerce.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/api/v1/"
             backend:
               service:
-                name: store
+                name: store-svc
                 port:
-                  number: 80
+                  number: 8082
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
     service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
-    service.beta.kubernetes.io/do-loadbalancer-hostname: "www.fastapi-ecommerce.com"
+    service.beta.kubernetes.io/do-loadbalancer-hostname: "fastapi-ecommerce.com"
   labels:
     helm.sh/chart: ingress-nginx-4.0.15
     app.kubernetes.io/name: ingress-nginx

@@ -1,7 +1,6 @@
 import logging
-import os
 import pathlib
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import validator
 
@@ -9,21 +8,21 @@ from store_service.core.settings.base import BaseAppSettings, StageType
 
 
 class AppSettings(BaseAppSettings):
-    title: str = os.getenv("APP_NAME")
     api_prefix: str = "/api/v1"
     docs_url: str = f"{api_prefix}/docs"
     openapi_prefix: str = f""
     openapi_url: str = f"{api_prefix}/openapi.json"
     redoc_url: str = f"{api_prefix}/redoc"
 
-    APP_NAME: str
-    APP_HOST: str
-    APP_PORT: int
+    APP_NAME: Optional[str] = 'auth-service'
+    APP_HOST: Optional[str] = "localhost"
+    APP_PORT: Optional[int] = 8081
+    APP_MODULE: Optional[str] = "store_service.main:app"
     STAGE: StageType
-    APP_VERSION: str = "latest"
+    APP_VERSION: Optional[str] = "latest"
 
-    APP_BACKEND_CORS_ORIGINS: list[str]
-    JWT_ALGORITHM: str = "HS256"
+    APP_BACKEND_CORS_ORIGINS: Optional[list[str]] = ["*"]
+    JWT_ALGORITHM: Optional[str] = "HS256"
     JWT_SECRET_KEY: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
@@ -32,7 +31,7 @@ class AppSettings(BaseAppSettings):
     AUTH_SERVICE_URL: str
     AUTH_SERVICE_LOGIN_PATH: str
 
-    LOGGING_LEVEL: int = logging.INFO
+    LOGGING_LEVEL: Optional[int] = logging.INFO
 
     @validator("APP_BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: str | list[str]) -> str | list[str]:

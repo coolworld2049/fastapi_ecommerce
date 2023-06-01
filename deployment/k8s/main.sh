@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/k8s
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "${SCRIPT_DIR}"/../../.env
+
+SCRIPT_DIR="${SCRIPT_DIR}"/k8s
+
 PG_SERVICE_NAME=auth-postgresql
 MONGO_SERVICE_NAME=store-mongo
-NAMESPACE="fastapi-ecommerce"
+NAMESPACE="${PROJECT_NAME:-fastapi-ecommerce}"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -25,10 +30,8 @@ process_files_in_folder() {
   local files=("$folder_path"/* "$folder_path"/.*)
   shopt -s nullglob
   for file in "${files[@]}"; do
-    if [ -f "$file" ] && [[ "$file" = *.yaml ]] && [[ "$file" != *example* ]]; then
-      if [[ "$file" = *values*.yaml ]]; then
-        continue
-      fi
+    if [ -f "$file" ] && [[ "$file" = *.yaml ]] || [[ "$file" = *.yml ]] &&
+      [[ "$file" != *example* ]] && ! [[ "$file" = *values*.yaml ]]; then
       if [ "$action" = "apply" ]; then
         kubectl apply -f "$file" -n "${NAMESPACE}"
       elif [ "$action" = "delete" ]; then
@@ -38,10 +41,12 @@ process_files_in_folder() {
   done
 }
 
+#-----------------------------
+
 install_auth_postgresql() {
   log "\n${GREEN}Deploy auth-postgresql..."
-
   # bitnami postgres
+  helm repo add bitnami https://charts.bitnami.com/bitnami
   kubectl apply -f "${SCRIPT_DIR}"/auth-postgresql/auth-postgresql-configmap.yaml -n "${NAMESPACE}"
   helm install "$PG_SERVICE_NAME" -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-values.yaml" \
     oci://registry-1.docker.io/bitnamicharts/postgresql -n "${NAMESPACE}"
@@ -122,55 +127,74 @@ delete_store() {
   process_files_in_folder delete "${SCRIPT_DIR}"/store
 }
 
+#-----------------------------
+
+install_cert_manager() {
+  log "\n${GREEN}Deploy cert_manager..."
+  kubectl apply --validate=false -f \
+    https://github.com/jetstack/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml
+  kubectl create namespace cert-manager
+  helm repo add jetstack https://charts.jetstack.io
+  # helm repo update
+  helm install cert-manager -n cert-manager jetstack/cert-manager
+  process_files_in_folder apply "${SCRIPT_DIR}/../issuer"
+  echo -e "${GREEN}cert-manager has been installed successfully.${RESET}"
+}
+
+delete_cert_manager() {
+  log "\n${GREEN}Delete cert_manager..."
+  process_files_in_folder delete "${SCRIPT_DIR}/../issuer"
+  helm delete cert-manager -n cert-manager
+  kubectl delete namespace cert-manager
+  echo -e "${GREEN}cert-manager has been deleted successfully.${RESET}"
+}
+
+install_ingress() {
+  log "\n${GREEN}Deploy ingress..."
+  process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"
+}
+
+delete_ingress() {
+  log "\n${GREEN}Delete ingress..."
+  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
+}
+
+#-----------------------------
+
+port_forward() {
+  kubectl port-forward -n "${NAMESPACE}" svc/auth-postgresql-primary 5432:5432 &
+  kubectl port-forward -n "${NAMESPACE}" svc/auth-postgresql-slave 5433:5433 &
+}
+
 install() {
-  helm repo add bitnami https://charts.bitnami.com/bitnami
   install_auth_postgresql
-  install_auth_postgresql_bench
+  # install_auth_postgresql_bench
   install_auth
 
   install_store_mongo
   install_store
+
+  #install_cert_manager
+  install_ingress
 }
 
 delete() {
   delete_auth_postgresql
-  delete_auth_postgresql_bench
+  # delete_auth_postgresql_bench
   delete_auth
 
   delete_store_mongo
   delete_store
-}
 
-port_forward() {
-  local service_name="$1"
-
-  case "$service_name" in
-  auth)
-    kubectl port-forward --namespace "${NAMESPACE}" "svc/${service_name}" 8081:8081 &
-    echo "Port forwarding enabled for service ${service_name}"
-    ;;
-  auth-postgresql)
-    kubectl port-forward --namespace "${NAMESPACE}" "svc/${service_name}-primary" 5432:5432 &
-    kubectl port-forward --namespace "${NAMESPACE}" "svc/${service_name}-slave" 5433:5433 &
-    echo "Port forwarding enabled for service ${service_name} (primary and slave)"
-    ;;
-  store-mongo)
-    kubectl port-forward --namespace "${NAMESPACE}" "svc/${service_name}-headless" 27017:27017 &
-    echo "Port forwarding enabled for service ${service_name} (headless)"
-    ;;
-  *)
-    log "${RED}Error: Unknown service name."
-    show_help
-    exit 1
-    ;;
-  esac
+  #delete_cert_manager
+  delete_ingress
 }
 
 show_help() {
   echo "Usage: script.sh [install|upgrade|delete|help] [OPTIONS]"
   echo "  install                             Start the script"
   echo "  delete                              Stop the script"
-  echo "  port_forward, -pf <service_name>    Enable port forwarding"
+  echo "  -pf, port_forward                   Enable port forwarding"
   echo "  help                                Show help"
   echo ""
   echo "Options:"
@@ -185,16 +209,16 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
     ;;
-  port_forward | -pf)
-    port_forward "$2"
-    exit
-    ;;
   install)
     install
     exit
     ;;
   delete)
     delete
+    exit
+    ;;
+  -pf | port_forward)
+    port_forward
     exit
     ;;
   help)

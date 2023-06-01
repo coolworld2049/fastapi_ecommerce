@@ -11,10 +11,9 @@ from auth_service.core.settings.base import BaseAppSettings, StageType
 
 
 class AppSettings(BaseAppSettings):
-    title: str = os.getenv("APP_NAME")
     api_prefix: str = "/api/v1"
     docs_url: str = f"{api_prefix}/docs"
-    openapi_prefix: str = f""
+    openapi_prefix: str = ""
     openapi_url: str = f"{api_prefix}/openapi.json"
     redoc_url: str = f"{api_prefix}/redoc"
 
@@ -22,14 +21,15 @@ class AppSettings(BaseAppSettings):
     USE_USER_CHECKS: Optional[bool] = True
     USE_EMAILS: Optional[bool] = True if os.getenv("SMTP_PASSWORD") else False
 
-    APP_NAME: str
-    APP_HOST: str
-    APP_PORT: int
+    APP_NAME: Optional[str] = 'auth-service'
+    APP_HOST: Optional[str] = "localhost"
+    APP_PORT: Optional[int] = 8081
+    APP_MODULE: Optional[str] = "auth_service.main:app"
     STAGE: StageType
-    APP_VERSION: str = "latest"
+    APP_VERSION: Optional[str] = "latest"
 
-    APP_BACKEND_CORS_ORIGINS: list[str]
-    JWT_ALGORITHM: str = "HS256"
+    APP_BACKEND_CORS_ORIGINS: Optional[list[str]] = ["*"]
+    JWT_ALGORITHM: Optional[str] = "HS256"
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     FIRST_SUPERUSER_EMAIL: str
@@ -48,19 +48,11 @@ class AppSettings(BaseAppSettings):
     POSTGRESQL_USERNAME: str
     POSTGRESQL_PASSWORD: str
 
-    SQLALCHEMY_POOL_SIZE: int = (
-        os.getenv("SQLALCHEMY_POOL_SIZE")
-        if os.getenv("SQLALCHEMY_POOL_SIZE")
-        else 100
-    )
-    SQLALCHEMY_MAX_OVERFLOW: int = (
-        int(SQLALCHEMY_POOL_SIZE * 0.2)
-        if os.getenv("SQLALCHEMY_MAX_OVERFLOW")
-        else 20
-    )
+    SQLALCHEMY_POOL_SIZE: Optional[int] = 40
+    SQLALCHEMY_MAX_OVERFLOW: Optional[int] = 10
     SQLALCHEMY_PROFILE_QUERY_MODE: Optional[bool] = False
 
-    LOGGING_LEVEL: int = logging.INFO
+    LOGGING_LEVEL: Optional[int] = logging.INFO
 
     @validator("APP_BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: str | list[str]) -> str | list[str]:
@@ -72,10 +64,6 @@ class AppSettings(BaseAppSettings):
 
     class Config:
         validate_assignment = True
-
-    @property
-    def stage_not_prod(self):
-        return True if self.STAGE != StageType.prod else False
 
     @property
     def fastapi_kwargs(self) -> dict[str, Any]:

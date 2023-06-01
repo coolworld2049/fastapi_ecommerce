@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+source ../.env
+
 # Default values
 USERNAME=""
 PASSWORD=""
 SRC_DIR="../src"
-MAX_VERSIONS=1 # Maximum number of versions to keep
+MAX_VERSIONS=3 # Maximum number of versions to keep
 PYPI_UPLOAD=false
 DOCKER_BUILD=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/k8s
@@ -97,6 +99,18 @@ while [[ $# -gt 0 ]]; do
     ;;
   esac
 done
+
+# Check if required flags are provided
+if [ "$PYPI_UPLOAD" == true ]; then
+  USERNAME="${PYPI_USERNAME}"
+  PASSWORD="${PYPI_PASSWORD}"
+elif [ "$DOCKER_BUILD" == true ]; then
+  USERNAME="${DOCKER_USER}"
+  PASSWORD="${DOCKER_PASSWORD}"
+else
+  echo "ERROR: select --docker or --pypi"
+  exit 1
+fi
 
 # Check if required flags are provided
 if [[ -z "$USERNAME" || -z "$PASSWORD" ]]; then

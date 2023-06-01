@@ -11,6 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/example_projects" />
       <excludeFolder url="file://$MODULE_DIR$/example_projects/FastAPI_EKS_Kubernetes" />
+      <excludeFolder url="file://$MODULE_DIR$/FastAPI_EKS_Kubernetes" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (fastapi-ecommerce)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

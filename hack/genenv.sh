@@ -14,7 +14,7 @@ function gen_sample_enf_files() {
 
   mkdir -p $save_f_name
 
-  function cpenv() {
+  function convert() {
     log "$(basename "$dir")"
     target_f_name="$dir"/.env.prod
     example_f_name="$target_f_name".example
@@ -28,7 +28,7 @@ function gen_sample_enf_files() {
   }
 
   for dir in ../src/*; do
-    cpenv "$dir"
+    convert "$dir"
   done
 
   cp ../.env.example "$save_f_name"/fastapi-ecommerce.env

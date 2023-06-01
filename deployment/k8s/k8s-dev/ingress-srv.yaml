@@ -1,26 +1,27 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-service
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/use-regex: "true"
+  name: ingress-srv
+  namespace: fastapi-ecommerce
 spec:
   rules:
-    - host: fastapi-ecommerce.com
+    - host: localhost
       http:
         paths:
-          - path: /api/auth/?(.*)
-            pathType: Prefix
+          - pathType: Prefix
+            path: "/api/v1/"
             backend:
               service:
-                name: auth
+                name: auth-svc
                 port:
-                  number: 80
-          - path: /api/store/?(.*)
-            pathType: Prefix
+                  number: 8081
+    - host: localhost
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/api/v1/"
             backend:
               service:
-                name: store
+                name: store-svc
                 port:
-                  number: 80
+                  number: 8082

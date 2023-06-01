@@ -30,8 +30,7 @@ def get_application() -> FastAPI:
         prefix=get_app_settings().api_prefix,
     )
 
-    if get_app_settings().STAGE != StageType.prod:
-        application.middleware("http")(LoguruLoggingMiddleware())
+    application.middleware("http")(LoguruLoggingMiddleware())
 
     @application.on_event("startup")
     async def startup() -> None:

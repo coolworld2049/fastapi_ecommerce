@@ -1,13 +1,10 @@
 #! /usr/bin/env bash
 
-set -euo pipefail
+set -eo pipefail
 
 function req_install() {
-  set +e
-  echo "sudo apt install -y libnss3-tools mkcert"
-  sudo apt install -y libnss3-tools mkcert
-  set -e
-
+  echo "apt install -y libnss3-tools mkcert"
+  apt install -y libnss3-tools mkcert
   mkcert -install
 }
 
@@ -34,8 +31,9 @@ function main() {
   SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
   source "$SCRIPTDIR"/../../.env
-
+  set +e
   req_install
+  set -e
   create_cert
   sed_server_name
 }

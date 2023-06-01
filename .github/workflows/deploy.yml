@@ -17,7 +17,7 @@ jobs:
           echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
           export STAGE=test
           cd hack
-          bash cpenv.sh
+          bash convert.sh
           source ../.env
           bash artifact.sh -u $DOCKER_USER -p $DOCKER_PASSWORD --docker
           bash artifact.sh -u $PYPI_USER -p $PYPI_PASSWORD --pypi
@@ -53,7 +53,7 @@ jobs:
             echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
             echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
             cd hack
-            bash cpenv.sh
+            bash convert.sh
             cd ../deployment/compose/
             bash restart.sh
             cd ../../..

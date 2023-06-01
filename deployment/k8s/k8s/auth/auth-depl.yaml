@@ -163,7 +163,7 @@ metadata:
 spec:
   selector:
     app: auth-svc
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - name: http
       protocol: TCP
