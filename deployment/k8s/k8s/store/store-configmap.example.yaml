@@ -7,7 +7,7 @@ data:
   APP_PORT: "8002"
   APP_VERSION: "latest"
   AUTH_SERVICE_LOGIN_PATH: "/api/v1/login/access-token"
-  AUTH_SERVICE_URL: "http://auth:8081"
+  AUTH_SERVICE_URL: "http://auth-svc:8081"
   FIRST_SUPERUSER_EMAIL: "fastapi.ecommerce@gmail.com"
   FIRST_SUPERUSER_PASSWORD: "AdminTestPass000?"
   JWT_ALGORITHM: "HS256"

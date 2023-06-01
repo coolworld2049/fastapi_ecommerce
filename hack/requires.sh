@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -eoux pipefail
+set -eou pipefail
 
 log() { printf '\n%s\n' "$1" >&2; }
 

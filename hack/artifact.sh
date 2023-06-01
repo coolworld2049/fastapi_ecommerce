@@ -100,7 +100,7 @@ done
 
 # Check if required flags are provided
 if [[ -z "$USERNAME" || -z "$PASSWORD" ]]; then
-  echo "ERROR: Docker username and password are required."
+  echo "ERROR: username and password are required."
   exit 1
 fi
 
