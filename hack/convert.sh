@@ -8,7 +8,7 @@ function convert() {
   target_f_name="$1"/$2
   example_f_name="$target_f_name".example
   if [ -f "$example_f_name" ]; then
-    # cp "$example_f_name" "$target_f_name"
+    cp "$example_f_name" "$target_f_name"
     log "✅  $example_f_name > $target_f_name"
   fi
 }

@@ -167,6 +167,8 @@ port_forward() {
 }
 
 install() {
+  kubectl create namespace "${NAMESPACE}"
+
   install_auth_postgresql
   # install_auth_postgresql_bench
   install_auth
