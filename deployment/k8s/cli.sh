@@ -154,52 +154,45 @@ delete_cert_manager() {
 
 #-----------------------------
 
-port_forward() {
-  kubectl port-forward -n "${NAMESPACE}" svc/auth-postgresql-primary 5432:5432 &
-  kubectl port-forward -n "${NAMESPACE}" svc/auth-postgresql-slave 5433:5433 &
-}
-
-install() {
-  kubectl create namespace "${NAMESPACE}"
-
-  install_auth_postgresql
-  # install_auth_postgresql_bench
-  install_auth
-
-  install_store_mongo
-  install_store
-
+install_ingress_network() {
   install_ingress_nginx
   install_cert_manager
-
   until process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"; do
     sleep 5
     log "${YELLOW}Try again${NC}"
   done
+}
 
+delete_ingress_network() {
+  delete_ingress_nginx
+  delete_cert_manager
+  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
+}
+
+install() {
+  kubectl create namespace "${NAMESPACE}"
+  install_auth_postgresql
+  # install_auth_postgresql_bench
+  install_auth
+  install_store_mongo
+  install_store
 }
 
 delete() {
   delete_auth_postgresql
   # delete_auth_postgresql_bench
   delete_auth
-
   delete_store_mongo
   delete_store
-
-  delete_ingress_nginx
-  delete_cert_manager
-
-  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
-
 }
 
 show_help() {
   echo "Usage: script.sh [install|upgrade|delete|help] [OPTIONS]"
   echo "  install                             Start the script"
+  echo "  install-ingress-net                 Start the script"
   echo "  delete                              Stop the script"
-  echo "  reinstall                              Stop and Start the script"
-  echo "  -pf, port_forward                   Enable port forwarding"
+  echo "  delete-ingress-net                  Start the script"
+  echo "  reinstall                           Stop and Start the script"
   echo "  help                                Show help"
   echo ""
   echo "Options:"
@@ -218,8 +211,16 @@ while [[ $# -gt 0 ]]; do
     install
     exit
     ;;
+  install-ingress)
+    install_ingress_network
+    exit
+    ;;
   delete)
     delete
+    exit
+    ;;
+  delete-ingress)
+    delete_ingress_network
     exit
     ;;
   reinstall)

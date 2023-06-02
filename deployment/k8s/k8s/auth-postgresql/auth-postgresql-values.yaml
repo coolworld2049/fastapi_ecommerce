@@ -469,7 +469,7 @@ primary:
   hostAliases: [ ]
   ## @param primary.hostNetwork Specify if host network should be enabled for PostgreSQL pod (postgresql primary)
   ##
-  hostNetwork: false
+  hostNetwork: true
   ## @param primary.hostIPC Specify if host IPC should be enabled for PostgreSQL pod (postgresql primary)
   ##
   hostIPC: false
@@ -581,7 +581,7 @@ primary:
   service:
     ## @param primary.service.type Kubernetes Service type
     ##
-    type: ClusterIP
+    type: LoadBalancer
     ## @param primary.service.ports.postgresql PostgreSQL service port
     ##
     ports:
@@ -592,7 +592,7 @@ primary:
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
     ##
     nodePorts:
-      postgresql: ""
+      postgresql: "30032"
     ## @param primary.service.clusterIP Static clusterIP or None for headless services
     ## e.g:
     ## clusterIP: None
@@ -947,7 +947,7 @@ readReplicas:
   service:
     ## @param readReplicas.service.type Kubernetes Service type
     ##
-    type: ClusterIP
+    type: LoadBalancer
     ## @param readReplicas.service.ports.postgresql PostgreSQL service port
     ##
     ports:
@@ -958,7 +958,7 @@ readReplicas:
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
     ##
     nodePorts:
-      postgresql: ""
+      postgresql: "30033"
     ## @param readReplicas.service.clusterIP Static clusterIP or None for headless services
     ## e.g:
     ## clusterIP: None

@@ -769,7 +769,7 @@ service:
 externalAccess:
   ## @param externalAccess.enabled Enable Kubernetes external cluster access to MongoDB(&reg;) nodes (only for replicaset architecture)
   ##
-  enabled: false
+  enabled: true
   ## External IPs auto-discovery configuration
   ## An init container is used to auto-detect LB IPs or node ports by querying the K8s API
   ## Note: RBAC might be required
@@ -841,7 +841,7 @@ externalAccess:
   service:
     ## @param externalAccess.service.type Kubernetes Service type for external access. Allowed values: NodePort, LoadBalancer or ClusterIP
     ##
-    type: LoadBalancer
+    type: NodePort
     ## @param externalAccess.service.portName MongoDB(&reg;) port name used for external access when service type is LoadBalancer
     ##
     portName: "mongodb"
@@ -880,7 +880,9 @@ externalAccess:
     ##   - 30001
     ##   - 30002
     ##
-    nodePorts: [ ]
+    nodePorts:
+      - 30017
+      - 30018
     ## @param externalAccess.service.domain Domain or external IP used to configure MongoDB(&reg;) advertised hostname when service type is NodePort
     ## If not specified, the container will try to get the kubernetes node external IP
     ## e.g:
