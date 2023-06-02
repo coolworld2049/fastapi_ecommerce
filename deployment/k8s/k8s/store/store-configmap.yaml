@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: store-configmap
+  namespace: fastapi-ecommerce
+data:
+  STAGE: "prod"
+  APP_MODULE: "store_service.main:app"
+  AUTH_SERVICE_LOGIN_PATH: "/api/v1/login/access-token"
+  AUTH_SERVICE_URL: "http://auth-svc:8081"
+  FIRST_SUPERUSER_EMAIL: "fastapi.ecommerce@gmail.com"
+  FIRST_SUPERUSER_PASSWORD: "AdminTestPass000?"
+  JWT_SECRET_KEY: "supersecret"
+  MONGODB_URL: "mongodb://root:root@store-mongo-headless:27017/app"

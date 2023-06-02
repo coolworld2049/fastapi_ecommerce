@@ -1,171 +1,127 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-svc
+  name: auth-depl
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: auth-svc
+      app: auth
   template:
     metadata:
       labels:
-        app: auth-svc
+        app: auth
     spec:
       containers:
-          - env:
-              - name: ACCESS_TOKEN_EXPIRE_MINUTES
-                valueFrom:
-                  configMapKeyRef:
-                    key: ACCESS_TOKEN_EXPIRE_MINUTES
-                    name: auth-configmap
-              - name: APP_BACKEND_CORS_ORIGINS
-                valueFrom:
-                  configMapKeyRef:
-                    key: APP_BACKEND_CORS_ORIGINS
-                    name: auth-configmap
-              - name: APP_HOST
-                valueFrom:
-                  configMapKeyRef:
-                    key: APP_HOST
-                    name: auth-configmap
-              - name: APP_MODULE
-                valueFrom:
-                  configMapKeyRef:
-                    key: APP_MODULE
-                    name: auth-configmap
-              - name: APP_NAME
-                valueFrom:
-                  configMapKeyRef:
-                    key: APP_NAME
-                    name: auth-configmap
-              - name: APP_PORT
-                valueFrom:
-                  configMapKeyRef:
-                    key: APP_PORT
-                    name: auth-configmap
-              - name: APP_VERSION
-                valueFrom:
-                  configMapKeyRef:
-                    key: APP_VERSION
-                    name: auth-configmap
-              - name: FIRST_SUPERUSER_EMAIL
-                valueFrom:
-                  configMapKeyRef:
-                    key: FIRST_SUPERUSER_EMAIL
-                    name: auth-configmap
-              - name: FIRST_SUPERUSER_PASSWORD
-                valueFrom:
-                  configMapKeyRef:
-                    key: FIRST_SUPERUSER_PASSWORD
-                    name: auth-configmap
-              - name: JWT_ALGORITHM
-                valueFrom:
-                  configMapKeyRef:
-                    key: JWT_ALGORITHM
-                    name: auth-configmap
-              - name: JWT_SECRET_KEY
-                valueFrom:
-                  configMapKeyRef:
-                    key: JWT_SECRET_KEY
-                    name: auth-configmap
-              - name: POSTGRESQL_DATABASE
-                valueFrom:
-                  configMapKeyRef:
-                    key: POSTGRESQL_DATABASE
-                    name: auth-configmap
-              - name: POSTGRESQL_MASTER_HOST
-                valueFrom:
-                  configMapKeyRef:
-                    key: POSTGRESQL_MASTER_HOST
-                    name: auth-configmap
-              - name: POSTGRESQL_MASTER_PORT
-                valueFrom:
-                  configMapKeyRef:
-                    key: POSTGRESQL_MASTER_PORT
-                    name: auth-configmap
-              - name: POSTGRESQL_PASSWORD
-                valueFrom:
-                  configMapKeyRef:
-                    key: POSTGRESQL_PASSWORD
-                    name: auth-configmap
-              - name: POSTGRESQL_REPLICA_HOSTS
-                valueFrom:
-                  configMapKeyRef:
-                    key: POSTGRESQL_REPLICA_HOSTS
-                    name: auth-configmap
-              - name: POSTGRESQL_USERNAME
-                valueFrom:
-                  configMapKeyRef:
-                    key: POSTGRESQL_USERNAME
-                    name: auth-configmap
-              - name: SMTP_FROM
-                valueFrom:
-                  configMapKeyRef:
-                    key: SMTP_FROM
-                    name: auth-configmap
-              - name: SMTP_HOST
-                valueFrom:
-                  configMapKeyRef:
-                    key: SMTP_HOST
-                    name: auth-configmap
-              - name: SMTP_PASSWORD
-                valueFrom:
-                  configMapKeyRef:
-                    key: SMTP_PASSWORD
-                    name: auth-configmap
-              - name: SMTP_PORT
-                valueFrom:
-                  configMapKeyRef:
-                    key: SMTP_PORT
-                    name: auth-configmap
-              - name: SMTP_USERNAME
-                valueFrom:
-                  configMapKeyRef:
-                    key: SMTP_USERNAME
-                    name: auth-configmap
-              - name: SQLALCHEMY_POOL_SIZE
-                valueFrom:
-                  configMapKeyRef:
-                    key: SQLALCHEMY_POOL_SIZE
-                    name: auth-configmap
-                    optional: true
-              - name: SQLALCHEMY_PROFILE_QUERY_MODE
-                valueFrom:
-                  configMapKeyRef:
-                    key: SQLALCHEMY_PROFILE_QUERY_MODE
-                    name: auth-configmap
-                    optional: true
-              - name: STAGE
-                valueFrom:
-                  configMapKeyRef:
-                    key: STAGE
-                    name: auth-configmap
-            image: coolworldocker/auth_service:latest
-            imagePullPolicy: Always
-            name: auth
-            ports:
-              - name: http
-                containerPort: 80
-            resources:
-              requests:
-                memory: 512Mi
-                cpu: 500m
-              limits:
-                memory: 1Gi
-                cpu: "3"
-
+        - env:
+            - name: STAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: STAGE
+                  name: auth-configmap
+            - name: APP_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  key: APP_MODULE
+                  name: auth-configmap
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  key: ACCESS_TOKEN_EXPIRE_MINUTES
+                  name: auth-configmap
+            - name: FIRST_SUPERUSER_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  key: FIRST_SUPERUSER_EMAIL
+                  name: auth-configmap
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: FIRST_SUPERUSER_PASSWORD
+                  name: auth-configmap
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_SECRET_KEY
+                  name: auth-configmap
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRESQL_DATABASE
+                  name: auth-configmap
+            - name: POSTGRESQL_MASTER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRESQL_MASTER_HOST
+                  name: auth-configmap
+            - name: POSTGRESQL_MASTER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRESQL_MASTER_PORT
+                  name: auth-configmap
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRESQL_PASSWORD
+                  name: auth-configmap
+            - name: POSTGRESQL_REPLICA_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRESQL_REPLICA_HOSTS
+                  name: auth-configmap
+            - name: POSTGRESQL_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRESQL_USERNAME
+                  name: auth-configmap
+            - name: SMTP_FROM
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_FROM
+                  name: auth-configmap
+            - name: SMTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_HOST
+                  name: auth-configmap
+            - name: SMTP_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_PASSWORD
+                  name: auth-configmap
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_PORT
+                  name: auth-configmap
+            - name: SMTP_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_USERNAME
+                  name: auth-configmap
+          image: coolworldocker/auth_service:latest
+          imagePullPolicy: Always
+          name: auth
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 500m
+            limits:
+              memory: 1Gi
+              cpu: "3"
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: auth-svc
 spec:
-  selector:
-    app: auth-svc
   type: LoadBalancer
+  selector:
+    app: auth
   ports:
-    - name: http
-      protocol: TCP
-      port: 8081
+    - port: 8081
       targetPort: 80
+      protocol: TCP

@@ -14,9 +14,9 @@ class AppSettings(BaseAppSettings):
     openapi_url: str = f"{api_prefix}/openapi.json"
     redoc_url: str = f"{api_prefix}/redoc"
 
-    APP_NAME: Optional[str] = 'auth-service'
+    APP_NAME: Optional[str] = 'store-service'
     APP_HOST: Optional[str] = "localhost"
-    APP_PORT: Optional[int] = 8081
+    APP_PORT: Optional[int] = 8082
     APP_MODULE: Optional[str] = "store_service.main:app"
     STAGE: StageType
     APP_VERSION: Optional[str] = "latest"

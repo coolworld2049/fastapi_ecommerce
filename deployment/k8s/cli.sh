@@ -25,8 +25,7 @@ log() {
 process_files_in_folder() {
   local action="$1"
   local folder_path="$2"
-  log "${YELLOW}${action} *.yaml files in folder $folder_path ...${NC}"
-
+  log "${YELLOW}${action} *.yaml files in folder $folder_path, namespace: ${NAMESPACE} ...${NC}"
   local files=("$folder_path"/* "$folder_path"/.*)
   shopt -s nullglob
   for file in "${files[@]}"; do
@@ -129,34 +128,39 @@ delete_store() {
 
 #-----------------------------
 
+install_ingress_nginx() {
+  log "\n${GREEN}Deploy ingress_nginx..."
+  helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  helm install ingress-nginx ingress-nginx/ingress-nginx -n "${NAMESPACE}"
+  until process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"; do
+    sleep 3
+    log "${YELLOW}Try again${NC}"
+  done
+}
+
+delete_ingress_nginx() {
+  log "\n${GREEN}Delete ingress_nginx..."
+  helm delete ingress-nginx -n "${NAMESPACE}"
+  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
+}
+
 install_cert_manager() {
   log "\n${GREEN}Deploy cert_manager..."
-  kubectl apply --validate=false -f \
-    https://github.com/jetstack/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml
-  kubectl create namespace cert-manager
   helm repo add jetstack https://charts.jetstack.io
-  # helm repo update
-  helm install cert-manager -n cert-manager jetstack/cert-manager
-  process_files_in_folder apply "${SCRIPT_DIR}/../issuer"
+  kubectl create namespace cert-manager
+  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.12.1/cert-manager.yaml
+  until process_files_in_folder apply "${SCRIPT_DIR}"/issuer; do
+    sleep 5
+    log "${YELLOW}Try again${NC}"
+  done
   echo -e "${GREEN}cert-manager has been installed successfully.${RESET}"
 }
 
 delete_cert_manager() {
   log "\n${GREEN}Delete cert_manager..."
-  process_files_in_folder delete "${SCRIPT_DIR}/../issuer"
-  helm delete cert-manager -n cert-manager
-  kubectl delete namespace cert-manager
+  kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.12.1/cert-manager.yaml
+  process_files_in_folder delete "${SCRIPT_DIR}"/issuer
   echo -e "${GREEN}cert-manager has been deleted successfully.${RESET}"
-}
-
-install_ingress() {
-  log "\n${GREEN}Deploy ingress..."
-  process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"
-}
-
-delete_ingress() {
-  log "\n${GREEN}Delete ingress..."
-  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
 }
 
 #-----------------------------
@@ -176,8 +180,9 @@ install() {
   install_store_mongo
   install_store
 
-  #install_cert_manager
-  install_ingress
+  install_ingress_nginx
+  install_cert_manager
+
 }
 
 delete() {
@@ -188,14 +193,16 @@ delete() {
   delete_store_mongo
   delete_store
 
-  #delete_cert_manager
-  delete_ingress
+  delete_ingress_nginx
+  delete_cert_manager
+
 }
 
 show_help() {
   echo "Usage: script.sh [install|upgrade|delete|help] [OPTIONS]"
   echo "  install                             Start the script"
   echo "  delete                              Stop the script"
+  echo "  reinstall                              Stop and Start the script"
   echo "  -pf, port_forward                   Enable port forwarding"
   echo "  help                                Show help"
   echo ""
@@ -217,6 +224,11 @@ while [[ $# -gt 0 ]]; do
     ;;
   delete)
     delete
+    exit
+    ;;
+  reinstall)
+    delete
+    install
     exit
     ;;
   -pf | port_forward)
