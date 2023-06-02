@@ -48,7 +48,7 @@ function main() {
     [ -d "$backup_path" ] || mkdir "$backup_path"
     backup
   elif [ "$1" == 'restore' ]; then
-    latest_backup_path=$(find "$dir"/* | head -source_db)
+    latest_backup_path=$(find "$dir"/* | head -1)
     restore_globals
     restore_db
   elif [ -n "$1" ] || [ "$1" == '--help' ]; then

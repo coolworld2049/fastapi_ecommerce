@@ -3,8 +3,8 @@ from uuid import uuid4
 from asgi_correlation_id import CorrelationIdMiddleware
 from asgi_correlation_id.middleware import is_valid_uuid4
 from fastapi import FastAPI
-from fastapi_ecommerce_ext.logger.configure import configure_logging
-from fastapi_ecommerce_ext.logger.middleware import LoguruLoggingMiddleware
+from fastapi_ecommerce_core.logger.configure import configure_logging
+from fastapi_ecommerce_core.logger.middleware import LoguruLoggingMiddleware
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 
@@ -39,8 +39,7 @@ def get_application() -> FastAPI:
     application.include_router(
         api_router, prefix=get_app_settings().api_prefix
     )
-    if get_app_settings().STAGE != StageType.prod:
-        application.middleware("http")(LoguruLoggingMiddleware())
+    application.middleware("http")(LoguruLoggingMiddleware())
     application.add_middleware(
         CorrelationIdMiddleware,
         header_name="X-Request-ID",
@@ -57,9 +56,8 @@ app = get_application()
 
 @app.on_event("startup")
 async def startup():
-    if get_app_settings().STAGE != StageType.prod:
-        async with async_session() as db:
-            await init_db(db)
+    async with async_session() as db:
+        await init_db(db)
 
 
 @app.on_event("shutdown")

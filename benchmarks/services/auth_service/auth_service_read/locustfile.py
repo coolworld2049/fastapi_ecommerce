@@ -25,6 +25,6 @@ class Base(FastHttpUser):
         with self.rest(
             "GET",
             f"/api/v1/users/?range=[{range_[0]},{range_[1]}]",
-            headers=headers if os.getenv('API_TOKEN') else None
+            headers=headers if os.getenv("API_TOKEN") else None,
         ) as resp:
             pass

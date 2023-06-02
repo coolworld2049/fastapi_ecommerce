@@ -11,21 +11,21 @@ from tenacity import wait_fixed
 
 from db.session import async_engines
 
-max_tries = 60 * 2  # target_db minute
+max_tries = 60 * 2  # 2 minute
 wait_seconds = 1
 
 
 @retry(
     stop=stop_after_attempt(max_tries),
     wait=wait_fixed(wait_seconds),
-    before=before_log(logger, logging.ERROR),
-    after=after_log(logger, logging.WARNING),
+    before=before_log(logger, logging.INFO),
+    after=after_log(logger, logging.INFO),
 )
 async def init() -> None:
     eng = async_engines.get_master()
     try:
         async with eng.begin() as conn:
-            await conn.execute(text("select source_db"))
+            await conn.execute(text("select 1"))
         logger.info(f"repl_type: master, url: {eng.url}")
     except ConnectionRefusedError as ex:
         logger.error(

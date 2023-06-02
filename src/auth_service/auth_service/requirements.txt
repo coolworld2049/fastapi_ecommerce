@@ -27,4 +27,4 @@ pre-commit
 fastapi-mail
 asgi-correlation-id
 locust
-fastapi_ecommerce_ext
+fastapi_ecommerce_core

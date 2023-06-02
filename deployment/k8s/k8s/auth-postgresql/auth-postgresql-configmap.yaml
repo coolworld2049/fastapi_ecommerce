@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-postgresql-configmap
+data:
+  postgresql.conf: |-
+    # logging_collector = off
+    # log_destination = 'stderr,csvlog'
+    # log_directory = pg_log
+    # log_file_mode = 0600
+    # log_filename = 'postgresql_%A-%d-%B_%H%M'
+    # log_line_prefix = 'time=%t, pid=%p %q db=%d, usr=%u, client=%h , app=%a, line=%l '
+    # log_rotation_age = 1d
+    # log_rotation_size = 0
+        
+    #--------------------------------
+    
+    # DB Version: 15
+    # OS Type: linux
+    # DB Type: mixed
+    # Total Memory (RAM): 4 GB
+    # CPUs num: 4
+    # Connections num: 5555
+    # Data Storage: ssd
+    
+    max_connections = 444
+    shared_buffers = 1GB
+    effective_cache_size = 3GB
+    maintenance_work_mem = 256MB
+    checkpoint_completion_target = 0.9
+    wal_buffers = 24MB
+    default_statistics_target = 100
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    work_mem = 64kB
+    min_wal_size = 1GB
+    max_wal_size = 2GB
+    max_worker_processes = 4
+    max_parallel_workers_per_gather = 2
+    max_parallel_workers = 4
+    max_parallel_maintenance_workers = 2

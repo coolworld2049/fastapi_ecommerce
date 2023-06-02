@@ -1,68 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="store_service_shard02_b">
   <database-model serializer="dbm" dbms="MONGO" family-id="MONGO" format-version="4.48">
-    <root id="1">
-      <ServerVersion>6.0.5</ServerVersion>
-    </root>
+    <root id="1"/>
     <schema id="2" parent="1" name="admin"/>
     <schema id="3" parent="1" name="app"/>
     <schema id="4" parent="1" name="config"/>
     <schema id="5" parent="1" name="local"/>
-    <table id="6" parent="3" name="Category"/>
-    <table id="7" parent="3" name="Order"/>
-    <table id="8" parent="3" name="OrderProduct"/>
-    <table id="9" parent="3" name="Product"/>
-    <column id="10" parent="6" name="_id">
-      <DasType>ObjectId|12s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="11" parent="6" name="created_at">
-      <DasType>ISODate|91s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="12" parent="6" name="description">
-      <DasType>String|12s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="13" parent="6" name="updated_at">
-      <DasType>ISODate|91s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="14" parent="6" name="name">
-      <DasType>String|12s</DasType>
-      <Position>2</Position>
-    </column>
-    <column id="15" parent="9" name="_id">
-      <DasType>ObjectId|12s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="16" parent="9" name="description">
-      <DasType>String|12s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="17" parent="9" name="price">
-      <DasType>Double|8s</DasType>
-      <Position>1</Position>
-    </column>
-    <column id="18" parent="9" name="category_id">
-      <DasType>ObjectId|12s</DasType>
-      <Position>2</Position>
-    </column>
-    <column id="19" parent="9" name="stock">
-      <DasType>Int64|12s</DasType>
-      <Position>2</Position>
-    </column>
-    <column id="20" parent="9" name="created_at">
-      <DasType>ISODate|91s</DasType>
-      <Position>3</Position>
-    </column>
-    <column id="21" parent="9" name="title">
-      <DasType>String|12s</DasType>
-      <Position>3</Position>
-    </column>
-    <column id="22" parent="9" name="updated_at">
-      <DasType>ISODate|91s</DasType>
-      <Position>4</Position>
-    </column>
   </database-model>
 </dataSource>

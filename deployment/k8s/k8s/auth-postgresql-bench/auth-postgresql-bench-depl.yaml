@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-postgresql-bench
+  namespace: fastapi-ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-postgresql-bench
+  template:
+    metadata:
+      labels:
+        app: auth-postgresql-bench
+    spec:
+      containers:
+        - name: auth-postgresql-bench-python
+          image: python:3.11-slim-buster
+          command: [ "/bin/bash" ]
+          args:
+            - "-c"
+            - |
+              apt-get update && \
+              apt-get install -y postgresql-contrib nano && \
+              python -m http.server 8000
+          ports:
+            - containerPort: 8000  # Adjust the port according to your service
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts/pgbench.sh
+              subPath: pgbench.sh
+              readOnly: false
+      volumes:
+        - name: scripts
+          configMap:
+            name: auth-postgresql-bench-configmap

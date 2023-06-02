@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="store_service_shard03_c">
   <database-model serializer="dbm" dbms="MONGO" family-id="MONGO" format-version="4.48">
-    <root id="1">
-      <ServerVersion>6.0.5</ServerVersion>
-    </root>
+    <root id="1"/>
     <schema id="2" parent="1" name="admin"/>
     <schema id="3" parent="1" name="config"/>
     <schema id="4" parent="1" name="local"/>
     <schema id="5" parent="1" name="app">
       <Current>1</Current>
     </schema>
-    <table id="6" parent="5" name="Category"/>
-    <table id="7" parent="5" name="Order"/>
-    <table id="8" parent="5" name="OrderProduct"/>
-    <table id="9" parent="5" name="Product"/>
   </database-model>
 </dataSource>

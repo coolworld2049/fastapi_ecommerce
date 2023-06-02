@@ -7,8 +7,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/store_service/store_service" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/auth_service/auth_service/auth_service/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/store_service/store_service/store_service/test" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/pypi/fastapi_ecommerce_ext/ext" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/core/fastapi_ecommerce_core/ext" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/example_projects" />
+      <excludeFolder url="file://$MODULE_DIR$/example_projects/FastAPI_EKS_Kubernetes" />
+      <excludeFolder url="file://$MODULE_DIR$/FastAPI_EKS_Kubernetes" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (fastapi-ecommerce)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

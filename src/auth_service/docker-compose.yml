@@ -6,48 +6,6 @@ services:
     build: .
     env_file:
       - .env
-      - .env.prod
     ports:
       - "80"
     restart: always
-
-#  auth_service_redis_master:
-#    image: bitnami/redis:latest
-#    container_name: auth_service_redis_master
-#    ports:
-#      - '6379:6379'
-#      - '6379'
-#    environment:
-#      - REDIS_REPLICATION_MODE=master
-#      - REDIS_PASSWORD=my_master_password
-#    volumes:
-#      - auth_service_redis_master_data:/bitnami
-#
-#  auth_service_redis_replica:
-#    image: bitnami/redis:latest
-#    container_name: auth_service_redis_replica
-#    ports:
-#      - "7000:6379"
-#      - '6379'
-#    environment:
-#      - REDIS_REPLICATION_MODE=slave
-#      - REDIS_MASTER_HOST=auth_service_redis_master
-#      - REDIS_MASTER_PORT_NUMBER=6379
-#      - REDIS_MASTER_PASSWORD=my_master_password
-#      - REDIS_PASSWORD=my_replica_password
-#
-#  auth_service_redis_sentinel:
-#    image: bitnami/redis-sentinel:latest
-#    environment:
-#      - REDIS_MASTER_HOST=auth_service_redis_master
-#      - REDIS_MASTER_PASSWORD=my_master_password
-#    ports:
-#      - '26379-26381:26379'
-#    restart: always
-#
-#volumes:
-#  auth_service_redis_master_data:
-#    labels:
-#      keep:
-
-

@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="store_service" type="Python.FastAPI">
     <option name="additionalOptions" value="--port 8002" />
-    <option name="file" value="C:\Users\R\PycharmProjects\fastapi-ecommerce\src\store_service\store_service\store_service\main.py" />
+    <option name="file" value="C:\Users\coolw\PycharmProjects\fastapi-ecommerce\src\store_service\store_service\store_service\main.py" />
     <module name="fastapi-ecommerce" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

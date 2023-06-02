@@ -5,7 +5,8 @@ services:
     build: .
     env_file:
       - .env
-      - .env.prod
+    environment:
+      - MONGODB_URL=mongodb://store_service_mongodb_router01:27017/app
     ports:
       - "80"
     restart: always

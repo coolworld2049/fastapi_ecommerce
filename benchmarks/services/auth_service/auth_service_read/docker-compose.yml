@@ -13,6 +13,8 @@ services:
     extends:
       file: ../../docker-compose.locust.yml
       service: master
+    environment:
+      - API_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidXNlciI6IntcInJvbGVcIjogXCJhZG1pblwiLCBcImlzX2FjdGl2ZVwiOiB0cnVlLCBcImlzX3N1cGVydXNlclwiOiB0cnVlLCBcImlzX3ZlcmlmaWVkXCI6IHRydWUsIFwiZnVsbF9uYW1lXCI6IFwiU3VwZXIgdXNlclwiLCBcImVtYWlsXCI6IFwiZmFzdGFwaS5lY29tbWVyY2VAZ21haWwuY29tXCIsIFwidXNlcm5hbWVcIjogXCJzdXBlcl91c2VyXzEwMDBcIiwgXCJpZFwiOiBcIjFcIiwgXCJjcmVhdGVkX2F0XCI6IFwiMjAyMy0wNS0wMSAwNDo1OToxNi4xNzUwMTkrMDA6MDBcIiwgXCJ1cGRhdGVkX2F0XCI6IFwiMjAyMy0wNS0wMSAwNDo1OToxNi4xNzUwMTkrMDA6MDBcIn0iLCJleHAiOjE2ODI5MTk0MzZ9.lHxdHXWDxJ78USDu3rKUjdDcvBn5D78vzBA6sehb4SA
     volumes:
       - ./:/mnt/locust
     networks:
@@ -24,6 +26,8 @@ services:
     extends:
       file: ../../docker-compose.locust.yml
       service: worker
+    environment:
+      - API_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidXNlciI6IntcInJvbGVcIjogXCJhZG1pblwiLCBcImlzX2FjdGl2ZVwiOiB0cnVlLCBcImlzX3N1cGVydXNlclwiOiB0cnVlLCBcImlzX3ZlcmlmaWVkXCI6IHRydWUsIFwiZnVsbF9uYW1lXCI6IFwiU3VwZXIgdXNlclwiLCBcImVtYWlsXCI6IFwiZmFzdGFwaS5lY29tbWVyY2VAZ21haWwuY29tXCIsIFwidXNlcm5hbWVcIjogXCJzdXBlcl91c2VyXzEwMDBcIiwgXCJpZFwiOiBcIjFcIiwgXCJjcmVhdGVkX2F0XCI6IFwiMjAyMy0wNS0wMSAwNDo1OToxNi4xNzUwMTkrMDA6MDBcIiwgXCJ1cGRhdGVkX2F0XCI6IFwiMjAyMy0wNS0wMSAwNDo1OToxNi4xNzUwMTkrMDA6MDBcIn0iLCJleHAiOjE2ODI5MTk0MzZ9.lHxdHXWDxJ78USDu3rKUjdDcvBn5D78vzBA6sehb4SA
     volumes:
       - ./:/mnt/locust
     networks:

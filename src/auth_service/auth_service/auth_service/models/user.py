@@ -2,7 +2,8 @@ from sqlalchemy import (
     Boolean,
     String,
     BigInteger,
-    ForeignKey, )
+    ForeignKey,
+)
 from sqlalchemy import Column
 from sqlalchemy import Text
 from sqlalchemy import text

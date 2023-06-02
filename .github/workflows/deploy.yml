@@ -1,54 +1,59 @@
-#file: noinspection YAMLSchemaValidation
-name: Deploy
-on:
-  pull_request:
-    branches:
-      - master  
-jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build images and publish to registry
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-          echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
-          echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
-          export STAGE=test
-          cd hack
-          bash cpenv.sh
-          bash artifact.sh
-          bash start.sh
-          cd ..
-  build:
-    name: Production Deployment
-    needs: [ test ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: scp-action
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          port: ${{ secrets.SSH_PORT }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: "."
-          target: "/root/fastapi_ecommerce/"
-
-      - name: source_db.sh
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          port: ${{ secrets.SSH_PORT }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          script: |
-            cd /root/fastapi_ecommerce/
-            echo "${{ secrets.ENV_FILE }}" > .env
-            echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
-            echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
-            cd hack
-            bash cpenv.sh
-            bash restart.sh
+##file: noinspection YAMLSchemaValidation
+#name: Deploy
+#on:
+#  pull_request:
+#    branches:
+#      - master
+#jobs:
+#  test:
+#    name: Test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Build images and publish to registry
+#        run: |
+#          echo "${{ secrets.ENV_FILE }}" > .env
+#          echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
+#          echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
+#          export STAGE=test
+#          cd hack
+#          bash convert.sh
+#          source ../.env
+#          bash artifact.sh -u $DOCKER_USER -p $DOCKER_PASSWORD --docker
+#          bash artifact.sh -u $PYPI_USER -p $PYPI_PASSWORD --pypi
+#          cd ../deployment/compose/
+#          bash start.sh
+#          cd ../../..
+#  build:
+#    name: Production Deployment
+#    needs: [ test ]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: scp-action
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ secrets.SERVER_IP }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          port: ${{ secrets.SSH_PORT }}
+#          password: ${{ secrets.SERVER_PASSWORD }}
+#          source: "."
+#          target: "/root/fastapi_ecommerce/"
+#
+#      - name: start
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_IP }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          port: ${{ secrets.SSH_PORT }}
+#          password: ${{ secrets.SERVER_PASSWORD }}
+#          script: |
+#            cd /root/fastapi_ecommerce/
+#            echo "${{ secrets.ENV_FILE }}" > .env
+#            echo "${{ secrets.AUTH_SERVICE_ENV_FILE }}" > src/auth_service/.env.prod
+#            echo "${{ secrets.STORE_SERVICE_ENV_FILE }}" > src/store_service/.env.prod
+#            cd hack
+#            bash convert.sh
+#            cd ../deployment/compose/
+#            bash restart.sh
+#            cd ../../..

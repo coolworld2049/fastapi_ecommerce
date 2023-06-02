@@ -2,7 +2,7 @@
 
 set -e
 
-python ./store_service/pre_start.py
+# python ./store_service/pre_start.py
 
 python -m prisma_cleanup
 
