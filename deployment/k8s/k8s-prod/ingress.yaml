@@ -12,7 +12,7 @@ spec:
     - hosts:
       - auth.fastapi-ecommerce.com
       - store.fastapi-ecommerce.com
-      secretName: letsencrypt-staging
+      secretName: letsencrypt
   rules:
     - host: auth.fastapi-ecommerce.com
       http:

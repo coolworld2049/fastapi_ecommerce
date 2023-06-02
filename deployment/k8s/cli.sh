@@ -132,34 +132,23 @@ install_ingress_nginx() {
   log "\n${GREEN}Deploy ingress_nginx..."
   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
   helm install ingress-nginx ingress-nginx/ingress-nginx -n "${NAMESPACE}"
-  until process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"; do
-    sleep 3
-    log "${YELLOW}Try again${NC}"
-  done
 }
 
 delete_ingress_nginx() {
   log "\n${GREEN}Delete ingress_nginx..."
   helm delete ingress-nginx -n "${NAMESPACE}"
-  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
 }
 
 install_cert_manager() {
   log "\n${GREEN}Deploy cert_manager..."
-  helm repo add jetstack https://charts.jetstack.io
   kubectl create namespace cert-manager
   kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.12.1/cert-manager.yaml
-  until process_files_in_folder apply "${SCRIPT_DIR}"/issuer; do
-    sleep 5
-    log "${YELLOW}Try again${NC}"
-  done
   echo -e "${GREEN}cert-manager has been installed successfully.${RESET}"
 }
 
 delete_cert_manager() {
   log "\n${GREEN}Delete cert_manager..."
   kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.12.1/cert-manager.yaml
-  process_files_in_folder delete "${SCRIPT_DIR}"/issuer
   echo -e "${GREEN}cert-manager has been deleted successfully.${RESET}"
 }
 
@@ -183,6 +172,11 @@ install() {
   install_ingress_nginx
   install_cert_manager
 
+  until process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"; do
+    sleep 5
+    log "${YELLOW}Try again${NC}"
+  done
+
 }
 
 delete() {
@@ -195,6 +189,8 @@ delete() {
 
   delete_ingress_nginx
   delete_cert_manager
+
+  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
 
 }
 

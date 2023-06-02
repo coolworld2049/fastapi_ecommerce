@@ -39,7 +39,7 @@ port_forward() {
   if [[ "$platform" == "linux" ]]; then
     kubectl get --namespace default secret kubeapps-operator-token -o go-template='{{.data.token | base64decode}}'
   elif [[ "$platform" == "win" ]]; then
-    pwsh -Command "[Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(\$(kubectl get --namespace default secret kubeapps-operator-token -o jsonpath='{.data.token}')))"
+    powershell -Command "[Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(\$(kubectl get --namespace default secret kubeapps-operator-token -o jsonpath='{.data.token}')))"
   fi
   echo -e "\n"
 
