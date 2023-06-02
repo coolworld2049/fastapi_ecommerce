@@ -161,6 +161,7 @@ install_ingress_network() {
     sleep 5
     log "${YELLOW}Try again${NC}"
   done
+  exit
 }
 
 delete_ingress_network() {
@@ -211,15 +212,14 @@ while [[ $# -gt 0 ]]; do
     install
     exit
     ;;
-  install-ingress)
+  install-ingress-net)
     install_ingress_network
-    exit
     ;;
   delete)
     delete
     exit
     ;;
-  delete-ingress)
+  delete-ingress-net)
     delete_ingress_network
     exit
     ;;
