@@ -4,10 +4,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${SCRIPT_DIR}"/../../.env
 
-SCRIPT_DIR="${SCRIPT_DIR}"/k8s
+if [ "$STAGE" == 'test' ]; then
+  STAGE=dev
+fi
 
-PG_SERVICE_NAME=auth-postgresql
-MONGO_SERVICE_NAME=store-mongo
+SCRIPT_DIR="${SCRIPT_DIR}"/k8s
 NAMESPACE="${PROJECT_NAME:-fastapi-ecommerce}"
 
 RED='\033[0;31m'
@@ -22,7 +23,7 @@ log() {
   echo -e "${color}$@${NC}"
 }
 
-process_files_in_folder() {
+process_dir_files() {
   local action="$1"
   local folder_path="$2"
   log "${YELLOW}${action} *.yaml files in folder $folder_path, namespace: ${NAMESPACE} ...${NC}"
@@ -43,87 +44,65 @@ process_files_in_folder() {
 #-----------------------------
 
 install_auth_postgresql() {
-  log "\n${GREEN}Deploy auth-postgresql..."
-  # bitnami postgres
+  log "\n${GREEN}Deploy auth_postgresql..."
   helm repo add bitnami https://charts.bitnami.com/bitnami
   kubectl apply -f "${SCRIPT_DIR}"/auth-postgresql/auth-postgresql-configmap.yaml -n "${NAMESPACE}"
-  helm install "$PG_SERVICE_NAME" -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-values.yaml" \
-    oci://registry-1.docker.io/bitnamicharts/postgresql -n "${NAMESPACE}"
+  helm install auth-postgresql -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-values.yaml" -n "${NAMESPACE}" \
+    oci://registry-1.docker.io/bitnamicharts/postgresql
 
-  #  # percona postgres operator
-  #  path="${SCRIPT_DIR}"/auth-postgresql/percona-postgresql-operator
-  #  [ -d "$path" ] || mkdir "$path"
-  #  git clone -b v2.1.0 https://github.com/percona/percona-postgresql-operator "$path"
-  #
-  #  cd "$path" || log "${RED} ERROR"
-  #  kubectl create namespace postgres-operator
-  #  kubectl config set-context "$(kubectl config current-context)" --namespace=postgres-operator
-  #  kubectl apply --server-side -f deploy/bundle.yaml
-  #  kubectl apply -f deploy/cr.yaml
-  #  cd "$(dirname "$path")" || log "${RED} ERROR"
-  #
-  #  log "${YELLOW}Get secrets..."
-  #  sleep 3
-  #  kubectl get secret cluster1-pguser-cluster1 --template='{{"user: "}}{{.data.user | base64decode}}{{"\npassword: "}}{{.data.password | base64decode}}'
-  #  log "\n"
 }
 
 delete_auth_postgresql() {
-  log "\n${GREEN}Deleting auth-postgresql..."
-
-  # bitnami postgres
+  log "\n${GREEN}Delete auth_postgresql..."
   kubectl delete -f "${SCRIPT_DIR}/auth-postgresql/auth-postgresql-configmap.yaml" -n "${NAMESPACE}"
-  helm uninstall "$PG_SERVICE_NAME" -n "${NAMESPACE}"
-
-  #  # percona postgres operator
-  kubectl delete all --all -n postgres-operator
+  helm delete auth-postgresql -n "${NAMESPACE}"
 }
 
 install_auth_postgresql_bench() {
   log "\n${GREEN}Deploy auth_postgresql_bench..."
   kubectl create configmap auth-postgresql-bench-configmap \
     --from-file="${SCRIPT_DIR}"/auth-postgresql-bench/scripts/pgbench.sh -n "${NAMESPACE}"
-  process_files_in_folder apply "${SCRIPT_DIR}"/auth-postgresql-bench
+  process_dir_files apply "${SCRIPT_DIR}"/auth-postgresql-bench
 }
 
 delete_auth_postgresql_bench() {
   log "\n${GREEN}Delete auth_postgresql_bench..."
   kubectl delete configmap auth-postgresql-bench-configmap -n "${NAMESPACE}"
-  process_files_in_folder delete "${SCRIPT_DIR}"/auth-postgresql-bench
+  process_dir_files delete "${SCRIPT_DIR}"/auth-postgresql-bench
 }
 
 install_auth() {
   log "\n${GREEN}Deploy auth..."
-  process_files_in_folder apply "${SCRIPT_DIR}"/auth
+  process_dir_files apply "${SCRIPT_DIR}"/auth
 }
 
 delete_auth() {
   log "\n${GREEN}Delete auth..."
-  process_files_in_folder delete "${SCRIPT_DIR}"/auth
+  process_dir_files delete "${SCRIPT_DIR}"/auth
 }
 
 #-----------------------------
 
 install_store_mongo() {
   log "\n${GREEN}Deploy store-mongo..."
-  helm install "$MONGO_SERVICE_NAME" -f "${SCRIPT_DIR}/store-mongo/store-mongo-values.yaml" \
+  helm install store-mongo -f "${SCRIPT_DIR}/store-mongo/store-mongo-values.yaml" \
     oci://registry-1.docker.io/bitnamicharts/mongodb -n "${NAMESPACE}"
 }
 
 delete_store_mongo() {
   log "\n${GREEN}Delete store-mongo..."
-  helm delete "$MONGO_SERVICE_NAME" -n "${NAMESPACE}"
-  process_files_in_folder delete "${SCRIPT_DIR}"/store-mongo
+  helm delete store-mongo -n "${NAMESPACE}"
+  process_dir_files delete "${SCRIPT_DIR}"/store-mongo
 }
 
 install_store() {
   log "\n${GREEN}Deploy store..."
-  process_files_in_folder apply "${SCRIPT_DIR}"/store
+  process_dir_files apply "${SCRIPT_DIR}"/store
 }
 
 delete_store() {
   log "\n${GREEN}Delete store..."
-  process_files_in_folder delete "${SCRIPT_DIR}"/store
+  process_dir_files delete "${SCRIPT_DIR}"/store
 }
 
 #-----------------------------
@@ -143,31 +122,69 @@ install_cert_manager() {
   log "\n${GREEN}Deploy cert_manager..."
   kubectl create namespace cert-manager
   kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.12.1/cert-manager.yaml
-  echo -e "${GREEN}cert-manager has been installed successfully.${RESET}"
 }
 
 delete_cert_manager() {
   log "\n${GREEN}Delete cert_manager..."
   kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.12.1/cert-manager.yaml
-  echo -e "${GREEN}cert-manager has been deleted successfully.${RESET}"
 }
 
 #-----------------------------
 
-install_ingress_network() {
-  install_ingress_nginx
-  install_cert_manager
-  until process_files_in_folder apply "${SCRIPT_DIR}-${STAGE}"; do
-    sleep 5
-    log "${YELLOW}Try again${NC}"
-  done
-  exit
+install_kubeapps() {
+  helm repo add bitnami https://charts.bitnami.com/bitnami
+  kubectl create namespace kubeapps
+  helm install kubeapps --namespace kubeapps bitnami/kubeapps
+  kubectl create --namespace default serviceaccount kubeapps-operator
+  kubectl create clusterrolebinding kubeapps-operator \
+    --clusterrole=cluster-admin \
+    --serviceaccount=default:kubeapps-operator
+  cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kubeapps-operator-token
+  namespace: default
+  annotations:
+    kubernetes.io/service-account.name: kubeapps-operator
+type: kubernetes.io/service-account-token
+EOF
 }
 
-delete_ingress_network() {
-  delete_ingress_nginx
-  delete_cert_manager
-  process_files_in_folder delete "${SCRIPT_DIR}-${STAGE}"
+delete_kubeapps() {
+  helm uninstall -n kubeapps kubeapps
+  kubectl delete namespace kubeapps
+  kubectl delete clusterrolebinding kubeapps-operator
+  kubectl delete serviceaccount kubeapps-operator -n default
+  kubectl delete secret kubeapps-operator-token -n default
+}
+
+#-----------------------------
+
+install_monitoring() {
+  log "\n${GREEN}Deploy monitoring..."
+
+  helm repo add percona https://percona.github.io/percona-helm-charts/
+  helm install pmm --set service.type="LoadBalancer" percona/pmm -n "${NAMESPACE}" \
+    -f "${SCRIPT_DIR}"/monitoring/pmm-values.yaml
+}
+
+delete_monitoring() {
+  log "\n${GREEN}Delete monitoring..."
+
+  helm delete pmm -n "${NAMESPACE}"
+}
+
+#-----------------------------
+
+install_backup_tools() {
+  log "\n${GREEN}Deploy backup_tools..."
+
+}
+
+delete_backup_tools() {
+  log "\n${GREEN}Delete backup_tools..."
+
 }
 
 install() {
@@ -177,14 +194,31 @@ install() {
   install_auth
   install_store_mongo
   install_store
+  install_monitoring
+  #  install_backup_tools
 }
 
 delete() {
   delete_auth_postgresql
-  # delete_auth_postgresql_bench
+  delete_auth_postgresql_bench
   delete_auth
   delete_store_mongo
   delete_store
+  delete_monitoring
+  delete_backup_tools
+}
+
+#-----------------------------
+
+install_ingress_network() {
+  install_ingress_nginx
+  install_cert_manager
+}
+
+delete_ingress_network() {
+  delete_ingress_nginx
+  delete_cert_manager
+  process_dir_files delete "${SCRIPT_DIR}-${STAGE}"
 }
 
 show_help() {
@@ -214,6 +248,15 @@ while [[ $# -gt 0 ]]; do
     ;;
   install-ingress-net)
     install_ingress_network
+    until kubectl apply -f "${SCRIPT_DIR}-${STAGE}/issuer.yaml" -n "$NAMESPACE"; do
+      log "${YELLOW}Try again${NC}"
+      sleep 5
+    done
+    until kubectl apply -f "${SCRIPT_DIR}-${STAGE}/ingress.yaml" -n "$NAMESPACE"; do
+      log "${YELLOW}Try again${NC}"
+      sleep 5
+    done
+    exit
     ;;
   delete)
     delete

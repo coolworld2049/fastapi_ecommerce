@@ -4,7 +4,7 @@ metadata:
   name: auth-configmap
   namespace: fastapi-ecommerce
 data:
-  STAGE: "prod"
+  STAGE: "test"
   APP_MODULE: "auth_service.main:app"
   JWT_SECRET_KEY: "supersecret"
   ACCESS_TOKEN_EXPIRE_MINUTES: "30"

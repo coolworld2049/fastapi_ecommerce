@@ -11,8 +11,9 @@ data:
     # log_filename = 'postgresql_%A-%d-%B_%H%M'
     # log_line_prefix = 'time=%t, pid=%p %q db=%d, usr=%u, client=%h , app=%a, line=%l '
     # log_rotation_age = 1d
-    # log_rotation_size = 0
-        
+    # log_rotation_size = 0    
+    listen_addresses = '*'    
+    shared_preload_libraries = 'pgaudit, pg_stat_statements'
     #--------------------------------
     
     # DB Version: 15
