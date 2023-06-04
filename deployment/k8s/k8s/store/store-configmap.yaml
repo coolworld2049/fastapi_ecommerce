@@ -4,7 +4,7 @@ metadata:
   name: store-configmap
   namespace: fastapi-ecommerce
 data:
-  STAGE: "prod"
+  STAGE: "test"
   APP_MODULE: "store_service.main:app"
   AUTH_SERVICE_LOGIN_PATH: "/api/v1/login/access-token"
   AUTH_SERVICE_URL: "http://auth-svc:8081"

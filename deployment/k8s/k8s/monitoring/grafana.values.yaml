@@ -1,0 +1,17 @@
+service:
+  type: NodePort
+  nodePorts:
+    grafana: 30011
+
+persistence:
+  enabled: false
+
+dashboardsProvider:
+  enabled: true
+
+datasources:
+  secretName: datasource-secret
+
+dashboardsConfigMaps:
+  - configMapName: dashboard-10000
+    filename: dashboard-10000.json

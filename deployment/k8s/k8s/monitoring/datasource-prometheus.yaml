@@ -1,0 +1,9 @@
+datasources:
+#  - name: Prometheus
+#    type: prometheus
+#    url: http://monitoring-prometheus-kube-prometheus:9090
+  - name: auth-postgresql-primary-metrics
+    type: prometheus
+    url: http://auth-postgresql-exporter-prometheus-postgres-exporter:80/metrics
+    readOnly: false
+    editable: true
