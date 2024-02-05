@@ -3,7 +3,7 @@ uvicorn==0.21.0
 gunicorn==20.1.0
 prisma==0.8.2
 pydantic[all, email]==1.10.6
-starlette==0.27.0
+starlette==0.36.2
 python-dotenv==1.0.0
 python-jose
 passlib
