@@ -19,7 +19,7 @@ httpx==0.23.0
 python-dotenv
 loguru==0.6.0
 bson
-black==23.1.0
+black==24.3.0
 faker==18.3.0
 pytest-asyncio
 pytest-cov
