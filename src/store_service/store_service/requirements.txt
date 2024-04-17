@@ -1,6 +1,6 @@
 fastapi[all]==0.94.1
 uvicorn==0.21.0
-gunicorn==20.1.0
+gunicorn==22.0.0
 prisma==0.8.2
 pydantic[all, email]==1.10.6
 starlette==0.27.0
