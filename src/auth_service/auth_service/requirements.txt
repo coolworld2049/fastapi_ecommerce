@@ -1,5 +1,5 @@
 fastapi[all]==0.95.0
-pydantic==1.10.6
+pydantic==1.10.13
 pydantic[email]
 SQLAlchemy==2.0.7
 alembic==1.10.2
